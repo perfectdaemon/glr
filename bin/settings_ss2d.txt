@@ -1,0 +1,15 @@
+decimalseparator .
+//Окно
+rendermode window
+resolution 1024 768
+windowPos 200 100
+backgroundColor 0.0 0.0 0.0
+axes false
+vsync true
+//Камера
+FOV 90
+zNear -1
+zFar 500
+cameraPos 0 0 1
+cameraLook 0 0 0
+cameraUp 0 -1 0

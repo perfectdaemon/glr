@@ -1,0 +1,140 @@
+﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+		<PropertyGroup>
+			<ProjectGuid>{CB11F108-98F5-4C08-B841-9A0BE606A2B5}</ProjectGuid>
+			<ProjectVersion>12.0</ProjectVersion>
+			<MainSource>glRenderer.dpr</MainSource>
+			<Config Condition="'$(Config)'==''">Debug</Config>
+			<DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_1)'!=''">
+			<Cfg_1>true</Cfg_1>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_2)'!=''">
+			<Cfg_2>true</Cfg_2>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Base)'!=''">
+			<DCC_DcuOutput>..\..\dcu\</DCC_DcuOutput>
+			<DCC_ExeOutput>..\..\bin\</DCC_ExeOutput>
+			<DCC_ImageBase>00400000</DCC_ImageBase>
+			<DCC_E>false</DCC_E>
+			<DCC_DependencyCheckOutputName>..\..\bin\glRenderer.dll</DCC_DependencyCheckOutputName>
+			<DCC_UnitAlias>WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;$(DCC_UnitAlias)</DCC_UnitAlias>
+			<DCC_Platform>x86</DCC_Platform>
+			<DCC_S>false</DCC_S>
+			<GenDll>true</GenDll>
+			<DCC_N>false</DCC_N>
+			<DCC_F>false</DCC_F>
+			<DCC_K>false</DCC_K>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_1)'!=''">
+			<DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
+			<DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
+			<DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+			<DCC_DebugInformation>false</DCC_DebugInformation>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_2)'!=''">
+			<DCC_Optimize>false</DCC_Optimize>
+			<DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
+		</PropertyGroup>
+		<ItemGroup>
+			<DelphiCompile Include="glRenderer.dpr">
+				<MainSource>MainSource</MainSource>
+			</DelphiCompile>
+			<DCCReference Include="uRenderer.pas"/>
+			<DCCReference Include="uCamera.pas"/>
+			<DCCReference Include="uLight.pas"/>
+			<DCCReference Include="uHudSprite.pas"/>
+			<DCCReference Include="uTexture.pas"/>
+			<DCCReference Include="uShader.pas"/>
+			<DCCReference Include="uLogger.pas"/>
+			<DCCReference Include="..\common\dfHEngine.pas"/>
+			<DCCReference Include="..\common\dfHGL.pas"/>
+			<DCCReference Include="..\common\dfLogger.pas"/>
+			<DCCReference Include="..\common\dfMath.pas"/>
+			<DCCReference Include="..\headers\dfHRenderer.pas"/>
+			<DCCReference Include="uNode.pas"/>
+			<DCCReference Include="ExportFunc.pas"/>
+			<DCCReference Include="TexLoad.pas"/>
+			<DCCReference Include="uRenderable.pas"/>
+			<DCCReference Include="uMaterial.pas"/>
+			<DCCReference Include="uFont.pas"/>
+			<DCCReference Include="uText.pas"/>
+			<DCCReference Include="uWindow.pas"/>
+			<DCCReference Include="uPrimitives.pas"/>
+			<DCCReference Include="uUserRenderable.pas"/>
+			<DCCReference Include="GUI\uGUIElement.pas"/>
+			<DCCReference Include="GUI\uGUIButton.pas"/>
+			<DCCReference Include="uInput.pas"/>
+			<DCCReference Include="GUI\uGUIManager.pas"/>
+			<DCCReference Include="u2DScene.pas"/>
+			<DCCReference Include="GUI\uGUICheckbox.pas"/>
+			<DCCReference Include="GUI\uGUITextBox.pas"/>
+			<DCCReference Include="GUI\uGUISlider.pas"/>
+			<DCCReference Include="GUI\uGUITextButton.pas"/>
+			<DCCReference Include="uFactory.pas"/>
+			<BuildConfiguration Include="Base">
+				<Key>Base</Key>
+			</BuildConfiguration>
+			<BuildConfiguration Include="Debug">
+				<Key>Cfg_2</Key>
+				<CfgParent>Base</CfgParent>
+			</BuildConfiguration>
+			<BuildConfiguration Include="Release">
+				<Key>Cfg_1</Key>
+				<CfgParent>Base</CfgParent>
+			</BuildConfiguration>
+		</ItemGroup>
+		<Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')"/>
+		<ProjectExtensions>
+			<Borland.Personality>Delphi.Personality.12</Borland.Personality>
+			<Borland.ProjectType/>
+			<BorlandProject>
+				<Delphi.Personality>
+					<Source>
+						<Source Name="MainSource">glRenderer.dpr</Source>
+					</Source>
+					<Parameters>
+						<Parameters Name="UseLauncher">False</Parameters>
+						<Parameters Name="LoadAllSymbols">True</Parameters>
+						<Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
+						<Parameters Name="HostApplication">F:\Documents\_working\glrenderer at assembla\branches\exp - COM\bin\RagdollFighting.exe</Parameters>
+					</Parameters>
+					<VersionInfo>
+						<VersionInfo Name="IncludeVerInfo">True</VersionInfo>
+						<VersionInfo Name="AutoIncBuild">True</VersionInfo>
+						<VersionInfo Name="MajorVer">0</VersionInfo>
+						<VersionInfo Name="MinorVer">2</VersionInfo>
+						<VersionInfo Name="Release">0</VersionInfo>
+						<VersionInfo Name="Build">60</VersionInfo>
+						<VersionInfo Name="Debug">False</VersionInfo>
+						<VersionInfo Name="PreRelease">False</VersionInfo>
+						<VersionInfo Name="Special">False</VersionInfo>
+						<VersionInfo Name="Private">False</VersionInfo>
+						<VersionInfo Name="DLL">False</VersionInfo>
+						<VersionInfo Name="Locale">1049</VersionInfo>
+						<VersionInfo Name="CodePage">1251</VersionInfo>
+					</VersionInfo>
+					<VersionInfoKeys>
+						<VersionInfoKeys Name="CompanyName"/>
+						<VersionInfoKeys Name="FileDescription"/>
+						<VersionInfoKeys Name="FileVersion">0.2.0.60</VersionInfoKeys>
+						<VersionInfoKeys Name="InternalName"/>
+						<VersionInfoKeys Name="LegalCopyright"/>
+						<VersionInfoKeys Name="LegalTrademarks"/>
+						<VersionInfoKeys Name="OriginalFilename"/>
+						<VersionInfoKeys Name="ProductName"/>
+						<VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
+						<VersionInfoKeys Name="Comments"/>
+					</VersionInfoKeys>
+				</Delphi.Personality>
+			</BorlandProject>
+			<ProjectFileVersion>12</ProjectFileVersion>
+		</ProjectExtensions>
+	</Project>

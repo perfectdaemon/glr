@@ -1,0 +1,5 @@
+78;		musicvol
+58;		soundvol
+Daemon;		name
+1;		online
+0;		mousecontrol

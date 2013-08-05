@@ -1,0 +1,10 @@
+textures: buttons.png
+ng-over.png	0	0	249	45	0	0	249	45	
+ex-over.png	0	46	249	45	0	0	249	45	
+ng-norm.png	0	92	249	45	0	0	249	45	
+ng-click.png	0	138	249	45	0	0	249	45	
+ex-norm.png	0	184	249	45	0	0	249	45	
+ex-click.png	0	230	249	45	0	0	249	45	
+au-click.png	0	276	249	45	0	0	249	45	
+au-over.png	0	322	249	45	0	0	249	45	
+au-norm.png	0	368	249	45	0	0	249	45	

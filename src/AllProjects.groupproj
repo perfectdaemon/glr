@@ -1,0 +1,252 @@
+﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+		<PropertyGroup>
+			<ProjectGuid>{7E90EA50-C8ED-4A24-9346-BAAEA187BE57}</ProjectGuid>
+		</PropertyGroup>
+		<ItemGroup>
+			<Projects Include="engine\glRenderer.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="demos\Checker1 - Init\Checker1.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="demos\Checker2 - Sprites\Checker2.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="demos\Checker3 - Fonts\Checker3_Fonts.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="demos\Checker4 - VCL\Checker4_VCL.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="demos\Tractor Vs Zombies\TractorVsZombies.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="demos\Checker5 - Simple GUI Demo\Checker5_GUI.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="demos\Tractor Vs Zombies\editor\editor.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="demos\Checker6 - Box2D Car Demo\Checker6.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="demos\Checker7 - Box2D Ragdoll masters\rdm.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="demos\Project SpaceSim 2D\SpaceSim2D.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="demos\Checker8 - CameraMove\Checker8.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="demos\Project shmup-rpg\shmup.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="demos\Menu Framework\frmwrk.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="demos\Project Survive any cost\survive.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="demos\Project Ragdoll Sport\RagdollSport.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="demos\Project Tanks\taanks.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="demos\Project Build And Protect\Build_and_Protect.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="demos\Project Ragdoll Fighting\RagdollFighting.dproj">
+				<Dependencies/>
+			</Projects>
+		</ItemGroup>
+		<ProjectExtensions>
+			<Borland.Personality>Default.Personality.12</Borland.Personality>
+			<Borland.ProjectType/>
+			<BorlandProject>
+				<Default.Personality/>
+			</BorlandProject>
+		</ProjectExtensions>
+		<Target Name="glRenderer">
+			<MSBuild Projects="engine\glRenderer.dproj"/>
+		</Target>
+		<Target Name="glRenderer:Clean">
+			<MSBuild Targets="Clean" Projects="engine\glRenderer.dproj"/>
+		</Target>
+		<Target Name="glRenderer:Make">
+			<MSBuild Targets="Make" Projects="engine\glRenderer.dproj"/>
+		</Target>
+		<Target Name="Checker1">
+			<MSBuild Projects="demos\Checker1 - Init\Checker1.dproj"/>
+		</Target>
+		<Target Name="Checker1:Clean">
+			<MSBuild Targets="Clean" Projects="demos\Checker1 - Init\Checker1.dproj"/>
+		</Target>
+		<Target Name="Checker1:Make">
+			<MSBuild Targets="Make" Projects="demos\Checker1 - Init\Checker1.dproj"/>
+		</Target>
+		<Target Name="Checker2">
+			<MSBuild Projects="demos\Checker2 - Sprites\Checker2.dproj"/>
+		</Target>
+		<Target Name="Checker2:Clean">
+			<MSBuild Targets="Clean" Projects="demos\Checker2 - Sprites\Checker2.dproj"/>
+		</Target>
+		<Target Name="Checker2:Make">
+			<MSBuild Targets="Make" Projects="demos\Checker2 - Sprites\Checker2.dproj"/>
+		</Target>
+		<Target Name="Checker3_Fonts">
+			<MSBuild Projects="demos\Checker3 - Fonts\Checker3_Fonts.dproj"/>
+		</Target>
+		<Target Name="Checker3_Fonts:Clean">
+			<MSBuild Targets="Clean" Projects="demos\Checker3 - Fonts\Checker3_Fonts.dproj"/>
+		</Target>
+		<Target Name="Checker3_Fonts:Make">
+			<MSBuild Targets="Make" Projects="demos\Checker3 - Fonts\Checker3_Fonts.dproj"/>
+		</Target>
+		<Target Name="Checker4_VCL">
+			<MSBuild Projects="demos\Checker4 - VCL\Checker4_VCL.dproj"/>
+		</Target>
+		<Target Name="Checker4_VCL:Clean">
+			<MSBuild Targets="Clean" Projects="demos\Checker4 - VCL\Checker4_VCL.dproj"/>
+		</Target>
+		<Target Name="Checker4_VCL:Make">
+			<MSBuild Targets="Make" Projects="demos\Checker4 - VCL\Checker4_VCL.dproj"/>
+		</Target>
+		<Target Name="TractorVsZombies">
+			<MSBuild Projects="demos\Tractor Vs Zombies\TractorVsZombies.dproj"/>
+		</Target>
+		<Target Name="TractorVsZombies:Clean">
+			<MSBuild Targets="Clean" Projects="demos\Tractor Vs Zombies\TractorVsZombies.dproj"/>
+		</Target>
+		<Target Name="TractorVsZombies:Make">
+			<MSBuild Targets="Make" Projects="demos\Tractor Vs Zombies\TractorVsZombies.dproj"/>
+		</Target>
+		<Target Name="Checker5_GUI">
+			<MSBuild Projects="demos\Checker5 - Simple GUI Demo\Checker5_GUI.dproj"/>
+		</Target>
+		<Target Name="Checker5_GUI:Clean">
+			<MSBuild Targets="Clean" Projects="demos\Checker5 - Simple GUI Demo\Checker5_GUI.dproj"/>
+		</Target>
+		<Target Name="Checker5_GUI:Make">
+			<MSBuild Targets="Make" Projects="demos\Checker5 - Simple GUI Demo\Checker5_GUI.dproj"/>
+		</Target>
+		<Target Name="editor">
+			<MSBuild Projects="demos\Tractor Vs Zombies\editor\editor.dproj"/>
+		</Target>
+		<Target Name="editor:Clean">
+			<MSBuild Targets="Clean" Projects="demos\Tractor Vs Zombies\editor\editor.dproj"/>
+		</Target>
+		<Target Name="editor:Make">
+			<MSBuild Targets="Make" Projects="demos\Tractor Vs Zombies\editor\editor.dproj"/>
+		</Target>
+		<Target Name="Checker6">
+			<MSBuild Projects="demos\Checker6 - Box2D Car Demo\Checker6.dproj"/>
+		</Target>
+		<Target Name="Checker6:Clean">
+			<MSBuild Targets="Clean" Projects="demos\Checker6 - Box2D Car Demo\Checker6.dproj"/>
+		</Target>
+		<Target Name="Checker6:Make">
+			<MSBuild Targets="Make" Projects="demos\Checker6 - Box2D Car Demo\Checker6.dproj"/>
+		</Target>
+		<Target Name="rdm">
+			<MSBuild Projects="demos\Checker7 - Box2D Ragdoll masters\rdm.dproj"/>
+		</Target>
+		<Target Name="rdm:Clean">
+			<MSBuild Targets="Clean" Projects="demos\Checker7 - Box2D Ragdoll masters\rdm.dproj"/>
+		</Target>
+		<Target Name="rdm:Make">
+			<MSBuild Targets="Make" Projects="demos\Checker7 - Box2D Ragdoll masters\rdm.dproj"/>
+		</Target>
+		<Target Name="SpaceSim2D">
+			<MSBuild Projects="demos\Project SpaceSim 2D\SpaceSim2D.dproj"/>
+		</Target>
+		<Target Name="SpaceSim2D:Clean">
+			<MSBuild Targets="Clean" Projects="demos\Project SpaceSim 2D\SpaceSim2D.dproj"/>
+		</Target>
+		<Target Name="SpaceSim2D:Make">
+			<MSBuild Targets="Make" Projects="demos\Project SpaceSim 2D\SpaceSim2D.dproj"/>
+		</Target>
+		<Target Name="Checker8">
+			<MSBuild Projects="demos\Checker8 - CameraMove\Checker8.dproj"/>
+		</Target>
+		<Target Name="Checker8:Clean">
+			<MSBuild Targets="Clean" Projects="demos\Checker8 - CameraMove\Checker8.dproj"/>
+		</Target>
+		<Target Name="Checker8:Make">
+			<MSBuild Targets="Make" Projects="demos\Checker8 - CameraMove\Checker8.dproj"/>
+		</Target>
+		<Target Name="shmup">
+			<MSBuild Projects="demos\Project shmup-rpg\shmup.dproj"/>
+		</Target>
+		<Target Name="shmup:Clean">
+			<MSBuild Targets="Clean" Projects="demos\Project shmup-rpg\shmup.dproj"/>
+		</Target>
+		<Target Name="shmup:Make">
+			<MSBuild Targets="Make" Projects="demos\Project shmup-rpg\shmup.dproj"/>
+		</Target>
+		<Target Name="frmwrk">
+			<MSBuild Projects="demos\Menu Framework\frmwrk.dproj"/>
+		</Target>
+		<Target Name="frmwrk:Clean">
+			<MSBuild Targets="Clean" Projects="demos\Menu Framework\frmwrk.dproj"/>
+		</Target>
+		<Target Name="frmwrk:Make">
+			<MSBuild Targets="Make" Projects="demos\Menu Framework\frmwrk.dproj"/>
+		</Target>
+		<Target Name="survive">
+			<MSBuild Projects="demos\Project Survive any cost\survive.dproj"/>
+		</Target>
+		<Target Name="survive:Clean">
+			<MSBuild Targets="Clean" Projects="demos\Project Survive any cost\survive.dproj"/>
+		</Target>
+		<Target Name="survive:Make">
+			<MSBuild Targets="Make" Projects="demos\Project Survive any cost\survive.dproj"/>
+		</Target>
+		<Target Name="RagdollSport">
+			<MSBuild Projects="demos\Project Ragdoll Sport\RagdollSport.dproj"/>
+		</Target>
+		<Target Name="RagdollSport:Clean">
+			<MSBuild Targets="Clean" Projects="demos\Project Ragdoll Sport\RagdollSport.dproj"/>
+		</Target>
+		<Target Name="RagdollSport:Make">
+			<MSBuild Targets="Make" Projects="demos\Project Ragdoll Sport\RagdollSport.dproj"/>
+		</Target>
+		<Target Name="taanks">
+			<MSBuild Projects="demos\Project Tanks\taanks.dproj"/>
+		</Target>
+		<Target Name="taanks:Clean">
+			<MSBuild Targets="Clean" Projects="demos\Project Tanks\taanks.dproj"/>
+		</Target>
+		<Target Name="taanks:Make">
+			<MSBuild Targets="Make" Projects="demos\Project Tanks\taanks.dproj"/>
+		</Target>
+		<Target Name="Build_and_Protect">
+			<MSBuild Projects="demos\Project Build And Protect\Build_and_Protect.dproj"/>
+		</Target>
+		<Target Name="Build_and_Protect:Clean">
+			<MSBuild Targets="Clean" Projects="demos\Project Build And Protect\Build_and_Protect.dproj"/>
+		</Target>
+		<Target Name="Build_and_Protect:Make">
+			<MSBuild Targets="Make" Projects="demos\Project Build And Protect\Build_and_Protect.dproj"/>
+		</Target>
+		<Target Name="RagdollFighting">
+			<MSBuild Projects="demos\Project Ragdoll Fighting\RagdollFighting.dproj"/>
+		</Target>
+		<Target Name="RagdollFighting:Clean">
+			<MSBuild Targets="Clean" Projects="demos\Project Ragdoll Fighting\RagdollFighting.dproj"/>
+		</Target>
+		<Target Name="RagdollFighting:Make">
+			<MSBuild Targets="Make" Projects="demos\Project Ragdoll Fighting\RagdollFighting.dproj"/>
+		</Target>
+		<Target Name="Build">
+			<CallTarget Targets="glRenderer;Checker1;Checker2;Checker3_Fonts;Checker4_VCL;TractorVsZombies;Checker5_GUI;editor;Checker6;rdm;SpaceSim2D;Checker8;shmup;frmwrk;survive;RagdollSport;taanks;Build_and_Protect;RagdollFighting"/>
+		</Target>
+		<Target Name="Clean">
+			<CallTarget Targets="glRenderer:Clean;Checker1:Clean;Checker2:Clean;Checker3_Fonts:Clean;Checker4_VCL:Clean;TractorVsZombies:Clean;Checker5_GUI:Clean;editor:Clean;Checker6:Clean;rdm:Clean;SpaceSim2D:Clean;Checker8:Clean;shmup:Clean;frmwrk:Clean;survive:Clean;RagdollSport:Clean;taanks:Clean;Build_and_Protect:Clean;RagdollFighting:Clean"/>
+		</Target>
+		<Target Name="Make">
+			<CallTarget Targets="glRenderer:Make;Checker1:Make;Checker2:Make;Checker3_Fonts:Make;Checker4_VCL:Make;TractorVsZombies:Make;Checker5_GUI:Make;editor:Make;Checker6:Make;rdm:Make;SpaceSim2D:Make;Checker8:Make;shmup:Make;frmwrk:Make;survive:Make;RagdollSport:Make;taanks:Make;Build_and_Protect:Make;RagdollFighting:Make"/>
+		</Target>
+		<Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+	</Project>

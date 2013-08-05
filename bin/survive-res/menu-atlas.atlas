@@ -1,0 +1,24 @@
+textures: menu-atlas.tga
+back_topright.png	1	1	582	270	0	0	582	270	
+back_bottomright.png	585	1	171	171	0	0	171	171	
+fish.png	758	1	55	137	0	0	55	137	
+flower.png	815	1	79	108	0	0	79	110	
+gamename.png	1	273	709	101	0	0	709	101	
+grass.png	896	1	104	79	0	0	104	79	
+mushroom.png	936	82	87	79	0	0	87	79	
+sound_off.png	585	174	314	65	0	0	314	65	
+about_over.png	1	376	314	65	0	0	314	65	
+play_click.png	317	376	314	65	0	0	314	65	
+sound_on.png	633	376	314	65	0	0	314	65	
+back_click.png	1	443	314	65	0	0	314	65	
+play_over.png	317	443	314	65	0	0	314	65	
+play_normal.png	633	443	314	65	0	0	314	65	
+back_normal.png	1	510	314	65	0	0	314	65	
+back_over.png	317	510	314	65	0	0	314	65	
+exit_click.png	633	510	314	65	0	0	314	65	
+about_click.png	1	577	314	65	0	0	314	65	
+exit_normal.png	317	577	314	65	0	0	314	65	
+sound_on_over.png	633	577	314	65	0	0	314	65	
+sound_off_over.png	1	644	314	65	0	0	314	65	
+about_normal.png	317	644	314	65	0	0	314	65	
+exit_over.png	633	644	314	65	0	0	314	65	

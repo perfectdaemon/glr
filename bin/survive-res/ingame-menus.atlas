@@ -1,0 +1,25 @@
+textures: ingame-menus.tga
+back_gameover.png	0	0	707	373	0	0	707	373	
+back_pausemenu.png	0	374	462	395	0	0	462	395	
+noupload_normal.png	708	0	314	65	0	0	314	65	
+upload_click.png	708	66	314	65	0	0	314	65	
+menu_click.png	708	132	314	65	0	0	314	65	
+back_over.png	709	198	314	65	0	0	314	65	
+retry_normal.png	709	264	314	65	0	0	314	65	
+back_normal.png	709	330	314	65	0	0	314	65	
+upload_normal.png	463	396	314	65	0	0	314	65	
+retry_click.png	463	462	314	65	0	0	314	65	
+menu_normal.png	463	528	314	65	0	0	314	65	
+menu_over.png	709	594	314	65	0	0	314	65	
+noupload_over.png	709	660	314	65	0	0	314	65	
+upload_over.png	709	726	314	65	0	0	314	65	
+tutorial_over.png	0	770	314	65	0	0	314	65	
+tutorial_click.png	315	770	314	65	0	0	314	65	
+noupload_click.png	630	792	314	65	0	0	314	65	
+tutorial_normal.png	0	836	314	65	0	0	314	65	
+retry_over.png	315	836	314	65	0	0	314	65	
+back_click.png	630	858	314	65	0	0	314	65	
+ok_normal.png	778	396	83	66	0	0	83	66	
+ok_click.png	862	396	83	66	0	0	83	66	
+ok_over.png	778	463	83	66	0	0	83	66	
+flower2.png	862	463	79	108	0	0	79	110	

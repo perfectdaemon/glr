@@ -1,0 +1,4 @@
+41;		musicvol
+57;		soundvol
+2;		difficulty
+0;		firstlaunch

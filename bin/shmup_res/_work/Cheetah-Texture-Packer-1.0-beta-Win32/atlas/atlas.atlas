@@ -1,0 +1,8 @@
+textures: atlas.png
+menu_pause.png	0	0	380	365	0	0	380	365	
+main_menu_norm.png	0	366	249	45	0	0	249	45	
+main_menu_click.png	250	366	249	45	0	0	249	45	
+continue_over.png	0	412	249	45	0	0	249	45	
+continue_norm.png	250	412	249	45	0	0	249	45	
+continue_click.png	0	458	249	45	0	0	249	45	
+main_menu_over.png	250	458	249	45	0	0	249	45	
