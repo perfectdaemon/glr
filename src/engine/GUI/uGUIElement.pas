@@ -8,11 +8,10 @@ unit uGUIElement;
 interface
 
 uses
-  dfHEngine,
   uRenderable,
   //debug
   uHudSprite,
-  dfHRenderer;
+  glr;
 
 type
   TglrGUIElement = class(TglrHUDSprite, IglrGUIElement)
@@ -90,7 +89,7 @@ type
 implementation
 
 uses
-  dfMath;
+  glrMath;
 
 procedure TglrGUIElement.CalcHitZone();
 begin

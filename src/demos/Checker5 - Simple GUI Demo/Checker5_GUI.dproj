@@ -45,11 +45,10 @@
 			<DelphiCompile Include="Checker5_GUI.dpr">
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
-			<DCCReference Include="..\..\headers\dfHRenderer.pas"/>
-			<DCCReference Include="..\..\common\dfHEngine.pas"/>
-			<DCCReference Include="..\..\common\dfMath.pas"/>
-			<DCCReference Include="..\..\headers\dfHUtility.pas"/>
-			<DCCReference Include="..\..\common\dfHGL.pas"/>
+			<DCCReference Include="..\..\headers\glr.pas"/>
+			<DCCReference Include="..\..\headers\glrUtils.pas"/>
+			<DCCReference Include="..\..\headers\glrMath.pas"/>
+			<DCCReference Include="..\..\headers\ogl.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

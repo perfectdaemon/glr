@@ -9,10 +9,9 @@ program Checker2;
 uses
   Windows,
   SysUtils,
-  dfHRenderer in '..\..\headers\dfHRenderer.pas',
-  dfHEngine in '..\..\common\dfHEngine.pas',
-  dfMath in '..\..\common\dfMath.pas',
-  dfHGL in '..\..\common\dfHGL.pas';
+  glr in '..\..\headers\glr.pas',
+  glrMath in '..\..\headers\glrMath.pas',
+  ogl in '..\..\headers\ogl.pas';
 
 var
   R: IglrRenderer;
@@ -104,7 +103,7 @@ begin
     Position := dfVec2f(300, 300);
     Material.Texture := Factory.NewTexture();
     Material.Texture.Load2D('data\tile.bmp');
-    Material.MaterialOptions.Diffuse := dfVec4f(1, 1, 1, 1);
+    Material.Diffuse := dfVec4f(1, 1, 1, 1);
   end;
   Scene2d.RegisterElement(spr);
 
@@ -114,7 +113,7 @@ begin
     Height := 100;
     PivotPoint := ppCenter;
     Position := dfVec2f(300, 300);
-    Material.MaterialOptions.Diffuse := dfVec4f(1, 1, 1, 1);
+    Material.Diffuse := dfVec4f(1, 1, 1, 1);
     Width := 5;
     Height := 5;
     Z := 1;

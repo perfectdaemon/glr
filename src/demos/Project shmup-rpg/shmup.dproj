@@ -46,10 +46,10 @@
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
 			<DCCReference Include="..\..\common\dfHEngine.pas"/>
-			<DCCReference Include="..\..\common\dfHGL.pas"/>
-			<DCCReference Include="..\..\common\dfMath.pas"/>
-			<DCCReference Include="..\..\headers\dfHRenderer.pas"/>
-			<DCCReference Include="..\..\headers\dfHUtility.pas"/>
+			<DCCReference Include="..\..\common\ogl.pas"/>
+			<DCCReference Include="..\..\common\glrMath.pas"/>
+			<DCCReference Include="..\..\headers\glr.pas"/>
+			<DCCReference Include="..\..\headers\glrUtils.pas"/>
 			<DCCReference Include="uWeapons.pas"/>
 			<DCCReference Include="uGlobal.pas"/>
 			<DCCReference Include="uPlayer.pas"/>

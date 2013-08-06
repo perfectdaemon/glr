@@ -17,6 +17,7 @@
   LD - Last Developed - Над чем работал в последний раз в этот день
 
 
+  2013-08-05 - -- - Ответвление 0.3.0. Рефакторинг всего и вся, причесывание
   2013-07-31 - LD - Начат рефакторинг имен (df -> glr)
   2013-07-30 - LD - Добавлен glrObjectFactory
   2013-07-14 - LD - GUITextButton добавлен
@@ -126,11 +127,7 @@ uses
   uTexture in 'uTexture.pas',
   uShader in 'uShader.pas',
   uLogger in 'uLogger.pas',
-  dfHEngine in '..\common\dfHEngine.pas',
-  dfHGL in '..\common\dfHGL.pas',
-  dfLogger in '..\common\dfLogger.pas',
-  dfMath in '..\common\dfMath.pas',
-  dfHRenderer in '..\headers\dfHRenderer.pas',
+  glr in '..\headers\glr.pas',
   uNode in 'uNode.pas',
   ExportFunc in 'ExportFunc.pas',
   TexLoad in 'TexLoad.pas',
@@ -150,20 +147,15 @@ uses
   uGUITextBox in 'GUI\uGUITextBox.pas',
   uGUISlider in 'GUI\uGUISlider.pas',
   uGUITextButton in 'GUI\uGUITextButton.pas',
-  uFactory in 'uFactory.pas';
+  uFactory in 'uFactory.pas',
+  dfLogger in 'dfLogger.pas',
+  glrMath in '..\headers\glrMath.pas',
+  ogl in '..\headers\ogl.pas',
+  uBaseInterfaceObject in 'uBaseInterfaceObject.pas';
 
 exports
   CreateRenderer, DestroyRenderer,
 
-  GetObjectFactory{,
-
-  CreateNode, CreateUserRender, CreateHUDSprite,
-  CreateMaterial, CreateTexture,
-  CreateFont, CreateText,
-
-  CreateGUIButton, CreateGUITextButton, CreateGUICheckbox,
-  CreateGUITextBox, CreateGUISlider,
-
-  Create2DScene};
+  GetObjectFactory;
 begin
 end.

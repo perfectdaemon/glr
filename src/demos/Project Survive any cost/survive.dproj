@@ -48,13 +48,13 @@
 			</DelphiCompile>
 			<RcCompile Include="icon.rc">
 				<ContainerId>RC</ContainerId>
-				<Form>icon.res</Form>
+				<Form>&apos;icon.res&apos;</Form>
 			</RcCompile>
-			<DCCReference Include="..\..\headers\dfHRenderer.pas"/>
-			<DCCReference Include="..\..\headers\dfHUtility.pas"/>
+			<DCCReference Include="..\..\headers\glr.pas"/>
+			<DCCReference Include="..\..\headers\glrUtils.pas"/>
 			<DCCReference Include="..\..\common\dfHEngine.pas"/>
-			<DCCReference Include="..\..\common\dfHGL.pas"/>
-			<DCCReference Include="..\..\common\dfMath.pas"/>
+			<DCCReference Include="..\..\common\ogl.pas"/>
+			<DCCReference Include="..\..\common\glrMath.pas"/>
 			<DCCReference Include="..\..\common\dfTweener.pas"/>
 			<DCCReference Include="uGlobal.pas"/>
 			<DCCReference Include="gamescreens\uGameScreen.Game.pas"/>

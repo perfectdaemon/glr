@@ -4,7 +4,7 @@ interface
 
 uses
   Classes,
-  dfHGL, dfMath;
+  glr, glrMath, ogl;
 
 type
 

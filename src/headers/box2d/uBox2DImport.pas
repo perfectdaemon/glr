@@ -3,7 +3,7 @@ unit uBox2DImport;
 interface
 
 uses
-  dfMath, dfHRenderer,
+  glrMath, glr,
   UPhysics2D, UPhysics2DTypes;
 
 const

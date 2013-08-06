@@ -1,31 +1,38 @@
-unit dfHRenderer;
+unit glr;
 
 interface
 
 uses
-  Windows, Graphics, dfHGL,
-  dfMath;
+  Windows, Graphics, ogl,
+  glrMath;
 
 const
   dllName = 'glrenderer.dll';
 
-type
-  TdfOnUpdateProc = procedure(const dt: Double);
 
-  TdfMouseShiftState = set of (ssLeft, ssRight, ssMiddle, ssDouble);
-  TdfMouseButton = (mbNone, mbLeft, mbRight, mbMiddle);
+function PCharToPWide(AChar: PAnsiChar): PWideChar;
+function PWideToPChar(pw: PWideChar): PAnsiChar;
+
+//Размер памяти под указателем
+function SizeOfP(const P: Pointer): Integer;
+
+type
+  TglrOnUpdateProc = procedure(const dt: Double);
+
+  TglrMouseShiftState = set of (ssLeft, ssRight, ssMiddle, ssDouble);
+  TglrMouseButton = (mbNone, mbLeft, mbRight, mbMiddle);
 
   //TODO: А нужнен ли ShiftState для Up?
-  TdfOnMouseDownProc   = procedure(X, Y: Integer; MouseButton: TdfMouseButton; Shift: TdfMouseShiftState);
-  TdfOnMouseUpProc     = procedure(X, Y: Integer; MouseButton: TdfMouseButton; Shift: TdfMouseShiftState);
-  TdfOnMouseMoveProc   = procedure(X, Y: Integer; Shift: TdfMouseShiftState);
-  TdfOnMouseWheelProc  = procedure(X, Y: Integer; Shift: TdfMouseShiftState; WheelDelta: Integer);
+  TglrOnMouseDownProc   = procedure(X, Y: Integer; MouseButton: TglrMouseButton; Shift: TglrMouseShiftState);
+  TglrOnMouseUpProc     = procedure(X, Y: Integer; MouseButton: TglrMouseButton; Shift: TglrMouseShiftState);
+  TglrOnMouseMoveProc   = procedure(X, Y: Integer; Shift: TglrMouseShiftState);
+  TglrOnMouseWheelProc  = procedure(X, Y: Integer; Shift: TglrMouseShiftState; WheelDelta: Integer);
 
   {$REGION ' Utility types '}
 
-  TdfStream = class
-    class function Init(Memory: Pointer; MemSize: LongInt): TdfStream; overload;
-    class function Init(const FileName: string; RW: Boolean = False): TdfStream; overload;
+  TglrStream = class
+    class function Init(Memory: Pointer; MemSize: LongInt): TglrStream; overload;
+    class function Init(const FileName: string; RW: Boolean = False): TglrStream; overload;
     destructor Destroy; override;
   private
     SType  : (stMemory, stFile);
@@ -37,7 +44,7 @@ type
     procedure SetPos(Value: LongInt);
     procedure SetBlock(BPos, BSize: LongInt);
   public
-    procedure CopyFrom(const Stream: TdfStream);
+    procedure CopyFrom(const Stream: TglrStream);
     function Read(out Buf; BufSize: LongInt): LongInt;
     function Write(const Buf; BufSize: LongInt): LongInt;
     function ReadAnsi: AnsiString;
@@ -57,7 +64,7 @@ const
   VK_MOUSEWHEELDOWN = VK_F24;
 
 type
-  IdfInput = interface
+  IglrInput = interface
     ['{5552ED21-B3E8-4F3D-9551-AD7A9EF82CF4}']
     {$REGION '[private]'}
     function GetAllow(): Boolean;
@@ -66,8 +73,10 @@ type
     function IsKeyDown(const vk: Integer): Boolean; overload;
     function IsKeyDown(const c: Char): Boolean; overload;
 
-    function IsKeyPressed(aCode: Integer; aPressed: PBoolean): Boolean; overload;
-    function IsKeyPressed(aChar: Char; aPressed: PBoolean): Boolean; overload;
+    function IsKeyPressed(aCode: Integer; aPressed: PBoolean): Boolean; overload; deprecated;
+    function IsKeyPressed(aChar: Char; aPressed: PBoolean): Boolean; overload; deprecated;
+    function IsKeyPressed(aCode: Integer): Boolean; overload;
+    function IsKeyPressed(aChar: Char): Boolean; overload;
 
     procedure KeyboardNotifyWheelMoved(wheelDelta : Integer);
     //Разрешить захват клавиш.
@@ -76,72 +85,72 @@ type
   end;
   {$ENDREGION}
 
-//  {$REGION ' Resource manager '}
-//
-//  TdfResType = type of Byte;
-//
-//const
-//  RES_UNKNOWN      : TdfResType = $FF;
-//  RES_TEXTURE      : TdfResType = $01;
-//  RES_TEXTURE_ATLAS: TdfResType = $02;
-//
-//type
-//  { IdfResource - ресурс(изображение, звук, текстовый файл, бинарный файл) }
-//  IdfResource = interface
-//    ['{A95929A4-C8B6-4EE3-844F-E5C9B5E1249A}']
-//    {$REGION '[private]'}
-//    function GetStream(): TdfStream;
-//    procedure SetStream(aStream: TdfStream);
-//    function GetResType(): TdfResType;
-//    procedure SetResType(aResType: TdfResType);
-//    function GetExtData(): Pointer;
-//    procedure SetExtData(aData: Pointer);
-//    function GetName(): String;
-//    procedure SetName(aName: String);
-//    {$ENDREGION}
-//    property Name: String read GetName write SetName;
-//    property Stream: TdfStream read GetStream write SetStream;
-//    property ResType: TdfResType read GetResType write SetResType;
-//    property ExtData: Pointer read GetExtData write SetExtData;
-//  end;
-//
-//  { IdfResourceManager - менеджер по загрузке и использованию ресурсов }
-//  IdfResourceManager = interface
-//    ['{BF733D21-0F1B-4907-98B0-F03F2B0FFCCB}']
-//    {$REGION '[private]'}
-//    function GetResource(aIndex: String): IdfResource;
-//    procedure SetResource(aIndex: String; const aRes: IdfResource);
-//    {$ENDREGION}
-//    function AddResource(): IdfResource;
-//    function LoadResourceFromFile(aFileName: String; aResName: String = ''): IdfResource;
-//    function LoadResourceFromPack(aPackName, aFileName: String; aResName: String = ''): IdfResource;
-//
-//    property Resource[Index: String]: IdfResource read GetResource write SetResource;
-//  end;
-//
-//  {$ENDREGION}
+  {$REGION ' Resource manager '}
+
+  TglrResType = type of Byte;
+
+const
+  RES_UNKNOWN      : TglrResType = $FF;
+  RES_TEXTURE      : TglrResType = $01;
+  RES_TEXTURE_ATLAS: TglrResType = $02;
+
+type
+  { IdfResource - ресурс(изображение, звук, текстовый файл, бинарный файл) }
+  IglrResource = interface
+    ['{A95929A4-C8B6-4EE3-844F-E5C9B5E1249A}']
+    {$REGION '[private]'}
+    function GetStream(): TglrStream;
+    procedure SetStream(aStream: TglrStream);
+    function GetResType(): TglrResType;
+    procedure SetResType(aResType: TglrResType);
+    function GetExtData(): Pointer;
+    procedure SetExtData(aData: Pointer);
+    function GetName(): String;
+    procedure SetName(aName: String);
+    {$ENDREGION}
+    property Name: String read GetName write SetName;
+    property Stream: TglrStream read GetStream write SetStream;
+    property ResType: TglrResType read GetResType write SetResType;
+    property ExtData: Pointer read GetExtData write SetExtData;
+  end;
+
+  { IdfResourceManager - менеджер по загрузке и использованию ресурсов }
+  IglrResourceManager = interface
+    ['{BF733D21-0F1B-4907-98B0-F03F2B0FFCCB}']
+    {$REGION '[private]'}
+    function GetResource(aIndex: String): IglrResource;
+    procedure SetResource(aIndex: String; const aRes: IglrResource);
+    {$ENDREGION}
+    function AddResource(): IglrResource;
+    function LoadResourceFromFile(aFileName: String; aResName: String = ''): IglrResource;
+    function LoadResourceFromPack(aPackName, aFileName: String; aResName: String = ''): IglrResource;
+
+    property Resource[Index: String]: IglrResource read GetResource write SetResource;
+  end;
+
+  {$ENDREGION}
 
   {$REGION ' Texture, shaders and material '}
 
   //Вид текстуры
-  TdfTextureTarget = (ttTexture1D, ttTexture2D, ttTexture3D{, ttTextureRectangle,
+  TglrTextureTarget = (ttTexture1D, ttTexture2D, ttTexture3D{, ttTextureRectangle,
                 ttTextureRectangleNV,
                 ttCubemap, ttCubemapPX, ttCubemapPY, ttCubemapNX, ttCubemapNY,
                 ttCubemapPZ, ttCubemapNZ, tt1DArray, tt2DArray, ttCubeMapArray});
   //Режим враппинга (повторения и рамок)
-  TdfTextureWrap = (twClamp, twRepeat, twClampToEdge, twClampToBorder, twMirrorRepeat);
+  TglrTextureWrap = (twClamp, twRepeat, twClampToEdge, twClampToBorder, twMirrorRepeat);
 //  TdfTexGens = (tgDisable,tgObjectLinear,tgEyeLinear,tgSphereMap,tgNormalMap,tgReflectionMap);
   //маг и мин фильтры
-  TdfTextureMagFilter = (tmgNearest, tmgLinear);
-  TdfTextureMinFilter = (tmnNearest, tmnLinear, tmnNearestMipmapNearest, tmnNearestMipmapLinear,
+  TglrTextureMagFilter = (tmgNearest, tmgLinear);
+  TglrTextureMinFilter = (tmnNearest, tmnLinear, tmnNearestMipmapNearest, tmnNearestMipmapLinear,
                 tmnLinearMipmapNearest, tmnLinearMipmapLinear);
   //Режимы прозрачности
-  TdfTextureBlendingMode = (tbmOpaque, tbmTransparency, tbmAdditive, tbmAlphaTest50,
+  TglrTextureBlendingMode = (tbmOpaque, tbmTransparency, tbmAdditive, tbmAlphaTest50,
                     tbmAlphaTest100, tbmModulate, tbmCustom1);
   //Режимы смешивания с цветом
-  TdfTextureCombineMode = (tcmDecal, tcmModulate, tcmBlend, tcmReplace, tcmAdd);
+  TglrTextureCombineMode = (tcmDecal, tcmModulate, tcmBlend, tcmReplace, tcmAdd);
 
-  TdfTextureDecription = record
+  TglrTextureDecription = record
      InternalFormat: TGLConst; //число компонентов
      ColorFormat: TGLConst; //GL_BGR, GL_RGB, GL_RGBA....
      DataType: TGLConst;
@@ -154,30 +163,30 @@ type
      FullSize: Integer;
      X, Y, Width, Height, Depth, RegionWidth, RegionHeight: Integer;
   end;
-  PdfTextureDecription = ^TdfTextureDecription;
+  PglrTextureDecription = ^TglrTextureDecription;
 
-  IdfTexture = interface
+  IglrTexture = interface
     ['{3D75E1EB-E4C8-4856-BA55-B98020407605}']
     {$REGION '[private]'}
     function GetWidth(): Integer;
     function GetHeight(): Integer;
 
-    function GetTexTarget(): TdfTextureTarget;
-    function GetTexWrapS(): TdfTextureWrap;
-    function GetTexWrapT(): TdfTextureWrap;
-    function GetTexWrapR(): TdfTextureWrap;
-    function GetTexMinFilter(): TdfTextureMinFilter;
-    function GetTexMagFilter(): TdfTextureMagFilter;
-    function GetTexBlendingMode(): TdfTextureBlendingMode;
-    function GetTexCombineMode(): TdfTextureCombineMode;
+    function GetTexTarget(): TglrTextureTarget;
+    function GetTexWrapS(): TglrTextureWrap;
+    function GetTexWrapT(): TglrTextureWrap;
+    function GetTexWrapR(): TglrTextureWrap;
+    function GetTexMinFilter(): TglrTextureMinFilter;
+    function GetTexMagFilter(): TglrTextureMagFilter;
+    function GetTexBlendingMode(): TglrTextureBlendingMode;
+    function GetTexCombineMode(): TglrTextureCombineMode;
 
-    procedure SetTexWrapS(aWrap: TdfTextureWrap);
-    procedure SetTexWrapT(aWrap: TdfTextureWrap);
-    procedure SetTexWrapR(aWrap: TdfTextureWrap);
-    procedure SetTexMinFilter(aFilter: TdfTextureMinFilter);
-    procedure SetTexMagFilter(aFilter: TdfTextureMagFilter);
-    procedure SetTexBlendingMode(aMode: TdfTextureBlendingMode);
-    procedure SetTexCombineMode(aMode: TdfTextureCombineMode);
+    procedure SetTexWrapS(aWrap: TglrTextureWrap);
+    procedure SetTexWrapT(aWrap: TglrTextureWrap);
+    procedure SetTexWrapR(aWrap: TglrTextureWrap);
+    procedure SetTexMinFilter(aFilter: TglrTextureMinFilter);
+    procedure SetTexMagFilter(aFilter: TglrTextureMagFilter);
+    procedure SetTexBlendingMode(aMode: TglrTextureBlendingMode);
+    procedure SetTexCombineMode(aMode: TglrTextureCombineMode);
     {$ENDREGION}
     procedure Bind;
     procedure Unbind;
@@ -185,20 +194,20 @@ type
     {debug procedure
      Переделать на загрузку из Stream через ResourceManager}
     procedure Load2D(const aFileName: String); overload;
-    procedure Load2D(const aStream: TdfStream; aFormatExtension: String); overload;
+    procedure Load2D(const aStream: TglrStream; aFormatExtension: String); overload;
     {Прообраз загрузки из атласа}
-    procedure Load2DRegion(const aTex: IdfTexture; aX, aY, aWidth, aHeight: Integer);
+    procedure Load2DRegion(const aTex: IglrTexture; aX, aY, aWidth, aHeight: Integer);
 
-    function GetTexDesc(): TdfTextureDecription;
+    function GetTexDesc(): TglrTextureDecription;
 
-    property Target: TdfTextureTarget read GetTexTarget;
-    property WrapS: TdfTextureWrap read GetTexWrapS write SetTexWrapS;
-    property WrapT: TdfTextureWrap read GetTexWrapT write SetTexWrapT;
-    property WrapR: TdfTextureWrap read GetTexWrapR write SetTexWrapR;
-    property MinFilter: TdfTextureMinFilter read GetTexMinFilter write SetTexMinFilter;
-    property MagFilter: TdfTextureMagFilter read GetTexMagFilter write SetTexMagFilter;
-    property BlendingMode: TdfTextureBlendingMode read GetTexBlendingMode write SetTexBlendingMode;
-    property CombineMode: TdfTextureCombineMode read GetTexCombineMode write SetTexCombineMode;
+    property Target: TglrTextureTarget read GetTexTarget;
+    property WrapS: TglrTextureWrap read GetTexWrapS write SetTexWrapS;
+    property WrapT: TglrTextureWrap read GetTexWrapT write SetTexWrapT;
+    property WrapR: TglrTextureWrap read GetTexWrapR write SetTexWrapR;
+    property MinFilter: TglrTextureMinFilter read GetTexMinFilter write SetTexMinFilter;
+    property MagFilter: TglrTextureMagFilter read GetTexMagFilter write SetTexMagFilter;
+    property BlendingMode: TglrTextureBlendingMode read GetTexBlendingMode write SetTexBlendingMode;
+    property CombineMode: TglrTextureCombineMode read GetTexCombineMode write SetTexCombineMode;
 
     property Width: Integer read GetWidth;
     property Height: Integer read GetHeight;
@@ -238,41 +247,31 @@ type
 
   *)
 
-  IdfShaderProgram = interface
+  IglrShaderProgram = interface
     ['{B31B84F3-D71D-4117-B5D7-3BEAD6E5D5E2}']
     procedure Use;
     procedure Unuse;
   end;
 
-  IdfMaterialOptions = interface
-    ['{8FE8BC07-F1A4-481A-9E24-966941969FCB}']
+  IglrMaterial = interface
+    ['{DE277592-0C48-4DA0-971F-780470FCCA04}']
     {$REGION '[private]'}
+    function GetTexture: IglrTexture;
+    procedure SetTexture(const aTexture: IglrTexture);
+    function GetShader(): IglrShaderProgram;
+    procedure SetShader(const aShader: IglrShaderProgram);
     function GetDif(): TdfVec4f;
     procedure SetDif(const aDif: TdfVec4f);
     function GetPDif(): PdfVec4f;
     procedure SetPDif(const aDif: PdfVec4f);
     {$ENDREGION}
-    procedure Apply();
-    procedure UnApply();
+
+    property Texture: IglrTexture read GetTexture write SetTexture;
+    property ShaderProgram: IglrShaderProgram read GetShader write SetShader;
+
 
     property Diffuse: TdfVec4f read GetDif write SetDif;
     property PDiffuse: PdfVec4f read GetPDif write SetPDif;
-  end;
-
-  IdfMaterial = interface
-    ['{DE277592-0C48-4DA0-971F-780470FCCA04}']
-    {$REGION '[private]'}
-    function GetTexture: IdfTexture;
-    procedure SetTexture(const aTexture: IdfTexture);
-    function GetShader(): IdfShaderProgram;
-    procedure SetShader(const aShader: IdfShaderProgram);
-    function GetOptions(): IdfMaterialOptions;
-    procedure SetOptions(const aOptions: IdfMaterialOptions);
-    {$ENDREGION}
-
-    property Texture: IdfTexture read GetTexture write SetTexture;
-    property ShaderProgram: IdfShaderProgram read GetShader write SetShader;
-    property MaterialOptions: IdfMaterialOptions read GetOptions write SetOptions;
 
     procedure Apply();
     procedure Unapply();
@@ -283,15 +282,15 @@ type
   { IdfRenderable - базовый класс чего-то, способного отобразиться на экране.
     Имеется материал и метод рендера, который переопределяется в потомках
     данного класса }
-  IdfRenderable = interface
+  IglrRenderable = interface
     ['{A2DD3046-3FDE-43DD-93AE-83C7A29A2196}']
     {$REGION '[private]'}
-    function GetMaterial(): IdfMaterial;
-    procedure SetMaterial(const aMat: IdfMaterial);
+    function GetMaterial(): IglrMaterial;
+    procedure SetMaterial(const aMat: IglrMaterial);
     {$ENDREGION}
     procedure DoRender;
 
-    property Material: IdfMaterial read GetMaterial write SetMaterial;
+    property Material: IglrMaterial read GetMaterial write SetMaterial;
   end;
 
   {$REGION ' RenderNodes and scenes '}
@@ -301,7 +300,7 @@ type
     позиционирующую его в пространстве, а также привязанный объект Renderable,
     который он собственно и рендерит, предварительно определив необходимость
     рендера и установив матрицу, опции и материал }
-  IdfNode = interface
+  IglrNode = interface
     ['{3D31C699-4B5F-4FC3-8F08-2E91BA918135}']
     {$REGION '[private]'}
     function GetPos(): TdfVec3f;
@@ -316,12 +315,12 @@ type
     procedure SetModel(const aModel: TdfMat4f);
     function GetVis(): Boolean;
     procedure SetVis(const aVis: Boolean);
-    function GetChild(Index: Integer): IdfNode;
-    procedure SetChild(Index: Integer; aChild: IdfNode);
-    function GetParent(): IdfNode;
-    procedure SetParent(aParent: IdfNode);
-    function GetRenderable(): IdfRenderable;
-    procedure SetRenderable(aRenderable: IdfRenderable);
+    function GetChild(Index: Integer): IglrNode;
+    procedure SetChild(Index: Integer; aChild: IglrNode);
+    function GetParent(): IglrNode;
+    procedure SetParent(aParent: IglrNode);
+    function GetRenderable(): IglrRenderable;
+    procedure SetRenderable(aRenderable: IglrRenderable);
     function GetChildsCount(): Integer;
     {$ENDREGION}
 
@@ -330,22 +329,22 @@ type
     property Direction: TdfVec3f read GetDir write SetDir;
     property Left: TdfVec3f read GetLeft write SetLeft;
     property ModelMatrix: TdfMat4f read GetModel write SetModel;
-    property Parent: IdfNode read GetParent write SetParent;
+    property Parent: IglrNode read GetParent write SetParent;
     property Visible: Boolean read GetVis write SetVis;
 
-    property Childs[Index: Integer]: IdfNode read GetChild write SetChild;
+    property Childs[Index: Integer]: IglrNode read GetChild write SetChild;
     property ChildsCount: Integer read GetChildsCount;
 
-    property Renderable: IdfRenderable read GetRenderable write SetRenderable;
+    property Renderable: IglrRenderable read GetRenderable write SetRenderable;
 
     //Добавить уже существующий рендер-узел себе в потомки
-    function AddChild(aChild: IdfNode): Integer;
+    function AddChild(aChild: IglrNode): Integer;
     //Добавить нового потомка
-    function AddNewChild(): IdfNode;
+    function AddNewChild(): IglrNode;
     //Удалить потомка из списка по индексу. Физически объект остается в памяти.
     procedure RemoveChild(Index: Integer); overload;
     //Удалить потомка из списка по указателю. Физически объект остается в памяти.
-    procedure RemoveChild(aChild: IdfNode); overload;
+    procedure RemoveChild(aChild: IglrNode); overload;
     //Удалить потомка из списка по индексу. Физически объект уничтожается.
     procedure FreeChild(Index: Integer);
 
@@ -355,9 +354,9 @@ type
 
   IdfBaseScene = interface
     ['{5285C5A6-11A1-4F53-8327-71CBBD20E010}']
-    function GetUpdateProc(): TdfOnUpdateProc;
-    procedure SetUpdateProc(aProc: TdfOnUpdateProc);
-    property OnUpdate: TdfOnUpdateProc read GetUpdateProc write SetUpdateProc;
+    function GetUpdateProc(): TglrOnUpdateProc;
+    procedure SetUpdateProc(aProc: TglrOnUpdateProc);
+    property OnUpdate: TglrOnUpdateProc read GetUpdateProc write SetUpdateProc;
     procedure Render();
     procedure Update(const deltaTime: Double);
   end;
@@ -367,10 +366,10 @@ type
   Idf3DScene = interface(IdfBaseScene)
     ['{5E52434E-3A00-478E-AE73-BA45C77BD2AC}']
     {$REGION '[private]'}
-    function GetRoot: IdfNode;
-    procedure SetRoot(const aRoot: IdfNode);
+    function GetRoot: IglrNode;
+    procedure SetRoot(const aRoot: IglrNode);
     {$ENDREGION}
-    property RootNode: IdfNode read GetRoot write SetRoot;
+    property RootNode: IglrNode read GetRoot write SetRoot;
   end;
 
 //  { IdfSceneManager - оперирует сценами IdfScene, загружает, подгружает и
@@ -386,20 +385,20 @@ type
 
   {$ENDREGION}
 
-  TdfViewportParams = record
+  TglrViewportParams = record
     X,Y,W,H: Integer;
     FOV, ZNear, ZFar: Single;
   end;
 
-  TdfCameraProjectionMode = (pmPerpective, pmOrtho);
+  TglrCameraProjectionMode = (pmPerpective, pmOrtho);
 
   { IdfCamera - идентифицирует камеру с возможностями установки вьюпорта,
     панорамирования, масштабирования и прочим }
-  IdfCamera = interface (IdfNode)
+  IglrCamera = interface (IglrNode)
     ['{D6E97126-FF5F-4CE7-9687-4F358A90B34E}']
     {$REGION '[private]'}
-    function GetProjMode(): TdfCameraProjectionMode;
-    procedure SetProjMode(aMode: TdfCameraProjectionMode);
+    function GetProjMode(): TglrCameraProjectionMode;
+    procedure SetProjMode(aMode: TglrCameraProjectionMode);
     {$ENDREGION}
     procedure Viewport(x, y, w, h: Integer; FOV, ZNear, ZFar: Single);
     procedure ViewportOnly(x, y, w, h: Integer);
@@ -408,17 +407,17 @@ type
     procedure Rotate(delta: Single; Axis: TdfVec3f);
     procedure SetCamera(Pos, TargetPos, Up: TdfVec3f);
     procedure SetTarget(Point: TdfVec3f); overload;
-    procedure SetTarget(Target: IdfNode); overload;
+    procedure SetTarget(Target: IglrNode); overload;
 
-    function GetViewport(): TdfViewportParams;
+    function GetViewport(): TglrViewportParams;
 
-    property ProjectionMode: TdfCameraProjectionMode read GetProjMode write SetProjMode;
+    property ProjectionMode: TglrCameraProjectionMode read GetProjMode write SetProjMode;
 
     procedure Update();
   end;
 
   { IdfLight - источник света }
-  IdfLight = interface (IdfNode)
+  IglrLight = interface (IglrNode)
     ['{2F9B9229-7A8D-4517-9E5D-DB135E1A6929}']
     {$REGION '[private]'}
     function GetAmb(): TdfVec4f;
@@ -448,6 +447,24 @@ type
     property DebugRender: Boolean read GetDR write SetDR;
   end;
 
+  TglrParticleDynamics = set of (pdColor, pdSize, pdVelocity, pdSpread);
+
+  IglrEmitter = interface
+    ['{31622C02-C603-4AF8-9F72-9A2614E34DE5}']
+    {$REGION '[private]'}
+    function GetTexture(): IglrTexture;
+    procedure SetTexture(aTex: IglrTexture);
+    {$ENDREGION}
+    property Texture: IglrTexture read GetTexture write SetTexture;
+    procedure SetColorBorders(aStart, aEnd: TdfVec4f);
+    procedure SetSizeBorders(aMin, aMax: Single);
+    procedure SetVelocityBorders(aMin, aMax: Single);
+  end;
+
+  IglrParticleSystem = interface
+    ['{750E2517-93F9-498B-B760-4F4BE3047CBD}']
+  end;
+
   (*
 
   IdfMesh = interface (IdfRenderable)
@@ -459,14 +476,14 @@ type
 
   {$REGION ' 2D-рендер '}
 
-  Idf2DScene = interface;
+  Iglr2DScene = interface;
 
   {Точка отсчета для рендера 2Д вещей}
-  Tdf2DPivotPoint = (ppTopLeft, ppTopRight, ppBottomLeft, ppBottomRight,
+  Tglr2DPivotPoint = (ppTopLeft, ppTopRight, ppBottomLeft, ppBottomRight,
     ppCenter, ppTopCenter, ppBottomCenter, ppCustom);
 
   {Отличительные особенности - не использует матрицу Node, а собственные свойства}
-  Idf2DRenderable = interface(IdfRenderable)
+  Iglr2DRenderable = interface(IglrRenderable)
     ['{EC48E06A-778E-45B7-A239-3DE1897A7C06}']
     {$REGION '[private]'}
     function GetWidth(): Single;
@@ -483,8 +500,8 @@ type
     procedure SetRot(const aRot: Single);
     function GetPRot(): System.PSingle;
     procedure SetPRot(const aRot: System.PSingle);
-    function GetPivot(): Tdf2DPivotPoint;
-    procedure SetPivot(const aPivot: Tdf2DPivotPoint);
+    function GetPivot(): Tglr2DPivotPoint;
+    procedure SetPivot(const aPivot: Tglr2DPivotPoint);
     function GetCoord(aIndex: Integer): TdfVec2f;
     procedure SetCoord(aIndex: Integer; aCoord: TdfVec2f);
     function GetTexCoord(aIndex: Integer): TdfVec2f;
@@ -497,15 +514,15 @@ type
     function GetInternalZ(): Single; // -1.0 .. 1.0
     procedure SetZ(const aValue: Integer);
 
-    function GetChild(Index: Integer): Idf2DRenderable;
-    procedure SetChild(Index: Integer; aChild: Idf2DRenderable);
-    function GetParent(): Idf2DRenderable;
-    procedure SetParent(aParent: Idf2DRenderable);
+    function GetChild(Index: Integer): Iglr2DRenderable;
+    procedure SetChild(Index: Integer; aChild: Iglr2DRenderable);
+    function GetParent(): Iglr2DRenderable;
+    procedure SetParent(aParent: Iglr2DRenderable);
     function GetChildsCount(): Integer;
     function GetBB: TdfBB;
 
-    function GetParentScene(): Idf2DScene;
-    procedure SetParentScene(const aScene: Idf2DScene);
+    function GetParentScene(): Iglr2DScene;
+    procedure SetParentScene(const aScene: Iglr2DScene);
     {$ENDREGION}
 
     property Visible: Boolean read GetVis write SetVis;
@@ -520,7 +537,7 @@ type
     procedure ScaleMult(const aScale: Single); overload;
     property Rotation: Single read GetRot write SetRot;
     property PRotation: System.PSingle read GetPRot write SetPRot;
-    property PivotPoint: Tdf2DPivotPoint read GetPivot write SetPivot;
+    property PivotPoint: Tglr2DPivotPoint read GetPivot write SetPivot;
     //Задаем собственную точку, в координатах 0..1, отсчет от верхнего левого угла
     procedure SetCustomPivotPoint(pX, pY: Single);
 
@@ -539,22 +556,22 @@ type
     property AbsolutePosition: Boolean read GetAbsPosition write SetAbsPosition;
 
     //Родитель-сцена. Нужно для вычисления GetAbsolutePosition
-    property ParentScene: Idf2DScene read GetParentScene write SetParentScene;
+    property ParentScene: Iglr2DScene read GetParentScene write SetParentScene;
 
     procedure SetSizeToTextureSize();
 
-    property Parent: Idf2DRenderable read GetParent write SetParent;
-    property Childs[Index: Integer]: Idf2DRenderable read GetChild write SetChild;
+    property Parent: Iglr2DRenderable read GetParent write SetParent;
+    property Childs[Index: Integer]: Iglr2DRenderable read GetChild write SetChild;
     property ChildsCount: Integer read GetChildsCount;
 
     //Добавить уже существующий рендер-узел себе в потомки
-    function AddChild(aChild: Idf2DRenderable): Integer;
+    function AddChild(aChild: Iglr2DRenderable): Integer;
     //Добавить нового потомка
-    function AddNewChild(): Idf2DRenderable;
+    function AddNewChild(): Iglr2DRenderable;
     //Удалить потомка из списка по индексу. Физически объект остается в памяти.
     procedure RemoveChild(Index: Integer); overload;
     //Удалить потомка из списка по указателю. Физически объект остается в памяти.
-    procedure RemoveChild(aChild: Idf2DRenderable); overload;
+    procedure RemoveChild(aChild: Iglr2DRenderable); overload;
     //Удалить потомка из списка по индексу. Физически объект уничтожается.
     procedure FreeChild(Index: Integer);
 
@@ -564,17 +581,17 @@ type
   end;
 
   { IdfSprite - двумерный спрайт, отображающийся на экране (HUD-sprite) без искажений }
-  IdfSprite = interface (Idf2DRenderable)
+  IglrSprite = interface (Iglr2DRenderable)
     ['{C8048F34-9F3D-4E58-BC71-633F2413A9A5}']
   end;
 
-  IdfText = interface;
+  IglrText = interface;
 
   { IdfFont отвечает за хранение шрифта, которым может быть отрендерен текст }
-  IdfFont = interface
+  IglrFont = interface
     ['{C05DAC6F-ABC0-41BF-9752-6064395741D2}']
     {$REGION '[private]'}
-    function GetTexture(): IdfTexture;
+    function GetTexture(): IglrTexture;
 //    procedure SetTexture(aTexture: IdfTexture);
     function GetFontSize(): Integer;
     procedure SetFontSize(aSize: Integer);
@@ -597,23 +614,23 @@ type
 
     procedure GenerateFromTTF(aFile: WideString; aFontName: WideString = '');
     procedure GenerateFromFont(aFontName: WideString);
-    property Texture: IdfTexture read GetTexture;
+    property Texture: IglrTexture read GetTexture;
 
 //    procedure PrintText(aText: String); overload;
-    procedure PrintText(aText: IdfText); //overload;
+    procedure PrintText(aText: IglrText); //overload;
 
     function GetTextLength(aText: WideString): Single;
-    function GetTextSize(aText: IdfText): TdfVec2f;
+    function GetTextSize(aText: IglrText): TdfVec2f;
     function IsSymbolExist(aSymbol: WideChar): Boolean;
   end;
 
   { IdfText - текст, отображающийся на экране без искажений и вне зависимости
     от положения камеры (HUD-элемент)}
-  IdfText = interface (Idf2DRenderable)
+  IglrText = interface (Iglr2DRenderable)
     ['{C0E53D75-7C6B-4218-AA3E-B6FE6076EA68}']
     {$REGION '[private]'}
-    function GetFont(): IdfFont;
-    procedure SetFont(aFont: IdfFont);
+    function GetFont(): IglrFont;
+    procedure SetFont(aFont: IglrFont);
     function GetText(): WideString;
     procedure SetText(aText: WideString);
 
@@ -623,7 +640,7 @@ type
 //    procedure SetHeight(const aHeight: Single);
     {$ENDREGION}
 
-    property Font: IdfFont read GetFont write SetFont;
+    property Font: IglrFont read GetFont write SetFont;
     property Text: WideString read GetText write SetText;
 
 //    property Width: Single read GetWidth write SetWidth;
@@ -631,23 +648,23 @@ type
   end;
 
   { Idf2DScene - класс, организующий все Idf2DRenderable-сущности}
-  Idf2DScene = interface (IdfBaseScene)
+  Iglr2DScene = interface (IdfBaseScene)
     ['{3D0DB66F-077A-406B-88A4-882972D8077A}']
     {$REGION '[private]'}
-    function GetElement(aIndex: Integer): Idf2DRenderable;
-    procedure SetElement(aIndex: Integer; const aElement: Idf2DRenderable);
+    function GetElement(aIndex: Integer): Iglr2DRenderable;
+    procedure SetElement(aIndex: Integer; const aElement: Iglr2DRenderable);
 
     function GetOrigin(): TdfVec2f;
     procedure SetOrigin(const aVec: TdfVec2f);
     {$ENDREGION}
 
-    function RegisterElement(const aElement: Idf2DRenderable): Integer;
-    procedure UnregisterElement(const aElement: Idf2DRenderable);
+    function RegisterElement(const aElement: Iglr2DRenderable): Integer;
+    procedure UnregisterElement(const aElement: Iglr2DRenderable);
     procedure UnregisterElements();
-    function IsElementRegistered(const aElement: Idf2DRenderable): Boolean;
+    function IsElementRegistered(const aElement: Iglr2DRenderable): Boolean;
     procedure SortFarthestFirst();
 
-    property Elements[Index: Integer]: Idf2DRenderable read GetElement write SetElement;
+    property Elements[Index: Integer]: Iglr2DRenderable read GetElement write SetElement;
 
     property Origin: TdfVec2f read GetOrigin write SetOrigin;
   end;
@@ -656,60 +673,60 @@ type
 
   {$REGION ' GUI '}
 
-  IdfGUIElement = interface;
+  IglrGUIElement = interface;
 
   //Виды проверок:
   // - hmBox - проверка по всей площади кнопки
   // - hmCircle - проверка по радиусу, равному Width
   // - hmAlpha0 - за кнопку считается все, у чего альфа больше 0
   // - hmAlpha50 - за кнопку считается все, у чего альфа больше 50%
-  TdfGUIHitMode = (hmBox, hmCircle, hmAlpha0, hmAlpha50);
+  TglrGUIHitMode = (hmBox, hmCircle, hmAlpha0, hmAlpha50);
 
-  TdfMousePos = (mpOut = 0, mpOver);
+  TglrMousePos = (mpOut = 0, mpOver);
 
-  TdfMouseEvent = procedure(Sender: IdfGUIElement; X, Y: Integer; Button: TdfMouseButton; Shift: TdfMouseShiftState);
-  TdfWheelEvent = procedure(Sender: IdfGUIElement; X, Y: Integer; Shift: TdfMouseShiftState; WheelDelta: Integer);
-  TdfFocusEvent = procedure(Sender: IdfGUIElement; IsFocused: Boolean);
-  TdfValueChangedEvent = procedure(Sender: IdfGUIElement; aNewValue: Integer);
+  TglrMouseEvent = procedure(Sender: IglrGUIElement; X, Y: Integer; Button: TglrMouseButton; Shift: TglrMouseShiftState);
+  TglrWheelEvent = procedure(Sender: IglrGUIElement; X, Y: Integer; Shift: TglrMouseShiftState; WheelDelta: Integer);
+  TglrFocusEvent = procedure(Sender: IglrGUIElement; IsFocused: Boolean);
+  TglrValueChangedEvent = procedure(Sender: IglrGUIElement; aNewValue: Integer);
 
   {
     ОБщий предок для всех элементов GUI
   }
-  IdfGUIElement = interface(Idf2DRenderable)
+  IglrGUIElement = interface(Iglr2DRenderable)
     ['{68635C44-C704-438B-8D98-C741C325F3CA}']
     {$REGION '[private]'}
     function GetEnabled(): Boolean;
     procedure SetEnabled(const aEnabled: Boolean);
 
-    function GetHitMode(): TdfGUIHitMode;
-    procedure SetHitMode(aMode: TdfGUIHitMode);
+    function GetHitMode(): TglrGUIHitMode;
+    procedure SetHitMode(aMode: TglrGUIHitMode);
 
-    function GetOnClick(): TdfMouseEvent;
-    function GetOnOver(): TdfMouseEvent;
-    function GetOnOut(): TdfMouseEvent;
-    function GetOnDown(): TdfMouseEvent;
-    function GetOnUp(): TdfMouseEvent;
-    function GetOnWheel(): TdfWheelEvent;
-    function GetOnFocus(): TdfFocusEvent;
+    function GetOnClick(): TglrMouseEvent;
+    function GetOnOver(): TglrMouseEvent;
+    function GetOnOut(): TglrMouseEvent;
+    function GetOnDown(): TglrMouseEvent;
+    function GetOnUp(): TglrMouseEvent;
+    function GetOnWheel(): TglrWheelEvent;
+    function GetOnFocus(): TglrFocusEvent;
 
-    procedure SetOnClick(aProc: TdfMouseEvent);
-    procedure SetOnOver(aProc: TdfMouseEvent);
-    procedure SetOnOut(aProc: TdfMouseEvent);
-    procedure SetOnDown(aProc: TdfMouseEvent);
-    procedure SetOnUp(aProc: TdfMouseEvent);
-    procedure SetOnWheel(aProc: TdfWheelEvent);
-    procedure SetOnFocus(aProc: TdfFocusEvent);
+    procedure SetOnClick(aProc: TglrMouseEvent);
+    procedure SetOnOver(aProc: TglrMouseEvent);
+    procedure SetOnOut(aProc: TglrMouseEvent);
+    procedure SetOnDown(aProc: TglrMouseEvent);
+    procedure SetOnUp(aProc: TglrMouseEvent);
+    procedure SetOnWheel(aProc: TglrWheelEvent);
+    procedure SetOnFocus(aProc: TglrFocusEvent);
 
-    function GetMousePos(): TdfMousePos;
+    function GetMousePos(): TglrMousePos;
 
     //Для внутреннего использования. Либо для принудительного вызова события
-    procedure _MouseMove (X, Y: Integer; Shift: TdfMouseShiftState);
-    procedure _MouseOver (X, Y: Integer; Shift: TdfMouseShiftState);
-    procedure _MouseOut (X, Y: Integer; Shift: TdfMouseShiftState);
-    procedure _MouseDown (X, Y: Integer; MouseButton: TdfMouseButton; Shift: TdfMouseShiftState);
-    procedure _MouseUp   (X, Y: Integer; MouseButton: TdfMouseButton; Shift: TdfMouseShiftState);
-    procedure _MouseWheel(X, Y: Integer; Shift: TdfMouseShiftState; WheelDelta: Integer);
-    procedure _MouseClick(X, Y: Integer; MouseButton: TdfMouseButton; Shift: TdfMouseShiftState);
+    procedure _MouseMove (X, Y: Integer; Shift: TglrMouseShiftState);
+    procedure _MouseOver (X, Y: Integer; Shift: TglrMouseShiftState);
+    procedure _MouseOut (X, Y: Integer; Shift: TglrMouseShiftState);
+    procedure _MouseDown (X, Y: Integer; MouseButton: TglrMouseButton; Shift: TglrMouseShiftState);
+    procedure _MouseUp   (X, Y: Integer; MouseButton: TglrMouseButton; Shift: TglrMouseShiftState);
+    procedure _MouseWheel(X, Y: Integer; Shift: TglrMouseShiftState; WheelDelta: Integer);
+    procedure _MouseClick(X, Y: Integer; MouseButton: TglrMouseButton; Shift: TglrMouseShiftState);
     procedure _Focused();
     procedure _Unfocused();
     procedure _KeyDown(KeyCode: Word; KeyData: Integer);
@@ -717,19 +734,19 @@ type
 
     property Enabled: Boolean read GetEnabled write SetEnabled;
     //Режим проверки попадания по элементу.
-    property HitMode: TdfGUIHitMode read GetHitMode write SetHitMode;
+    property HitMode: TglrGUIHitMode read GetHitMode write SetHitMode;
     //Проверка на попадание по элементу
     function CheckHit(X, Y: Integer): Boolean;
     //Коллбэки для пользователя
-    property OnMouseClick: TdfMouseEvent read GetOnClick write SetOnClick;
-    property OnMouseOver: TdfMouseEvent read GetOnOver write SetOnOver;
-    property OnMouseOut: TdfMouseEvent read GetOnOut write SetOnOut;
-    property OnMouseDown: TdfMouseEvent read GetOnDown write SetOnDown;
-    property OnMouseUp: TdfMouseEvent read GetOnUp write SetOnUp;
-    property OnMouseWheel: TdfWheelEvent read GetOnWheel write SetOnWheel;
-    property OnFocus: TdfFocusEvent read GetOnFocus write SetOnFocus;
+    property OnMouseClick: TglrMouseEvent read GetOnClick write SetOnClick;
+    property OnMouseOver: TglrMouseEvent read GetOnOver write SetOnOver;
+    property OnMouseOut: TglrMouseEvent read GetOnOut write SetOnOut;
+    property OnMouseDown: TglrMouseEvent read GetOnDown write SetOnDown;
+    property OnMouseUp: TglrMouseEvent read GetOnUp write SetOnUp;
+    property OnMouseWheel: TglrWheelEvent read GetOnWheel write SetOnWheel;
+    property OnFocus: TglrFocusEvent read GetOnFocus write SetOnFocus;
 
-    property MousePos: TdfMousePos read GetMousePos;
+    property MousePos: TglrMousePos read GetMousePos;
 
     //Порядок сортировки при обработке ввода.
     // При конфликте двух GUI-элементов обработка
@@ -739,153 +756,161 @@ type
     procedure Reset();
   end;
 
-  IdfGUIButton = interface(IdfGUIElement)
+  IglrGUIButton = interface(IglrGUIElement)
     ['{D8A90E06-F07C-48B4-9F9A-8E7C31BDFA1F}']
     {$REGION '[private]'}
-    function GetTextureNormal(): IdfTexture;
-    function GetTextureOver(): IdfTexture;
-    function GetTextureClick(): IdfTexture;
+    function GetTextureNormal(): IglrTexture;
+    function GetTextureOver(): IglrTexture;
+    function GetTextureClick(): IglrTexture;
 
-    procedure SetTextureNormal(aTexture: idfTexture);
-    procedure SetTextureOver(aTexture: idfTexture);
-    procedure SetTextureClick(aTexture: idfTexture);
+    procedure SetTextureNormal(aTexture: IglrTexture);
+    procedure SetTextureOver(aTexture: IglrTexture);
+    procedure SetTextureClick(aTexture: IglrTexture);
 
     function GetAutoChange: Boolean;
     procedure SetAutoChange(aChange: Boolean);
 
     {$ENDREGION}
-    property TextureNormal: IdfTexture read GetTextureNormal write SetTextureNormal;
-    property TextureOver: IdfTexture read GetTextureOver write SetTextureOver;
-    property TextureClick: IdfTexture read GetTextureClick write SetTextureClick;
+    property TextureNormal: IglrTexture read GetTextureNormal write SetTextureNormal;
+    property TextureOver: IglrTexture read GetTextureOver write SetTextureOver;
+    property TextureClick: IglrTexture read GetTextureClick write SetTextureClick;
 
     //Текстуры будут меняться автоматически при наведении, клие и уходе мыши
     property TextureAutoChange: Boolean read GetAutoChange write SetAutoChange;
   end;
 
-  IdfGUITextButton = interface (IdfGUIElement)
+  IglrGUITextButton = interface (IglrGUIButton)
     ['{4B86B915-17A1-4D5C-BDBB-063DCE087F6C}']
+    {$REGION '[private]'}
+    function GetText(): IglrText;
+    procedure SetText(const aText: IglrText);
+    function GetTextOffset(): TdfVec2f;
+    procedure SetTextOffset(aOffset: TdfVec2f);
+    {$ENDREGION}
+    property TextObject: IglrText read GetText write SetText;
+    property TextOffset: TdfVec2f read GetTextOffset write SetTextOffset;
   end;
 
-  IdfGUICheckBox = interface;
+  IglrGUICheckBox = interface;
 
-  TdfCheckEvent = procedure (Sender: IdfGUICheckBox; Checked: Boolean);
+  TglrCheckEvent = procedure (Sender: IglrGUICheckBox; Checked: Boolean);
 
-  IdfGUICheckBox = interface (IdfGUIElement)
+  IglrGUICheckBox = interface (IglrGUIElement)
     ['{ABBBF404-EBD6-4E89-869C-DA25AD5D1E17}']
     {$REGION '[private]'}
     function GetChecked: Boolean;
     procedure SetChecked(const aChecked: Boolean);
 
-    function GetTextureOn(): IdfTexture;
-    function GetTextureOnOver(): IdfTexture;
-    function GetTextureOff(): IdfTexture;
-    function GetTextureOffOver(): IdfTexture;
+    function GetTextureOn(): IglrTexture;
+    function GetTextureOnOver(): IglrTexture;
+    function GetTextureOff(): IglrTexture;
+    function GetTextureOffOver(): IglrTexture;
 
-    procedure SetTextureOn(aTexture: idfTexture);
-    procedure SetTextureOnOver(aTexture: idfTexture);
-    procedure SetTextureOff(aTexture: idfTexture);
-    procedure SetTextureOffOver(aTexture: idfTexture);
+    procedure SetTextureOn(aTexture: IglrTexture);
+    procedure SetTextureOnOver(aTexture: IglrTexture);
+    procedure SetTextureOff(aTexture: IglrTexture);
+    procedure SetTextureOffOver(aTexture: IglrTexture);
 
     function GetAutoChange: Boolean;
     procedure SetAutoChange(aChange: Boolean);
 
-    function GetOnCheck: TdfCheckEvent;
-    procedure SetOnCheck(const aOnCheck: TdfCheckEvent);
+    function GetOnCheck: TglrCheckEvent;
+    procedure SetOnCheck(const aOnCheck: TglrCheckEvent);
     {$ENDREGION}
     property Checked: Boolean read GetChecked write SetChecked;
 
-    property TextureOn:      IdfTexture read GetTextureOn      write SetTextureOn;
-    property TextureOnOver:  IdfTexture read GetTextureOnOver  write SetTextureOnOver;
-    property TextureOff:     IdfTexture read GetTextureOff     write SetTextureOff;
-    property TextureOffOver: IdfTexture read GetTextureOffOver write SetTextureOffOver;
+    property TextureOn:      IglrTexture read GetTextureOn      write SetTextureOn;
+    property TextureOnOver:  IglrTexture read GetTextureOnOver  write SetTextureOnOver;
+    property TextureOff:     IglrTexture read GetTextureOff     write SetTextureOff;
+    property TextureOffOver: IglrTexture read GetTextureOffOver write SetTextureOffOver;
 
     //Текстуры будут меняться автоматически при наведении, клие и уходе мыши
     property TextureAutoChange: Boolean read GetAutoChange write SetAutoChange;
     //Событие при смене статуса checked
-    property OnCheck: TdfCheckEvent read GetOnCheck write SetOnCheck;
+    property OnCheck: TglrCheckEvent read GetOnCheck write SetOnCheck;
   end;
 
-  IdfGUITextBox = interface (IdfGUIElement)
+  IglrGUITextBox = interface (IglrGUIElement)
     ['{E646CA2F-3A0D-484E-9CD7-53E978F8F98C}']
     {$REGION '[private]'}
-    function GetTextObject(): IdfText;
-    procedure SetTextObject(const aTextObject: IdfText);
+    function GetTextObject(): IglrText;
+    procedure SetTextObject(const aTextObject: IglrText);
     function GetMaxTextLength(): Integer;
     procedure SetMaxTextLength(aLength: Integer);
     function GetTextOffset(): TdfVec2f;
     procedure SetTextOffset(aOffset: TdfVec2f);
     function GetCurOffset(): TdfVec2f;
     procedure SetCurOffset(aOffset: TdfVec2f);
-    function GetCursor: IdfSprite;
-    procedure SetCursor(const aCursor: IdfSprite);
+    function GetCursor: IglrSprite;
+    procedure SetCursor(const aCursor: IglrSprite);
     {$ENDREGION}
-    property TextObject: IdfText read GetTextObject write SetTextObject;
-    property CursorObject: IdfSprite read GetCursor write SetCursor;
+    property TextObject: IglrText read GetTextObject write SetTextObject;
+    property CursorObject: IglrSprite read GetCursor write SetCursor;
     property TextOffset: TdfVec2f read GetTextOffset write SetTextOffset;
     property CursorOffset: TdfVec2f read GetCurOffset write SetCurOffset;
     property MaxTextLength: Integer read GetMaxTextLength write SetMaxTextLength;
   end;
 
-  IdfGUISlider = interface (IdfGUIElement)
+  IglrGUISlider = interface (IglrGUIElement)
     ['{7922F9A6-82D0-4A64-AED6-806CE1ED72FD}']
     {$REGION '[private]'}
     function GetMaxValue: Integer;
     function GetMinValue: Integer;
-    function GetSliderBtn: IdfSprite;
-    function GetSliderOver: IdfSprite;
+    function GetSliderBtn: IglrSprite;
+    function GetSliderOver: IglrSprite;
     function GetValue: Integer;
-    function GetOnValueChanged(): TdfValueChangedEvent;
+    function GetOnValueChanged(): TglrValueChangedEvent;
     procedure SetMaxValue(const Value: Integer);
     procedure SetMinValue(const Value: Integer);
-    procedure SetSliderBtn(const Value: IdfSprite);
-    procedure SetSliderOver(const Value: IdfSprite);
+    procedure SetSliderBtn(const Value: IglrSprite);
+    procedure SetSliderOver(const Value: IglrSprite);
     procedure SetValue(const Value: Integer);
-    procedure SetOnValueChanged(const aOnValueChanged: TdfValueChangedEvent);
+    procedure SetOnValueChanged(const aOnValueChanged: TglrValueChangedEvent);
     {$ENDREGION}
     property Value:    Integer read GetValue    write SetValue;
     property MinValue: Integer read GetMinValue write SetMinValue;
     property MaxValue: Integer read GetMaxValue write SetMaxValue;
-    property SliderButton: IdfSprite read GetSliderBtn  write SetSliderBtn;
-    property SliderOver:   IdfSprite read GetSliderOver write SetSliderOver;
+    property SliderButton: IglrSprite read GetSliderBtn  write SetSliderBtn;
+    property SliderOver:   IglrSprite read GetSliderOver write SetSliderOver;
 
-    property OnValueChanged: TdfValueChangedEvent read GetOnValueChanged write SetOnValueChanged;
+    property OnValueChanged: TglrValueChangedEvent read GetOnValueChanged write SetOnValueChanged;
   end;
 
-  IdfGUIManager = interface
+  IglrGUIManager = interface
     ['{E29C453A-E98E-4881-A444-397AEC9007A8}']
     {$REGION '[private]'}
-    function GetFocused(): IdfGUIElement;
-    procedure SetFocused(aElement: IdfGUIElement);
+    function GetFocused(): IglrGUIElement;
+    procedure SetFocused(aElement: IglrGUIElement);
     {$ENDREGION}
     //Зарегистрировать/разрегистрировать элемент
-    procedure RegisterElement(aElement: IdfGUIElement);
-    procedure UnregisterElement(aElement: IdfGUIElement);
+    procedure RegisterElement(aElement: IglrGUIElement);
+    procedure UnregisterElement(aElement: IglrGUIElement);
 
     //Элемент, находящийся в фокусе
-    property Focused: IdfGUIElement read GetFocused write SetFocused;
+    property Focused: IglrGUIElement read GetFocused write SetFocused;
 
     //для внутреннего использования IdfRenderer-ом.
-    procedure MouseMove (X, Y: Integer; Shift: TdfMouseShiftState);
-    procedure MouseDown (X, Y: Integer; MouseButton: TdfMouseButton; Shift: TdfMouseShiftState);
-    procedure MouseUp   (X, Y: Integer; MouseButton: TdfMouseButton; Shift: TdfMouseShiftState);
-    procedure MouseWheel(X, Y: Integer; Shift: TdfMouseShiftState; WheelDelta: Integer);
+    procedure MouseMove (X, Y: Integer; Shift: TglrMouseShiftState);
+    procedure MouseDown (X, Y: Integer; MouseButton: TglrMouseButton; Shift: TglrMouseShiftState);
+    procedure MouseUp   (X, Y: Integer; MouseButton: TglrMouseButton; Shift: TglrMouseShiftState);
+    procedure MouseWheel(X, Y: Integer; Shift: TglrMouseShiftState; WheelDelta: Integer);
     procedure KeyDown   (KeyCode: Word; KeyData: Integer);
   end;
 
   {$ENDREGION}
 
-  TdfUserRenderableCallback = procedure(); stdcall;
+  TglrUserRenderableCallback = procedure(); stdcall;
 
-  IdfUserRenderable = interface(IdfRenderable)
+  IglrUserRenderable = interface(IglrRenderable)
     ['{1315E4FF-F4EF-4049-A4FD-18FEE4FA0A8E}']
     {$REGION '[private]'}
-    function GetUserCallback: TdfUserRenderableCallback;
-    procedure SetUserCallback(urc: TdfUserRenderableCallback);
+    function GetUserCallback: TglrUserRenderableCallback;
+    procedure SetUserCallback(urc: TglrUserRenderableCallback);
     {$ENDREGION}
-    property OnRender: TdfUserRenderableCallback read GetUserCallback write SetUserCallback;
+    property OnRender: TglrUserRenderableCallback read GetUserCallback write SetUserCallback;
   end;
 
-  IdfRenderer = interface
+  IglrRenderer = interface
     ['{BFB518E7-A55A-48E2-B0C4-ED7BE8D23796}']
     {$REGION '[private]'}
     function GetWindowHandle(): Integer;
@@ -893,23 +918,23 @@ type
     procedure SetWindowCaption(aCaption: WideString);
     function GetRenderReady(): Boolean;
     function GetFPS(): Single;
-    function GetCamera(): IdfCamera;
-    procedure SetCamera(const aCamera: IdfCamera);
-    function GetRoot: IdfNode;
-    procedure SetRoot(const aRoot: IdfNode);
+    function GetCamera(): IglrCamera;
+    procedure SetCamera(const aCamera: IglrCamera);
+    function GetRoot: IglrNode;
+    procedure SetRoot(const aRoot: IglrNode);
 
-    procedure SetOnMouseDown(aProc: TdfOnMouseDownProc);
-    procedure SetOnMouseUp(aProc: TdfOnMouseUpProc);
-    procedure SetOnMouseMove(aProc: TdfOnMouseMoveProc);
-    procedure SetOnMouseWheel(aProc: TdfOnMouseWheelProc);
+    procedure SetOnMouseDown(aProc: TglrOnMouseDownProc);
+    procedure SetOnMouseUp(aProc: TglrOnMouseUpProc);
+    procedure SetOnMouseMove(aProc: TglrOnMouseMoveProc);
+    procedure SetOnMouseWheel(aProc: TglrOnMouseWheelProc);
 
-    function GetOnMouseDown(): TdfOnMouseDownProc;
-    function GetOnMouseUp(): TdfOnMouseUpProc;
-    function GetOnMouseMove(): TdfOnMouseMoveProc;
-    function GetOnMouseWheel() : TdfOnMouseWheelProc;
+    function GetOnMouseDown(): TglrOnMouseDownProc;
+    function GetOnMouseUp(): TglrOnMouseUpProc;
+    function GetOnMouseMove(): TglrOnMouseMoveProc;
+    function GetOnMouseWheel() : TglrOnMouseWheelProc;
 
-    function GetOnUpdate(): TdfOnUpdateProc;
-    procedure SetOnUpdate(aProc: TdfOnUpdateProc);
+    function GetOnUpdate(): TglrOnUpdateProc;
+    procedure SetOnUpdate(aProc: TglrOnUpdateProc);
 
     function GetEnabled(): Boolean;
     procedure SetEnabled(aEnabled: Boolean);
@@ -922,11 +947,11 @@ type
     function GetWidth(): Integer;
     function GetHeight(): Integer;
 
-    function GetInput(): IdfInput;
-    procedure SetInput(const aInput: IdfInput);
+    function GetInput(): IglrInput;
+    procedure SetInput(const aInput: IglrInput);
 
-    function GetManager(): IdfGUIManager;
-    procedure SetManager(const aManager: IdfGUIManager);
+    function GetManager(): IglrGUIManager;
+    procedure SetManager(const aManager: IglrGUIManager);
 
     procedure Dispatch(var Message);
 
@@ -958,21 +983,21 @@ type
     property VersionText: PWideChar read GetSelfVersion;
 
     {Вероятно, вынести в класс TdfWindow?}
-    property OnMouseDown: TdfOnMouseDownProc read GetOnMouseDown write SetOnMouseDown;
-    property OnMouseUp: TdfOnMouseUpProc read GetOnMouseUp write SetOnMouseUp;
-    property OnMouseMove: TdfOnMouseMoveProc read GetOnMouseMove write SetOnMouseMove;
-    property OnMouseWheel: TdfOnMouseWheelProc read GetOnMouseWheel write SetOnMouseWheel;
+    property OnMouseDown: TglrOnMouseDownProc read GetOnMouseDown write SetOnMouseDown;
+    property OnMouseUp: TglrOnMouseUpProc read GetOnMouseUp write SetOnMouseUp;
+    property OnMouseMove: TglrOnMouseMoveProc read GetOnMouseMove write SetOnMouseMove;
+    property OnMouseWheel: TglrOnMouseWheelProc read GetOnMouseWheel write SetOnMouseWheel;
 
-    property OnUpdate: TdfOnUpdateProc read GetOnUpdate write SetOnUpdate;
+    property OnUpdate: TglrOnUpdateProc read GetOnUpdate write SetOnUpdate;
 
-    property Camera: IdfCamera read GetCamera write SetCamera;
+    property Camera: IglrCamera read GetCamera write SetCamera;
 
     {debug - надо юзать IdfScene}
-    property RootNode: IdfNode read GetRoot write SetRoot;
+    property RootNode: IglrNode read GetRoot write SetRoot;
 
-    property Input: IdfInput read GetInput write SetInput;
+    property Input: IglrInput read GetInput write SetInput;
 
-    property GUIManager: IdfGUIManager read GetManager write SetManager;
+    property GUIManager: IglrGUIManager read GetManager write SetManager;
 
     {debug - количество переключений текстур}
     property TextureSwitches: Integer read GetTexSwitches;
@@ -983,27 +1008,31 @@ type
     procedure UnregisterScenes();
   end;
 
+  IglrObjectFactory = interface
+    function NewNode(aParent: IglrNode): IglrNode;
+    function NewUserRender(): IglrUserRenderable;
+    function NewHudSprite(): IglrSprite;
+    function NewSprite(): IglrSprite; //for future uses
+    function NewMaterial(): IglrMaterial;
+    function NewTexture(): IglrTexture;
+    function NewFont(): IglrFont;
+    function NewText(): IglrText;
+    function NewGUIButton(): IglrGUIButton;
+    function NewGUITextButton(): IglrGUITextButton;
+    function NewGUICheckBox(): IglrGUICheckBox;
+    function NewGUITextBox(): IglrGUITextBox;
+    function NewGUISlider(): IglrGUISlider;
+    function New2DScene(): Iglr2DScene;
+  end;
+
   procedure LoadRendererLib();
   procedure UnLoadRendererLib();
 
 var
   {Пока все в стадии дебага, впоследствии заменить на фабрики}
-  dfCreateRenderer: function(): IdfRenderer; stdcall;
-  dfDestroyRenderer: function(): Integer; stdcall;
-
-  dfCreateNode: function(aParent: IdfNode): IdfNode; stdcall;
-  dfCreateUserRender: function(): IdfUserRenderable; stdcall;
-  dfCreateHUDSprite: function(): IdfSprite; stdcall;
-  dfCreateMaterial: function(): IdfMaterial; stdcall;
-  dfCreateTexture: function(): IdfTexture; stdcall;
-  dfCreateFont: function(): IdfFont; stdcall;
-  dfCreateText: function(): IdfText; stdcall;
-  dfCreateGUIButton: function(): IdfGUIButton; stdcall;
-  dfCreateGUICheckBox: function(): IdfGUICheckBox; stdcall;
-  dfCreateGUITextBox: function(): IdfGUITextBox; stdcall;
-  dfCreateGUISlider: function(): IdfGUISlider; stdcall;
-
-  dfCreate2DScene: function(): Idf2DScene; stdcall;
+  glrCreateRenderer: function(): IglrRenderer; stdcall;
+  glrDestroyRenderer: function(): Integer; stdcall;
+  glrGetObjectFactory: function(): IglrObjectFactory; stdcall;
 
   dllHandle: THandle;
 
@@ -1014,22 +1043,10 @@ begin
   dllHandle := LoadLibrary(dllname);
   Assert(dllHandle <> 0, 'Ошибка загрузки библиотеки: вероятно библиотека не найдена');
 
-  dfCreateRenderer := GetProcAddress(dllHandle, 'CreateRenderer');
-  dfDestroyRenderer := GetProcAddress(dllHandle, 'DestroyRenderer');
+  glrCreateRenderer := GetProcAddress(dllHandle, 'CreateRenderer');
+  glrDestroyRenderer := GetProcAddress(dllHandle, 'DestroyRenderer');
 
-  dfCreateNode := GetProcAddress(dllHandle, 'CreateNode');
-  dfCreateUserRender := GetProcAddress(dllHandle, 'CreateUserRender');
-  dfCreateHUDSprite := GetProcAddress(dllHandle, 'CreateHUDSprite');
-  dfCreateMaterial := GetProcAddress(dllHandle, 'CreateMaterial');
-  dfCreateTexture := GetProcAddress(dllHandle, 'CreateTexture');
-  dfCreateFont := GetProcAddress(dllHandle, 'CreateFont');
-  dfCreateText := GetProcAddress(dllHandle, 'CreateText');
-  dfCreateGUIButton := GetProcAddress(dllHandle, 'CreateGUIButton');
-  dfCreateGUICheckBox := GetProcAddress(dllHandle, 'CreateGUICheckBox');
-  dfCreateGUITextBox := GetProcAddress(dllHandle, 'CreateGUITextBox');
-  dfCreateGUISlider := GetProcAddress(dllHandle, 'CreateGUISlider');
-
-  dfCreate2DScene := GetProcAddress(dllHandle, 'Create2DScene');
+  glrGetObjectFactory := GetProcAddress(dllHandle, 'GetObjectFactory');
 end;
 
 procedure UnLoadRendererLib();
@@ -1040,9 +1057,9 @@ begin
 //  FreeLibraryAndExitThread(dllHandle, 0);
 end;
 
-class function TdfStream.Init(Memory: Pointer; MemSize: LongInt): TdfStream;
+class function TglrStream.Init(Memory: Pointer; MemSize: LongInt): TglrStream;
 begin
-  Result := TdfStream.Create;
+  Result := TglrStream.Create;
   with Result do
   begin
     SType := stMemory;
@@ -1053,11 +1070,11 @@ begin
   end;
 end;
 
-class function TdfStream.Init(const FileName: String; RW: Boolean): TdfStream;
+class function TglrStream.Init(const FileName: String; RW: Boolean): TglrStream;
 var
   io: Integer;
 begin
-  Result := TdfStream.Create();
+  Result := TglrStream.Create();
   AssignFile(Result.F, FileName);
   if RW then
     Rewrite(Result.F, 1)
@@ -1078,27 +1095,27 @@ begin
   end;
 end;
 
-destructor TdfStream.Destroy;
+destructor TglrStream.Destroy;
 begin
   if SType = stFile then
     CloseFile(F);
 end;
 
-procedure TdfStream.SetPos(Value: LongInt);
+procedure TglrStream.SetPos(Value: LongInt);
 begin
   FPos := Value;
   if SType = stFile then
     Seek(F, FBPos + FPos);
 end;
 
-procedure TdfStream.SetBlock(BPos, BSize: LongInt);
+procedure TglrStream.SetBlock(BPos, BSize: LongInt);
 begin
   FSize := BSize;
   FBPos := BPos;
   Pos := 0;
 end;
 
-procedure TdfStream.CopyFrom(const Stream: TdfStream);
+procedure TglrStream.CopyFrom(const Stream: TglrStream);
 var
   p : Pointer;
   CPos : LongInt;
@@ -1112,7 +1129,7 @@ begin
   FreeMemory(p);
 end;
 
-function TdfStream.Read(out Buf; BufSize: LongInt): LongInt;
+function TglrStream.Read(out Buf; BufSize: LongInt): LongInt;
 begin
   if SType = stMemory then
   begin
@@ -1123,7 +1140,7 @@ begin
   Inc(FPos, Result);
 end;
 
-function TdfStream.Write(const Buf; BufSize: LongInt): LongInt;
+function TglrStream.Write(const Buf; BufSize: LongInt): LongInt;
 begin
   if SType = stMemory then
   begin
@@ -1135,7 +1152,7 @@ begin
   Inc(FSize, Max(0, FPos - FSize));
 end;
 
-function TdfStream.ReadAnsi: AnsiString;
+function TglrStream.ReadAnsi: AnsiString;
 var
   Len : Word;
 begin
@@ -1148,7 +1165,7 @@ begin
     Result := '';
 end;
 
-procedure TdfStream.WriteAnsi(const Value: AnsiString);
+procedure TglrStream.WriteAnsi(const Value: AnsiString);
 var
   Len : Word;
 begin
@@ -1158,7 +1175,7 @@ begin
     Write(Value[1], Len);
 end;
 
-function TdfStream.ReadUnicode: WideString;
+function TglrStream.ReadUnicode: WideString;
 var
   Len : Word;
 begin
@@ -1167,7 +1184,7 @@ begin
   Read(Result[1], Len * 2);
 end;
 
-procedure TdfStream.WriteUnicode(const Value: WideString);
+procedure TglrStream.WriteUnicode(const Value: WideString);
 var
   Len : Word;
 begin
@@ -1175,5 +1192,43 @@ begin
   Write(Len, SizeOf(Len));
   Write(Value[1], Len * 2);
 end;
+
+
+function PCharToPWide(AChar: PAnsiChar): PWideChar;
+var
+  pw: PWideChar;
+  iSize: integer;
+begin
+  iSize := Length(AChar) + 1;
+  pw := AllocMem(iSize * 2);
+  MultiByteToWideChar(CP_ACP, 0, AChar, iSize, pw, iSize * 2);
+
+  Result := pw;
+end;
+
+function PWideToPChar(pw: PWideChar): PAnsiChar;
+var
+  p: PAnsiChar;
+  iLen: integer;
+begin
+  iLen := lstrlenw(pw) + 1;
+  GetMem(p, iLen);
+
+  WideCharToMultiByte(CP_ACP, 0, pw, iLen, p, iLen * 2, nil, nil);
+
+  Result := p;
+  FreeMem(p, iLen);
+end;
+
+function SizeOfP(const P: Pointer): Integer;
+begin
+  if P = nil then
+    Result := -1
+  else
+    Result := Integer(Pointer((Integer(p) - 4))^) and $7FFFFFFC - 4;
+end;
+
+initialization
+  ReportMemoryLeaksOnShutDown := True;
 
 end.

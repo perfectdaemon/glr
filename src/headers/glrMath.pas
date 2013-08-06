@@ -1,26 +1,18 @@
 {
-  DiF Engine
+  Based on eXgine© Math unit (New BSD License)
 
-  Спецификация 1.0
-
-  dfHMath.pas
-
-  Заголовочный файл (хидер) математики движка
-
-  Copyright (c) 2009-2010 Daemon
+  Copyright (c) 2009-2013 Daemon
   DiF Engine Team, XProger
-
-  Based on eXgine© Math unit (New BSD License)  
 }
 
-unit dfMath;
+unit glrMath;
 
 interface
 
-uses
-  dfHEngine;
-
 const
+  //Допустимая погрешность сравнения с нулем
+  cEPS = 0.0001;
+
   deg2rad: Single = 3.1415 / 180;
   rad2deg = 180 / 3.1415;
   pi = 3.14;
@@ -209,6 +201,7 @@ function Pow(x, y: Single): Single;
   
 function dfVec2f(x, y: Single): TdfVec2f; overload; inline;
 function dfVec2f(v: TdfVec3f): TdfVec2f; overload; inline;
+function dfVec2f(rotationAngle: Single): TdfVec2f; overload; inline;
 function dfVec3f(x, y, z: Single): TdfVec3f; overload; inline;
 function dfVec3f(v: TdfVec2f; z: Single): TdfVec3f; overload; inline;
 function dfVec3f(v: TdfVec4f): TdfVec3f; overload; inline;
@@ -354,6 +347,11 @@ begin
   Result.y := v.y;
 end;
 
+function dfVec2f(rotationAngle: Single): TdfVec2f;
+begin
+  Result := dfVec2f(cos(-rotationAngle * deg2rad), sin(rotationAngle * deg2rad));
+end;
+
 function dfVec3f(x, y, z: Single): TdfVec3f; overload;
 begin
   Result.x := x;
@@ -490,7 +488,7 @@ end;
 
 function TdfVec2f.Clamp(const Min, Max: TdfVec2f): TdfVec2f;
 begin
-  Result := dfVec2f(dfMath.Clamp(x, Min.x, Max.x), dfMath.Clamp(y, Min.y, Max.y));
+  Result := dfVec2f(glrMath.Clamp(x, Min.x, Max.x), glrMath.Clamp(y, Min.y, Max.y));
 end;
 
 function TdfVec2f.Rotate(Angle: Single): TdfVec2f;
@@ -642,7 +640,7 @@ end;
 
 function TdfVec3f.Clamp(const Min, Max: TdfVec3f): TdfVec3f;
 begin
-  Result := dfVec3f(dfMath.Clamp(x, Min.x, Max.x), dfMath.Clamp(y, Min.y, Max.y), dfMath.Clamp(z, Min.z, Max.z));
+  Result := dfVec3f(glrMath.Clamp(x, Min.x, Max.x), glrMath.Clamp(y, Min.y, Max.y), glrMath.Clamp(z, Min.z, Max.z));
 end;
 
 function TdfVec3f.Rotate(Angle: Single; const Axis: TdfVec3f): TdfVec3f;

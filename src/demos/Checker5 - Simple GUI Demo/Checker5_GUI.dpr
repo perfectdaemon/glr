@@ -3,11 +3,10 @@ program Checker5_GUI;
 uses
   Windows,
   SysUtils,
-  dfHRenderer in '..\..\headers\dfHRenderer.pas',
-  dfHEngine in '..\..\common\dfHEngine.pas',
-  dfMath in '..\..\common\dfMath.pas',
-  dfHUtility in '..\..\headers\dfHUtility.pas',
-  dfHGL in '..\..\common\dfHGL.pas';
+  glr in '..\..\headers\glr.pas',
+  glrUtils in '..\..\headers\glrUtils.pas',
+  glrMath in '..\..\headers\glrMath.pas',
+  ogl in '..\..\headers\ogl.pas';
 
 var
   R: IglrRenderer;
@@ -114,9 +113,9 @@ var
     textbox1.TextObject.Font := font1;
     textbox1.TextOffset := dfVec2f(8, 4);
     textbox1.Z := 5;
-    textbox1.Material.MaterialOptions.Diffuse := dfVec4f(0, 0, 0, 1);
-    textbox1.TextObject.Material.MaterialOptions.Diffuse := dfVec4f(1, 1, 1, 1);
-    textbox1.CursorObject.Material.MaterialOptions.Diffuse := dfVec4f(0.2, 0.2, 0.9, 1.0);
+    textbox1.Material.Diffuse := dfVec4f(0, 0, 0, 1);
+    textbox1.TextObject.Material.Diffuse := dfVec4f(1, 1, 1, 1);
+    textbox1.CursorObject.Material.Diffuse := dfVec4f(0.2, 0.2, 0.9, 1.0);
     textbox1.CursorObject.Width := 10;
     textbox1.Width := 300;
     textbox1.Height := 30;
@@ -143,7 +142,7 @@ var
       Z := 5;
       Position := text2.Position;
       PivotPoint := ppCenter;
-      Material.MaterialOptions.Diffuse := dfVec4f(1, 0, 0, 0.5);
+      Material.Diffuse := dfVec4f(1, 0, 0, 0.5);
     end;
 
     scene1.RegisterElement(text2PivotPoint);

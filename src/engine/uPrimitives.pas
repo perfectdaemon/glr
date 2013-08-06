@@ -3,7 +3,7 @@ unit uPrimitives;
 interface
 
 uses
-  dfHRenderer;
+  glr;
 
 
 

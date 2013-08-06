@@ -54,11 +54,7 @@
 			<DCCReference Include="uTexture.pas"/>
 			<DCCReference Include="uShader.pas"/>
 			<DCCReference Include="uLogger.pas"/>
-			<DCCReference Include="..\common\dfHEngine.pas"/>
-			<DCCReference Include="..\common\dfHGL.pas"/>
-			<DCCReference Include="..\common\dfLogger.pas"/>
-			<DCCReference Include="..\common\dfMath.pas"/>
-			<DCCReference Include="..\headers\dfHRenderer.pas"/>
+			<DCCReference Include="..\headers\glr.pas"/>
 			<DCCReference Include="uNode.pas"/>
 			<DCCReference Include="ExportFunc.pas"/>
 			<DCCReference Include="TexLoad.pas"/>
@@ -79,6 +75,10 @@
 			<DCCReference Include="GUI\uGUISlider.pas"/>
 			<DCCReference Include="GUI\uGUITextButton.pas"/>
 			<DCCReference Include="uFactory.pas"/>
+			<DCCReference Include="dfLogger.pas"/>
+			<DCCReference Include="..\headers\glrMath.pas"/>
+			<DCCReference Include="..\headers\ogl.pas"/>
+			<DCCReference Include="uBaseInterfaceObject.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>
@@ -110,9 +110,9 @@
 						<VersionInfo Name="IncludeVerInfo">True</VersionInfo>
 						<VersionInfo Name="AutoIncBuild">True</VersionInfo>
 						<VersionInfo Name="MajorVer">0</VersionInfo>
-						<VersionInfo Name="MinorVer">2</VersionInfo>
+						<VersionInfo Name="MinorVer">3</VersionInfo>
 						<VersionInfo Name="Release">0</VersionInfo>
-						<VersionInfo Name="Build">60</VersionInfo>
+						<VersionInfo Name="Build">3</VersionInfo>
 						<VersionInfo Name="Debug">False</VersionInfo>
 						<VersionInfo Name="PreRelease">False</VersionInfo>
 						<VersionInfo Name="Special">False</VersionInfo>
@@ -124,7 +124,7 @@
 					<VersionInfoKeys>
 						<VersionInfoKeys Name="CompanyName"/>
 						<VersionInfoKeys Name="FileDescription"/>
-						<VersionInfoKeys Name="FileVersion">0.2.0.60</VersionInfoKeys>
+						<VersionInfoKeys Name="FileVersion">0.3.0.3</VersionInfoKeys>
 						<VersionInfoKeys Name="InternalName"/>
 						<VersionInfoKeys Name="LegalCopyright"/>
 						<VersionInfoKeys Name="LegalTrademarks"/>

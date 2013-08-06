@@ -3,7 +3,7 @@ unit uGUICheckbox;
 interface
 
 uses
-  dfHRenderer,
+  glr,
   uGUIElement;
 
 type

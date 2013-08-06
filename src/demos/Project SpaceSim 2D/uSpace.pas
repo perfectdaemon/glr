@@ -3,9 +3,9 @@ unit uSpace;
 interface
 
 uses
-  dfHGL,
-  dfHRenderer,
-  dfMath;
+  ogl,
+  glr,
+  glrMath;
 
 type
   TssStar = packed record

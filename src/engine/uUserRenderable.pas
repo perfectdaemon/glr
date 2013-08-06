@@ -3,8 +3,7 @@ unit uUserRenderable;
 interface
 
 uses
-  dfHRenderer,
-
+  glr,
   uRenderable;
 
 type

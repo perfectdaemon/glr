@@ -199,11 +199,11 @@ program survive;
 {$R 'icon.res' 'icon.rc'}
 
 uses
-  dfHRenderer in '..\..\headers\dfHRenderer.pas',
-  dfHUtility in '..\..\headers\dfHUtility.pas',
+  glr in '..\..\headers\glr.pas',
+  glrUtils in '..\..\headers\glrUtils.pas',
   dfHEngine in '..\..\common\dfHEngine.pas',
-  dfHGL in '..\..\common\dfHGL.pas',
-  dfMath in '..\..\common\dfMath.pas',
+  ogl in '..\..\common\ogl.pas',
+  glrMath in '..\..\common\glrMath.pas',
   dfTweener in '..\..\common\dfTweener.pas',
   uGlobal in 'uGlobal.pas',
   uGameScreen.Game in 'gamescreens\uGameScreen.Game.pas',

@@ -10,7 +10,7 @@ unit uTexture;
 interface
 
 uses
-  dfHRenderer, dfHGL;
+  glr, ogl;
 
 type
   TglrTexture = class(TInterfacedObject, IglrTexture)
@@ -80,7 +80,7 @@ var
 implementation
 
 uses
-  dfHEngine, TexLoad, uLogger, SysUtils;
+  TexLoad, uLogger, SysUtils;
 
 var
   {Соответствие TGLConst параметров и свойств класса TdfTexture}

@@ -3,7 +3,7 @@ unit uCamera;
 interface
 
 uses
-  dfMath, dfHGL, dfHEngine, dfHRenderer, uNode;
+  glrMath, ogl, glr, uNode;
 
 type
   TglrCameraTargetMode = (mPoint, mTarget, mFree);
@@ -42,8 +42,8 @@ type
 
 implementation
 
-uses
-  Windows;
+//uses
+  //Windows;
 
 procedure TglrCamera.Viewport(x, y, w, h: Integer; FOV, ZNear, ZFar: Single);
 begin

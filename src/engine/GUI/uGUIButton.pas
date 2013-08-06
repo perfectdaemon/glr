@@ -8,7 +8,7 @@ unit uGUIButton;
 interface
 
 uses
-  dfHRenderer,
+  glr,
   uGUIElement;
 
 type

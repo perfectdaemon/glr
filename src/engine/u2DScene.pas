@@ -4,7 +4,7 @@ interface
 
 uses
   Classes,
-  dfMath, dfHRenderer;
+  glrMath, glr;
 
 type
   Tglr2DScene = class(TInterfacedObject, Iglr2DScene)
@@ -48,7 +48,7 @@ implementation
 
 uses
   uRenderer,
-  dfHGL;
+  ogl;
 
 { Tdf2DScene }
 
@@ -113,24 +113,14 @@ begin
   vp := TheRenderer.Camera.GetViewport();
   gl.Ortho(vp.X, vp.W, vp.H, vp.Y, vp.ZNear, vp.ZFar);
   gl.MatrixMode(GL_MODELVIEW);
+
   gl.PushMatrix();
-  gl.LoadIdentity();
-  gl.Translatef(FOrigin.x, FOrigin.y, 0);
-  for i := 0 to  FElements.Count - 1 do
-    Iglr2DRenderable(FElements[i]).Render();
-//  begin
-//
-//    current := Idf2DRenderable(FElements[i]);
-//    if not current.Visible then
-//      Continue;
-//    {TODO - check for visibility}
-//    gl.PushMatrix();
-//      current.Material.Apply();
-//      current.DoRender();
-//      current.Material.Unapply();
-//    gl.PopMatrix();
-//  end;
+    gl.LoadIdentity();
+    gl.Translatef(FOrigin.x, FOrigin.y, 0);
+    for i := 0 to  FElements.Count - 1 do
+      Iglr2DRenderable(FElements[i]).Render();
   gl.PopMatrix();
+
   gl.MatrixMode(GL_PROJECTION);
   gl.PopMatrix();
   gl.MatrixMode(GL_MODELVIEW);

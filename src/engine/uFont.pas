@@ -5,7 +5,7 @@ interface
 uses
   Windows,
   Graphics,
-  dfHRenderer, dfMath;
+  glr, glrMath;
 
 type
   TglrCharData = record
@@ -65,7 +65,7 @@ type
 implementation
 
 uses
-  dfHGL,
+  ogl,
   uLogger,
   SysUtils,
   Classes,

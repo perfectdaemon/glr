@@ -6,7 +6,7 @@ unit uHudSprite;
 interface
 
 uses
-  dfMath, dfHRenderer, uRenderable;
+  glrMath, glr, uRenderable;
 
 type
 
@@ -24,7 +24,7 @@ type
 implementation
 
 uses
-  uRenderer, dfHGL;
+  uRenderer, ogl;
 
 
 { TdfHUDSprite }

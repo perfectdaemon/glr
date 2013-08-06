@@ -3,7 +3,7 @@ unit uGUISlider;
 interface
 
 uses
-  dfHRenderer, dfMath, uGUIElement;
+  glr, glrMath, uGUIElement;
 
 type
   TglrGUISlider = class (TglrGUIElement, IglrGUISlider)

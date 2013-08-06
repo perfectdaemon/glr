@@ -2,16 +2,15 @@ program Checker6;
 
 uses
   Windows,
-  dfMath in '..\..\common\dfMath.pas',
-  dfHRenderer in '..\..\headers\dfHRenderer.pas',
-  dfHUtility in '..\..\headers\dfHUtility.pas',
-  dfHEngine in '..\..\common\dfHEngine.pas',
+  glr in '..\..\headers\glr.pas',
+  glrUtils in '..\..\headers\glrUtils.pas',
   uBox2DImport in '..\..\headers\box2d\uBox2DImport.pas',
   UPhysics2D in '..\..\headers\box2d\UPhysics2D.pas',
   UPhysics2DTypes in '..\..\headers\box2d\UPhysics2DTypes.pas',
   uCar in 'uCar.pas',
   uUtils in 'uUtils.pas',
-  dfHGL in '..\..\common\dfHGL.pas';
+  glrMath in '..\..\headers\glrMath.pas',
+  ogl in '..\..\headers\ogl.pas';
 
 type
   TglrBox = record

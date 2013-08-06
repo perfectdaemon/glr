@@ -4,7 +4,7 @@ interface
 
 uses
   uRenderable,
-  dfHRenderer, dfMath;
+  glr, glrMath;
 
 type
   TglrText = class(Tglr2DRenderable, IglrText)
@@ -33,7 +33,7 @@ type
 implementation
 
 uses
-  dfHGL, uRenderer;
+  ogl, uRenderer;
 
 { TdfText }
 

@@ -4,7 +4,7 @@ interface
 
 uses
   Classes,
-  dfHRenderer;
+  glr;
 
 type
   TglrGUIManager = class(TInterfacedObject, IglrGUIManager)

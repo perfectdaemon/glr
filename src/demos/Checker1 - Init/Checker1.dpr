@@ -8,10 +8,9 @@ program Checker1;
 uses
   Windows,
   SysUtils,
-  dfHRenderer in '..\..\headers\dfHRenderer.pas',
-  dfMath in '..\..\common\dfMath.pas',
-  dfHEngine in '..\..\common\dfHEngine.pas',
-  dfHGL in '..\..\common\dfHGL.pas';
+  glr in '..\..\headers\glr.pas',
+  glrMath in '..\..\headers\glrMath.pas',
+  ogl in '..\..\headers\ogl.pas';
 
 var
   R: IglrRenderer;

@@ -6,12 +6,11 @@ program SpaceSim2D;
 uses
   Windows,
   SysUtils,
-  dfHRenderer in '..\..\headers\dfHRenderer.pas',
-  dfHUtility in '..\..\headers\dfHUtility.pas',
-  dfHEngine in '..\..\common\dfHEngine.pas',
-  dfHGL in '..\..\common\dfHGL.pas',
-  dfMath in '..\..\common\dfMath.pas',
-  uSpace in 'uSpace.pas';
+  glr in '..\..\headers\glr.pas',
+  glrUtils in '..\..\headers\glrUtils.pas',
+  uSpace in 'uSpace.pas',
+  glrMath in '..\..\headers\glrMath.pas',
+  ogl in '..\..\headers\ogl.pas';
 
 const
   IMPULSE = 10;
@@ -140,7 +139,7 @@ var
     sun.Position := dfVec2f(512, 384);
     sun.Width := 50;
     sun.Height := 50;
-    sun.Material.MaterialOptions.Diffuse := dfVec4f(0.3, 0.3, 0.4, 1);
+    sun.Material.Diffuse := dfVec4f(0.3, 0.3, 0.4, 1);
 
     sceneMain.RegisterElement(sun);
   end;

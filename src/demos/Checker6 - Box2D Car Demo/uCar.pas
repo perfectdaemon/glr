@@ -3,8 +3,8 @@ unit uCar;
 interface
 
 uses
-  dfHRenderer,
-  dfMath,
+  glr,
+  glrMath,
   uBox2DImport, UPhysics2D, UPhysics2DTypes;
 
 type

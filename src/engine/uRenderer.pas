@@ -8,7 +8,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes,
-  dfHGL, dfHRenderer, dfMath,
+  ogl, glr, glrMath,
   uCamera;
 
 type
@@ -199,7 +199,7 @@ implementation
 
 uses
   uLight, uHudSprite, uTexture, uNode, uInput, uGUIManager,
-  dfHEngine, uLogger;
+  uLogger;
 
 
 const
@@ -429,7 +429,7 @@ var
   PVerInfo: Pointer;
   PVerValue: PVSFixedFileInfo;
 begin
-  FileName := dfHRenderer.dllName;
+  FileName := glr.dllName;
   Result := '';
   VerInfoSize := GetFileVersionInfoSize(PChar(FileName), Dummy);
   GetMem(PVerInfo, VerInfoSize);

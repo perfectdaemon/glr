@@ -5,7 +5,7 @@ interface
 uses
   Classes,
   uMaterial,
-  dfHRenderer, dfMath;
+  glr, glrMath;
 
 type
   TglrRenderable = class(TInterfacedObject, IglrRenderable)
@@ -128,7 +128,7 @@ implementation
 { TdfRenderable }
 
 uses
-  Windows, uRenderer, dfHGL,
+  Windows, uRenderer, ogl,
   {debug}
   ExportFunc;
 
@@ -198,12 +198,15 @@ begin
   FInternalZ := 0;
 
   FCustomPivot := dfVec2f(0, 0);
+
+  FChilds := TInterfaceList.Create();
 end;
 
 destructor Tglr2DRenderable.Destroy;
 begin
   FParentScene := nil;
   FParent := nil;
+  FChilds.Free();
   inherited;
 end;
 
@@ -430,6 +433,7 @@ begin
     Material.Apply();
     DoRender();
     Material.Unapply();
+    RenderChilds();
   gl.PopMatrix();
 end;
 
@@ -437,10 +441,10 @@ procedure Tglr2DRenderable.RenderChilds;
 var
   i: Integer;
 begin
-  if not FVisible then
-    Exit();
+//  if not FVisible then
+//    Exit();
   for i := 0 to FChilds.Count - 1 do
-    Iglr2DRenderable(FChilds[i]).DoRender;
+    Iglr2DRenderable(FChilds[i]).Render;
 end;
 
 procedure Tglr2DRenderable.ScaleMult(const aScale: TdfVec2f);

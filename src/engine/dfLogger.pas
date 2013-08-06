@@ -11,7 +11,7 @@ unit dfLogger;
 interface
 
 uses
-  Classes, dfHEngine;
+  Classes;
 
 const
   ConstNameEngine           =         'glRenderer';
@@ -165,7 +165,7 @@ function LoggerWriteEndL(Index: Integer): Boolean; stdcall;
 implementation
 
 uses
-  Windows, SysUtils;
+  Windows, SysUtils, glr;
 
 {$REGION 'dfLogger'}
 

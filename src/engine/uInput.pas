@@ -4,7 +4,7 @@ interface
 
 uses
   Windows,
-  dfHRenderer;
+  glr;
 
 type
   TglrInput = class(TInterfacedObject, IglrInput)

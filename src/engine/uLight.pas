@@ -9,8 +9,8 @@ unit uLight;
 interface
 
 uses
-  dfHRenderer, uNode,
-  dfMath;
+  glr, uNode,
+  glrMath;
 
 const
   LIGHT_SIZE_Y = 0.4;
@@ -62,7 +62,7 @@ type
 implementation
 
 uses
-  dfHGL;
+  ogl;
 
 
 { TdfLight }

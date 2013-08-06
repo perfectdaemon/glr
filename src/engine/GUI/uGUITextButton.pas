@@ -3,7 +3,7 @@ unit uGUITextButton;
 interface
 
 uses
-  dfHRenderer, dfMath,
+  glr, glrMath,
   uGUIButton;
 
 type

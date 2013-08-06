@@ -3,7 +3,7 @@ unit uNode;
 interface
 
 uses
-  Classes, dfHRenderer, dfMath;
+  Classes, glr, glrMath;
 
 type
   TglrNode = class(TInterfacedObject, IglrNode)
@@ -76,7 +76,7 @@ type
 implementation
 
 uses
-  dfHGL;
+  ogl;
 
 { TdfNode }
 

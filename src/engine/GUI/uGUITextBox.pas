@@ -3,7 +3,7 @@ unit uGUITextBox;
 interface
 
 uses
-  dfHRenderer, dfMath, uGUIElement;
+  glr, glrMath, uGUIElement;
 
 type
   TglrGUITextBox = class (TglrGUIElement, IglrGUITextBox)

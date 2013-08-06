@@ -8,7 +8,7 @@ interface
 uses
   UPhysics2D, UPhysics2DTypes, uBox2DImport,
 
-  dfHRenderer, dfMath;
+  glr, glrMath;
 
 { glRenderer }
 //function dfNewSpriteWithNode(const aParent: IdfNode): IdfSprite; overload;

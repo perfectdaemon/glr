@@ -1,10 +1,10 @@
-unit dfHGL;
+unit ogl;
 
 interface
 
 uses
   Windows,
-  dfMath;
+  glrMath;
 
 type
 

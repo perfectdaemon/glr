@@ -3,7 +3,7 @@ unit uFactory;
 interface
 
 uses
-  dfHRenderer;
+  glr;
 
 type
   TglrObjectFactory = class (TInterfacedObject, IglrObjectFactory)
