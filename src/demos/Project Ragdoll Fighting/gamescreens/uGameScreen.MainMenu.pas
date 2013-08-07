@@ -3,7 +3,7 @@ unit uGameScreen.MainMenu;
 interface
 
 uses
-  dfHRenderer, uSettings_SaveLoad,
+  glr, uSettings_SaveLoad,
   uGameScreen;
 
 const
@@ -84,7 +84,7 @@ implementation
 
 uses
   Windows,
-  dfMath, dfHGL, dfTweener, uGameScreen.Game,
+  glrMath, ogl, dfTweener, uGameScreen.Game,
   uGlobal;
 
 const
@@ -216,7 +216,7 @@ begin
   FFakeBackground := Factory.NewHudSprite();
   FFakeBackground.Position := dfVec2f(0, 0);
   FFakeBackground.Z := 100;
-  FFakeBackground.Material.MaterialOptions.Diffuse := dfVec4f(1, 1, 1, 1);
+  FFakeBackground.Material.Diffuse := dfVec4f(1, 1, 1, 1);
   FFakeBackground.Material.Texture.BlendingMode := tbmTransparency;
   FFakeBackground.Width := R.WindowWidth;
   FFakeBackground.Height := R.WindowHeight;
@@ -241,7 +241,7 @@ begin
   else
   begin
     Ft := Ft - deltaTime;
-    FFakeBackground.Material.MaterialOptions.PDiffuse.w := Ft / TIME_FADEIN;
+    FFakeBackground.Material.PDiffuse.w := Ft / TIME_FADEIN;
   end;
 end;
 
@@ -262,7 +262,7 @@ begin
   else
   begin
     Ft := Ft - deltaTime;
-    FFakeBackground.Material.MaterialOptions.PDiffuse.w := 1 - Ft / TIME_FADEOUT;
+    FFakeBackground.Material.PDiffuse.w := 1 - Ft / TIME_FADEOUT;
   end;
 end;
 
@@ -303,7 +303,7 @@ begin
       Text := 'Одиночная игра';
       PivotPoint := ppTopLeft;
       Position := dfVec2f(-150, -15);
-      Material.MaterialOptions.Diffuse := colorWhite;
+      Material.Diffuse := colorWhite;
     end;
     TextureNormal := atlasMain.LoadTexture(PLAY_NORMAL_TEXTURE);
     TextureOver := atlasMain.LoadTexture(PLAY_OVER_TEXTURE);
@@ -325,7 +325,7 @@ begin
       Text := 'Играть вдвоем';
       PivotPoint := ppTopLeft;
       Position := dfVec2f(-150, -15);
-      Material.MaterialOptions.Diffuse := colorWhite;
+      Material.Diffuse := colorWhite;
     end;
 
     TextureNormal := atlasMain.LoadTexture(COOP_NORMAL_TEXTURE);
@@ -348,7 +348,7 @@ begin
       Text := 'Настройки';
       PivotPoint := ppTopLeft;
       Position := dfVec2f(-150, -15);
-      Material.MaterialOptions.Diffuse := colorWhite;
+      Material.Diffuse := colorWhite;
     end;
 
     TextureNormal := atlasMain.LoadTexture(SETTINGS_NORMAL_TEXTURE);
@@ -371,7 +371,7 @@ begin
       Text := 'Выйти';
       PivotPoint := ppTopLeft;
       Position := dfVec2f(-150, -15);
-      Material.MaterialOptions.Diffuse := colorWhite;
+      Material.Diffuse := colorWhite;
     end;
 
     TextureNormal := atlasMain.LoadTexture(EXIT_NORMAL_TEXTURE);
@@ -413,7 +413,7 @@ begin
     Z := Z_MAINMENU_BUTTONS;
     PivotPoint := ppTopLeft;
     Position := dfVec2f(TEXT_MUSIC_X - R.WindowWidth, TEXT_MUSIC_Y);
-    Material.MaterialOptions.Diffuse := colorWhite;
+    Material.Diffuse := colorWhite;
   end;
 
   with FSoundText do
@@ -423,7 +423,7 @@ begin
     Z := Z_MAINMENU_BUTTONS;
     PivotPoint := ppTopLeft;
     Position := dfVec2f(TEXT_SOUND_X - R.WindowWidth, TEXT_SOUND_Y);
-    Material.MaterialOptions.Diffuse := colorWhite;
+    Material.Diffuse := colorWhite;
   end;
 
   with FDifficultyText do
@@ -433,7 +433,7 @@ begin
     Z := Z_MAINMENU_BUTTONS;
     PivotPoint := ppTopLeft;
     Position := dfVec2f(TEXT_DIFF_X - R.WindowWidth, TEXT_DIFF_Y);
-    Material.MaterialOptions.Diffuse := colorWhite;
+    Material.Diffuse := colorWhite;
   end;
 
   with FDificultyDescriptionText do
@@ -443,7 +443,7 @@ begin
     Z := Z_MAINMENU_BUTTONS;
     PivotPoint := ppCenter;
     Position := dfVec2f(TEXT_DIFFDESC_X - R.WindowWidth, TEXT_DIFFDESC_Y);
-    Material.MaterialOptions.Diffuse := colorWhite;
+    Material.Diffuse := colorWhite;
   end;
 
   //Sliders
@@ -534,7 +534,7 @@ begin
       Text := 'Применить';
       PivotPoint := ppTopLeft;
       Position := dfVec2f(-150, -15);
-      Material.MaterialOptions.Diffuse := colorWhite;
+      Material.Diffuse := colorWhite;
     end;
 
     TextureNormal := atlasMain.LoadTexture(BACK_NORMAL_TEXTURE);
@@ -604,7 +604,7 @@ begin
     Text := 'Совершенно секретно'#13#10'Только для IGDC#97';
     PivotPoint := ppTopCenter;
     Position := dfVec2f(R.WindowWidth div 2, IGDC_OFFSET_Y);
-    Material.MaterialOptions.Diffuse := colorGray2;
+    Material.Diffuse := colorGray2;
     Z := Z_MAINMENU_BUTTONS;
   end;
 

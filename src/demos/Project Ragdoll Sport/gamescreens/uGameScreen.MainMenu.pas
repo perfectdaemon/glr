@@ -3,7 +3,7 @@ unit uGameScreen.MainMenu;
 interface
 
 uses
-  dfHRenderer, uSettings_SaveLoad,
+  glr, uSettings_SaveLoad,
   uGameScreen;
 
 const
@@ -87,7 +87,7 @@ implementation
 
 uses
   Windows,
-  dfMath, dfHGL, dfTweener,
+  glrMath, dfTweener, ogl,
   uGlobal;
 
 const
@@ -229,7 +229,7 @@ begin
   FFakeBackground := Factory.NewHudSprite();
   FFakeBackground.Position := dfVec2f(0, 0);
   FFakeBackground.Z := 100;
-  FFakeBackground.Material.MaterialOptions.Diffuse := dfVec4f(1, 1, 1, 1);
+  FFakeBackground.Material.Diffuse := dfVec4f(1, 1, 1, 1);
   FFakeBackground.Material.Texture.BlendingMode := tbmTransparency;
   FFakeBackground.Width := R.WindowWidth;
   FFakeBackground.Height := R.WindowHeight;
@@ -254,7 +254,7 @@ begin
   else
   begin
     Ft := Ft - deltaTime;
-    FFakeBackground.Material.MaterialOptions.PDiffuse.w := Ft / TIME_FADEIN;
+    FFakeBackground.Material.PDiffuse.w := Ft / TIME_FADEIN;
   end;
 end;
 
@@ -274,7 +274,7 @@ begin
   else
   begin
     Ft := Ft - deltaTime;
-    FFakeBackground.Material.MaterialOptions.PDiffuse.w := 1 - Ft / TIME_FADEOUT;
+    FFakeBackground.Material.PDiffuse.w := 1 - Ft / TIME_FADEOUT;
   end;
 end;
 
@@ -375,7 +375,7 @@ begin
     Z := Z_MAINMENU_BUTTONS;
     PivotPoint := ppTopLeft;
     Position := dfVec2f(TEXT_MUSIC_X - R.WindowWidth, TEXT_MUSIC_Y);
-    Material.MaterialOptions.Diffuse := dfVec4f(131 / 255, 217 / 255, 16 / 255, 1.0);
+    Material.Diffuse := dfVec4f(131 / 255, 217 / 255, 16 / 255, 1.0);
   end;
 
   with FSoundText do
@@ -385,7 +385,7 @@ begin
     Z := Z_MAINMENU_BUTTONS;
     PivotPoint := ppTopLeft;
     Position := dfVec2f(TEXT_SOUND_X - R.WindowWidth, TEXT_SOUND_Y);
-    Material.MaterialOptions.Diffuse := dfVec4f(131 / 255, 217 / 255, 16 / 255, 1.0);
+    Material.Diffuse := dfVec4f(131 / 255, 217 / 255, 16 / 255, 1.0);
   end;
 
   with FOnlineText do
@@ -395,7 +395,7 @@ begin
     PivotPoint := ppTopLeft;
     Z := Z_MAINMENU_BUTTONS;
     Position := dfVec2f(TEXT_ONLINE_X - R.WindowWidth, TEXT_ONLINE_Y);
-    Material.MaterialOptions.Diffuse := dfVec4f(131 / 255, 217 / 255, 16 / 255, 1.0);
+    Material.Diffuse := dfVec4f(131 / 255, 217 / 255, 16 / 255, 1.0);
   end;
 
   with FControlMouseText do
@@ -405,7 +405,7 @@ begin
     Z := Z_MAINMENU_BUTTONS;
     PivotPoint := ppTopLeft;
     Position := dfVec2f(TEXT_CONTROL_X - R.WindowWidth, TEXT_CONTROL_Y);
-    Material.MaterialOptions.Diffuse := dfVec4f(131 / 255, 217 / 255, 16 / 255, 1.0);
+    Material.Diffuse := dfVec4f(131 / 255, 217 / 255, 16 / 255, 1.0);
   end;
 
   //Sliders
@@ -498,7 +498,7 @@ begin
     Z := Z_MAINMENU_BUTTONS;
     PivotPoint := ppBottomLeft;
     Position := dfVec2f(HINT_ONLINE_X - R.WindowWidth, R.WindowHeight + 60);
-    Material.MaterialOptions.Diffuse := dfVec4f(1, 1, 1, 1);
+    Material.Diffuse := dfVec4f(1, 1, 1, 1);
   end;
 
   with FHintControl do
@@ -508,7 +508,7 @@ begin
     Z := Z_MAINMENU_BUTTONS;
     PivotPoint := ppBottomLeft;
     Position := dfVec2f(HINT_CONTROL_X - R.WindowWidth, R.WindowHeight + 60);
-    Material.MaterialOptions.Diffuse := dfVec4f(1, 1, 1, 1);
+    Material.Diffuse := dfVec4f(1, 1, 1, 1);
   end;
 
 

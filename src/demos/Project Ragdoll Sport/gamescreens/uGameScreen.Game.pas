@@ -4,7 +4,7 @@ interface
 
 uses
   Contnrs,
-  dfHRenderer, dfHUtility, dfMath,
+  glr, glrUtils, glrMath,
   uGameScreen,
   uGlobal;
 
@@ -109,7 +109,7 @@ uses
   uCharacterController, uCharacter, uGUI, uPopup, uObjects,
   Windows, SysUtils,
   uPhysics2DTypes, uBox2DImport,
-  dfTweener, dfHGL;
+  dfTweener, ogl;
 
 
 procedure OnPhysicsUpdate(const fixedDT: Double);
@@ -227,7 +227,7 @@ begin
   else
   begin
     Ft := Ft - deltaTime;
-    FFakeBackground.Material.MaterialOptions.PDiffuse.w := Ft / TIME_FADEIN;
+    FFakeBackground.Material.PDiffuse.w := Ft / TIME_FADEIN;
   end;
 end;
 
@@ -246,7 +246,7 @@ begin
   else
   begin
     Ft := Ft - deltaTime;
-    FFakeBackground.Material.MaterialOptions.PDiffuse.w := 1 - Ft / TIME_FADEOUT;
+    FFakeBackground.Material.PDiffuse.w := 1 - Ft / TIME_FADEOUT;
   end;
 end;
 
@@ -334,7 +334,7 @@ begin
   FFakeBackground := Factory.NewSprite();
   FFakeBackground.Position := dfVec2f(0, 0);
   FFakeBackground.Z := 100;
-  FFakeBackground.Material.MaterialOptions.Diffuse := dfVec4f(1, 1, 1, 1);
+  FFakeBackground.Material.Diffuse := dfVec4f(1, 1, 1, 1);
   FFakeBackground.Material.Texture.BlendingMode := tbmTransparency;
   FFakeBackground.Width := R.WindowWidth;
   FFakeBackground.Height := R.WindowHeight;
@@ -358,11 +358,11 @@ procedure TpdGame.LoadHUD;
 begin
   {$IFDEF DEBUG}
   FFPSCounter := TglrFPSCounter.Create(FHUDScene, 'FPS:', 1, nil);
-  FFPSCounter.TextObject.Material.MaterialOptions.Diffuse := dfVec4f(0, 0, 0, 1);
+  FFPSCounter.TextObject.Material.Diffuse := dfVec4f(0, 0, 0, 1);
   FFPSCounter.TextObject.Visible := False;
 
   FDebug := TglrDebugInfo.Create(FHUDScene);
-  FDebug.FText.Material.MaterialOptions.Diffuse := dfVec4f(0, 0, 0, 1);
+  FDebug.FText.Material.Diffuse := dfVec4f(0, 0, 0, 1);
   FDebug.FText.Visible := False;
   FDebug.FText.PPosition.y := 20;
   {$ENDIF}
@@ -376,14 +376,14 @@ begin
   FTimerIcon.Material.Texture := atlasMain.LoadTexture(TIMER_TEXTURE);
   FTimerIcon.UpdateTexCoords();
   FTimerIcon.SetSizeToTextureSize();
-  FTimerIcon.Material.MaterialOptions.Diffuse := dfVec4f(0.2, 0.2, 0.2, 1.0);
+  FTimerIcon.Material.Diffuse := dfVec4f(0.2, 0.2, 0.2, 1.0);
 
   FTimeText := Factory.NewText();
   FTimeText.Font := fontCooper;
   FTimeText.Z := Z_HUD;
   FTimeText.Position := FTimerIcon.Position + dfVec2f(40, 5);
 //  FTimeText.Text := '02:00';
-  FTimeText.Material.MaterialOptions.Diffuse := dfVec4f(0.2, 0.2, 0.2, 1);
+  FTimeText.Material.Diffuse := dfVec4f(0.2, 0.2, 0.2, 1);
 
   FPauseText := Factory.NewText();
   with FPauseText do
@@ -393,7 +393,7 @@ begin
     Position := dfVec2f(R.WindowWidth div 2, 10);
     PivotPoint := ppCenter;
     Text := 'Ï À Ó Ç À';
-    Material.MaterialOptions.Diffuse := colorRed;
+    Material.Diffuse := colorRed;
   end;
 
   FHUDScene.RegisterElement(FTimerIcon);
@@ -427,7 +427,7 @@ begin
   begin
     PivotPoint := ppTopLeft;
     Position := dfVec2f(0, 0);
-    Material.MaterialOptions.Diffuse := colorGray2;
+    Material.Diffuse := colorGray2;
     Width := R.WindowWidth;
     Height := 5;
     Z := Z_DROPOBJECTS + 1;
@@ -437,7 +437,7 @@ begin
   begin
     PivotPoint := ppBottomLeft;
     Position := dfVec2f(0, R.WindowHeight);
-    Material.MaterialOptions.Diffuse := colorGray2;
+    Material.Diffuse := colorGray2;
     Width := R.WindowWidth;
     Height := 5;
     Z := Z_DROPOBJECTS + 1;
@@ -560,9 +560,9 @@ begin
 
   if (FTime < 15) and not FIsTimeBecomeRed then
   begin
-    Tweener.AddTweenPSingle(@FTimeText.Material.MaterialOptions.PDiffuse.x,
+    Tweener.AddTweenPSingle(@FTimeText.Material.PDiffuse.x,
       tsExpoEaseIn, 0.0, 1.0, 3.0, 0.0);
-    Tweener.AddTweenPSingle(@FTimerIcon.Material.MaterialOptions.PDiffuse.x,
+    Tweener.AddTweenPSingle(@FTimerIcon.Material.PDiffuse.x,
       tsExpoEaseIn, 0.0, 1.0, 3.0, 0.0);
     FIsTimeBecomeRed := True;
   end;

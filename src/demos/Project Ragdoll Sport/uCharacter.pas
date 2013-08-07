@@ -3,8 +3,8 @@ unit uCharacter;
 interface
 
 uses
-  dfHRenderer,
-  dfMath,
+  glr,
+  glrMath,
 //  uCharacter,
   UPhysics2D, UPhysics2DTypes, uBox2DImport;
 
@@ -202,7 +202,7 @@ class function TpdCharacter.Init(b2w: Tglrb2World; scene2d: Iglr2DScene; {input:
     aSprite.Z := Z_PLAYER + internalZ;
     Inc(internalZ);
 
-    aSprite.Material.MaterialOptions.Diffuse := color;
+    aSprite.Material.Diffuse := color;
     Result.FScene2D.RegisterElement(aSprite);
 
     if density = -1 then
@@ -379,9 +379,9 @@ var
     if Abs(Velocity) < HIT_THRESHOLD_SPEED then
       Exit;
 //    gui.ShowText('Отличный удар!');
-    Tweener.AddTweenPSingle(@Character.aObjectSprite.Material.MaterialOptions.PDiffuse.y,
+    Tweener.AddTweenPSingle(@Character.aObjectSprite.Material.PDiffuse.y,
       tsExpoEaseIn, 0.9, 0.2, 2.0, 0.5);
-    Tweener.AddTweenPSingle(@Sphere.aObjectSprite.Material.MaterialOptions.PDiffuse.y,
+    Tweener.AddTweenPSingle(@Sphere.aObjectSprite.Material.PDiffuse.y,
       tsExpoEaseIn, 0.9, 0.2, 2.0, 0.5);
     gui.AddScore(5, player.GetHeadPosition() + dfVec2f(0, -10) + dfVec2f(20 - Random(40), 20 - Random(40)));
     sound.PlaySample(sKick);
@@ -394,9 +394,9 @@ var
       Exit;
 
 //    gui.ShowText('Да, ты туда не только ешь!!');
-    Tweener.AddTweenPSingle(@Character.aObjectSprite.Material.MaterialOptions.PDiffuse.y,
+    Tweener.AddTweenPSingle(@Character.aObjectSprite.Material.PDiffuse.y,
       tsExpoEaseIn, 0.9, 0.2, 2.0, 0.5);
-    Tweener.AddTweenPSingle(@Sphere.aObjectSprite.Material.MaterialOptions.PDiffuse.y,
+    Tweener.AddTweenPSingle(@Sphere.aObjectSprite.Material.PDiffuse.y,
       tsExpoEaseIn, 0.9, 0.2, 2.0, 0.5);
     gui.AddScore(50, player.GetHeadPosition() + dfVec2f(0, -10) + dfVec2f(20 - Random(40), 20 - Random(40)));
     sound.PlaySample(sKick);
@@ -409,9 +409,9 @@ var
       Exit;
 
 //    gui.ShowText('Так нельзя!');
-    Tweener.AddTweenPSingle(@Character.aObjectSprite.Material.MaterialOptions.PDiffuse.x,
+    Tweener.AddTweenPSingle(@Character.aObjectSprite.Material.PDiffuse.x,
       tsExpoEaseIn, 0.9, 0.2, 2.0, 0.5);
-    Tweener.AddTweenPSingle(@Sphere.aObjectSprite.Material.MaterialOptions.PDiffuse.x,
+    Tweener.AddTweenPSingle(@Sphere.aObjectSprite.Material.PDiffuse.x,
       tsExpoEaseIn, 0.9, 0.2, 2.0, 0.5);
     gui.AddScore(-50, player.GetHeadPosition() + dfVec2f(0, -10) + dfVec2f(20 - Random(40), 20 - Random(40)));
     Inc(playerFoulsCount);

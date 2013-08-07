@@ -61,9 +61,6 @@
 program RagdollSport;
 uses
   Windows,
-  dfHEngine in '..\..\common\dfHEngine.pas',
-  ogl in '..\..\common\ogl.pas',
-  glrMath in '..\..\common\glrMath.pas',
   glr in '..\..\headers\glr.pas',
   glrUtils in '..\..\headers\glrUtils.pas',
   uBox2DImport in '..\..\headers\box2d\uBox2DImport.pas',
@@ -73,7 +70,6 @@ uses
   uGUI in 'uGUI.pas',
   uCharacter in 'uCharacter.pas',
   uGlobal in 'uGlobal.pas',
-  dfTweener in '..\..\common\dfTweener.pas',
   uGameScreen.Game in 'gamescreens\uGameScreen.Game.pas',
   uGameScreen.GameOver in 'gamescreens\uGameScreen.GameOver.pas',
   uGameScreen.MainMenu in 'gamescreens\uGameScreen.MainMenu.pas',
@@ -86,7 +82,10 @@ uses
   uAccum in 'uAccum.pas',
   uPopup in 'uPopup.pas',
   uGameSync in 'uGameSync.pas',
-  uSettings_SaveLoad in 'uSettings_SaveLoad.pas';
+  uSettings_SaveLoad in 'uSettings_SaveLoad.pas',
+  dfTweener in '..\..\headers\dfTweener.pas',
+  glrMath in '..\..\headers\glrMath.pas',
+  ogl in '..\..\headers\ogl.pas';
 
 var
   gsManager: TpdGSManager;

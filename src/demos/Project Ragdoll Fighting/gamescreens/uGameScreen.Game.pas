@@ -4,7 +4,7 @@ interface
 
 uses
   Contnrs,
-  dfHRenderer, dfHUtility, dfMath,
+  glr, glrUtils, glrMath,
   uGameScreen,
   uGlobal;
 
@@ -86,7 +86,7 @@ uses
   uCharacterController, uCharacter, uGUI, uPopup, uParticles,
   Windows, SysUtils,
   uPhysics2DTypes, uBox2DImport,
-  dfTweener, dfHGL;
+  dfTweener, ogl;
 
 procedure OnPhysicsUpdate(const fixedDT: Double);
 begin
@@ -193,7 +193,7 @@ begin
   else
   begin
     Ft := Ft - deltaTime;
-    FFakeBackground.Material.MaterialOptions.PDiffuse.w := Ft / TIME_FADEIN;
+    FFakeBackground.Material.PDiffuse.w := Ft / TIME_FADEIN;
   end;
 end;
 
@@ -210,7 +210,7 @@ begin
   else
   begin
     Ft := Ft - deltaTime;
-    FFakeBackground.Material.MaterialOptions.PDiffuse.w := 1 - Ft / TIME_FADEOUT;
+    FFakeBackground.Material.PDiffuse.w := 1 - Ft / TIME_FADEOUT;
   end;
 end;
 
@@ -295,7 +295,7 @@ begin
   begin
     Position := dfVec2f(0, 0);
     Z := 100;
-    Material.MaterialOptions.Diffuse := dfVec4f(1, 1, 1, 1);
+    Material.Diffuse := dfVec4f(1, 1, 1, 1);
     Material.Texture.BlendingMode := tbmTransparency;
     Width := R.WindowWidth;
     Height := R.WindowHeight;
@@ -334,11 +334,11 @@ procedure TpdGame.LoadHUD;
 begin
   {$IFDEF DEBUG}
   FFPSCounter := TglrFPSCounter.Create(FHUDScene, 'FPS:', 1, nil);
-  FFPSCounter.TextObject.Material.MaterialOptions.Diffuse := dfVec4f(0, 0, 0, 1);
+  FFPSCounter.TextObject.Material.Diffuse := dfVec4f(0, 0, 0, 1);
   FFPSCounter.TextObject.Visible := False;
 
   FDebug := TglrDebugInfo.Create(FHUDScene);
-  FDebug.FText.Material.MaterialOptions.Diffuse := dfVec4f(0, 0, 0, 1);
+  FDebug.FText.Material.Diffuse := dfVec4f(0, 0, 0, 1);
   FDebug.FText.Visible := False;
   FDebug.FText.PPosition.y := 20;
   {$ENDIF}
@@ -375,7 +375,7 @@ begin
   begin
     PivotPoint := ppTopLeft;
     Position := dfVec2f(0, 0);
-    Material.MaterialOptions.Diffuse := colorGray2;
+    Material.Diffuse := colorGray2;
     Width := R.WindowWidth;
     Height := 5;
     Z := Z_DROPOBJECTS + 1;
@@ -385,7 +385,7 @@ begin
   begin
     PivotPoint := ppBottomLeft;
     Position := dfVec2f(0, R.WindowHeight);
-    Material.MaterialOptions.Diffuse := colorGray2;
+    Material.Diffuse := colorGray2;
     Width := R.WindowWidth;
     Height := 5;
     Z := Z_DROPOBJECTS + 1;
@@ -395,7 +395,7 @@ begin
   begin
     PivotPoint := ppTopLeft;
     Position := dfVec2f(0, 0);
-    Material.MaterialOptions.Diffuse := colorGray2;
+    Material.Diffuse := colorGray2;
     Width := 5;
     Height := R.WindowHeight;
     Z := Z_DROPOBJECTS + 1;
@@ -405,7 +405,7 @@ begin
   begin
     PivotPoint := ppTopRight;
     Position := dfVec2f(R.WindowWidth, 0);
-    Material.MaterialOptions.Diffuse := colorGray2;
+    Material.Diffuse := colorGray2;
     Width := 5;
     Height := R.WindowHeight;
     Z := Z_DROPOBJECTS + 1;

@@ -3,7 +3,7 @@ unit uWorldObjects;
 interface
 
 uses
-  dfHRenderer, dfMath,
+  glr, glrMath,
   uLevel_SaveLoad;
 
 const
@@ -1538,7 +1538,7 @@ begin
     lifeSpr.Z := Z_STATICOBJECTS + 1;
     lifeSpr.Width := sprite.Width;
     lifespr.Height := 5;
-    lifespr.Material.MaterialOptions.Diffuse := colorRed;
+    lifespr.Material.Diffuse := colorRed;
     aScene.RegisterElement(lifeSpr);
   end;
 end;

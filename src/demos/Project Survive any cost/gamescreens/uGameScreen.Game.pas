@@ -3,7 +3,7 @@ unit uGameScreen.Game;
 interface
 
 uses
-  dfHRenderer, dfHUtility, dfMath,
+  glr, glrUtils, glrMath,
   uGameScreen,
   uGlobal, uWorldObjects;
 
@@ -26,15 +26,11 @@ type
     //hud elements
     {$IFDEF DEBUG}
     //debug
-    FFPSCounter: TdfFPSCounter;
-    FDebug: TpdDebugInfo;
+    FFPSCounter: TglrFPSCounter;
+    FDebug: TglrDebugInfo;
     d_playerpos, d_world_objects: Integer;
     d_health, d_hunger, d_thirst, d_fatigue, d_mind: Integer;
     {$ENDIF}
-
-    FDPressed,
-    FIPressed, FCPressed, FAPressed,
-    FZPressed, FXPressed: Boolean;
 
     FPause: Boolean;
 
@@ -51,9 +47,8 @@ type
     FFakeBackground: IglrSprite;
 
     //Все для режима редактора
-    FEditorMode, FEPressed, FSPressed: Boolean;
+    FEditorMode: Boolean;
     //Нажатие цифр
-    FNumPressed: array[0..9] of Boolean;
     FEditorText, FEditorHintText: IglrText;
     FDragObject: TpdWorldObject;
 
@@ -120,7 +115,7 @@ implementation
 
 uses
   Windows, SysUtils,
-  dfTweener, dfHGL,
+  dfTweener, ogl,
   uPlayer, uWater, uInventory, uCraft, uLevel_SaveLoad;
 
 { TpdArenaGame }
@@ -173,7 +168,7 @@ begin
   end;
 
   {$IFDEF DEBUG}
-  if R.Input.IsKeyPressed(68, @FDPressed) then
+  if R.Input.IsKeyPressed(68) then
   begin
     FDebug.FText.Visible := not FDebug.FText.Visible;
     FFPSCounter.TextObject.Visible := not FFPSCounter.TextObject.Visible;
@@ -181,7 +176,7 @@ begin
 
   FFpsCounter.Update(dt);
 
-  if R.Input.IsKeyPressed(69, @FEPressed) then
+  if R.Input.IsKeyPressed(69) then
   begin
     FEditorMode := not FEditorMode;
     FEditorText.Visible := FEditorMode;
@@ -196,7 +191,7 @@ begin
 
   if FEditorMode then
   begin
-    if R.Input.IsKeyPressed(83, @FSPressed) then
+    if R.Input.IsKeyPressed(83) then
     begin
       _SaveToFile(FILE_SUR);
       FEditorText.Text := 'Режим редактора' + #13#10 + '"' + FILE_SUR + '" сохранен';
@@ -222,25 +217,25 @@ begin
       FMainScene.Origin := FMainScene.Origin + dfVec2f(0, -300 * dt);
 
     //Создаем предметы
-    if R.Input.IsKeyPressed(49, @FNumPressed[1]) then
+    if R.Input.IsKeyPressed(49) then
       _AddNewBush(mousePos - FMainScene.Origin);
-    if R.Input.IsKeyPressed(50, @FNumPressed[2]) then
+    if R.Input.IsKeyPressed(50) then
       _AddNewTwig(mousePos - FMainScene.Origin);
-    if R.Input.IsKeyPressed(51, @FNumPressed[3]) then
+    if R.Input.IsKeyPressed(51) then
       _AddNewFlower(mousePos - FMainScene.Origin);
-    if R.Input.IsKeyPressed(52, @FNumPressed[4]) then
+    if R.Input.IsKeyPressed(52) then
       _AddNewMushroom(mousePos - FMainScene.Origin);
-    if R.Input.IsKeyPressed(53, @FNumPressed[5]) then
+    if R.Input.IsKeyPressed(53) then
       _AddNewOldGrass(mousePos - FMainScene.Origin);
-    if R.Input.IsKeyPressed(54, @FNumPressed[6]) then
+    if R.Input.IsKeyPressed(54) then
       _AddNewGrass(mousePos - FMainScene.Origin);
-    if R.Input.IsKeyPressed(55, @FNumPressed[7]) then
+    if R.Input.IsKeyPressed(55) then
       _AddNewWire(mousePos - FMainScene.Origin);
-    if R.Input.IsKeyPressed(56, @FNumPressed[8]) then
+    if R.Input.IsKeyPressed(56) then
       _AddNewBottle(mousePos - FMainScene.Origin);
-    if R.Input.IsKeyPressed(57, @FNumPressed[9]) then
+    if R.Input.IsKeyPressed(57) then
       _AddNewKnife(mousePos - FMainScene.Origin);
-    if R.Input.IsKeyPressed(48, @FNumPressed[0]) then
+    if R.Input.IsKeyPressed(48) then
       _AddNewBackpack(mousePos - FMainScene.Origin);
   end
   else
@@ -258,9 +253,9 @@ begin
 
 
     //Скрываем/показываем инвентарь, панель крафта и советы
-    if R.Input.IsKeyPressed(73, @FIPressed) or R.Input.IsKeyPressed(90, @FZPressed) then
+    if R.Input.IsKeyPressed(73) or R.Input.IsKeyPressed(90) then
       inventory.Visible := not inventory.Visible;
-    if R.Input.IsKeyPressed(67, @FCPressed) then
+    if R.Input.IsKeyPressed(67) then
       craftPanel.Visible := not craftPanel.Visible;
 //    if R.Input.IsKeyPressed(65, @FAPressed) or R.Input.IsKeyPressed(88, @FXPressed) then
 //      advController.Visible := not advController.Visible;
@@ -286,7 +281,7 @@ begin
   else
   begin
     Ft := Ft - deltaTime;
-    FFakeBackground.Material.MaterialOptions.PDiffuse.w := Ft / TIME_FADEIN;
+    FFakeBackground.Material.PDiffuse.w := Ft / TIME_FADEIN;
   end;
 end;
 
@@ -304,7 +299,7 @@ begin
   else
   begin
     Ft := Ft - deltaTime;
-    FFakeBackground.Material.MaterialOptions.PDiffuse.w := 1 - Ft / TIME_FADEOUT;
+    FFakeBackground.Material.PDiffuse.w := 1 - Ft / TIME_FADEOUT;
   end;
 end;
 
@@ -347,7 +342,7 @@ begin
   FFakeBackground := Factory.NewHudSprite();
   FFakeBackground.Position := dfVec2f(0, 0);
   FFakeBackground.Z := 100;
-  FFakeBackground.Material.MaterialOptions.Diffuse := dfVec4f(1, 1, 1, 1);
+  FFakeBackground.Material.Diffuse := dfVec4f(1, 1, 1, 1);
   FFakeBackground.Material.Texture.BlendingMode := tbmTransparency;
   FFakeBackground.Width := R.WindowWidth;
   FFakeBackground.Height := R.WindowHeight;
@@ -385,14 +380,14 @@ begin
   {$IFDEF DEBUG}
   if Assigned(FFPSCounter) then
     FFPSCounter.Free();
-  FFPSCounter := TdfFPSCounter.Create(FHUDScene, 'FPS:', 1, nil);
-  FFPSCounter.TextObject.Material.MaterialOptions.Diffuse := dfVec4f(0, 0, 0, 1);
+  FFPSCounter := TglrFPSCounter.Create(FHUDScene, 'FPS:', 1, nil);
+  FFPSCounter.TextObject.Material.Diffuse := dfVec4f(0, 0, 0, 1);
   FFPSCounter.TextObject.Visible := False;
 
   if Assigned(FDebug) then
     FDebug.Free();
-  FDebug := TpdDebugInfo.Create(FHUDScene);
-  FDebug.FText.Material.MaterialOptions.Diffuse := dfVec4f(0, 0, 0, 1);
+  FDebug := TglrDebugInfo.Create(FHUDScene);
+  FDebug.FText.Material.Diffuse := dfVec4f(0, 0, 0, 1);
   d_playerpos := FDebug.AddNewString('позиция игрока');
   d_world_objects := FDebug.AddNewString('объектов игрового мира');
   d_health := FDebug.AddNewString('здоровье');
@@ -403,17 +398,17 @@ begin
   FDebug.FText.Visible := False;
   FDebug.FText.PPosition.y := 20;
 
-  FEditorText := dfCreateText();
+  FEditorText := Factory.NewText();
   FEditorText.Font := FDebug.FText.Font;
   FEditorText.Position := dfVec2f(R.WindowWidth div 2 - 100, 0);
-  FEditorText.Material.MaterialOptions.Diffuse := dfVec4f(0, 0, 0, 1);
+  FEditorText.Material.Diffuse := dfVec4f(0, 0, 0, 1);
       FEditorText.Visible := False;
   FHUDScene.RegisterElement(FEditorText);
 
-  FEditorHintText := dfCreateText();
+  FEditorHintText := Factory.NewText();
   FEditorHintText.Font := FDebug.FText.Font;
   FEditorHintText.Position := dfVec2f(R.WindowWidth div 2 - 300, 40);
-  FEditorHintText.Material.MaterialOptions.Diffuse := dfVec4f(0, 0, 0, 1);
+  FEditorHintText.Material.Diffuse := dfVec4f(0, 0, 0, 1);
   FEditorHintText.Text := 'ЛКМ - выбор и перемещение объекта'#13#10 +
      'ПКМ - удалить объект'#13#10 +
      'Влево, Вправо - вразать выбранный объект'#13#10 +
@@ -447,14 +442,14 @@ begin
   FTimerIcon.Material.Texture.BlendingMode := tbmTransparency;
   FTimerIcon.UpdateTexCoords();
   FTimerIcon.SetSizeToTextureSize();
-  FTimerIcon.Material.MaterialOptions.Diffuse := dfVec4f(1, 1, 1, 0.8);
+  FTimerIcon.Material.Diffuse := dfVec4f(1, 1, 1, 0.8);
 
   FTimeText := Factory.NewText();
   FTimeText.Font := fontCooper;
   FTimeText.Z := Z_HUD;
   FTimeText.Position := FTimerIcon.Position + dfVec2f(40, 5);
   FTimeText.Text := '00:00';
-  FTimeText.Material.MaterialOptions.Diffuse := dfVec4f(1, 1, 1, 1);
+  FTimeText.Material.Diffuse := dfVec4f(1, 1, 1, 1);
 
   FHUDScene.RegisterElement(FTimerIcon);
   FHUDScene.RegisterElement(FTimeText);

@@ -3,7 +3,7 @@ unit uParticles;
 interface
 
 uses
-  dfHRenderer, dfMath,
+  glr, glrMath,
   uAccum;
 
 const
@@ -74,7 +74,7 @@ begin
   spr.Visible := True;
   timeAll := FADE_TIME_BASE + 1.5 * Random();
   timeRemain := timeAll;
-  spr.Material.MaterialOptions.Diffuse := colorGreen;
+  spr.Material.Diffuse := colorGreen;
   spr.SetSizeToTextureSize();
 end;
 
@@ -96,7 +96,7 @@ begin
       spr.Height := spr.Width;
       moveDir := dfVec2f(0 + Random(360)).Normal;
       speed := 60 + Random(30);
-      spr.Material.MaterialOptions.Diffuse := color;
+      spr.Material.Diffuse := color;
     end;
 end;
 
@@ -116,7 +116,7 @@ begin
       spr.Height := spr.Width;
       moveDir := dfVec2f(0 + Random(360)).Normal;
       speed := 60 + Random(30);
-      spr.Material.MaterialOptions.Diffuse := color;
+      spr.Material.Diffuse := color;
     end;
 end;
 
@@ -147,7 +147,7 @@ begin
         if timeRemain > 0 then
         begin
           timeRemain := timeRemain - dt;
-          spr.Material.MaterialOptions.PDiffuse.w := timeRemain / timeAll;
+          spr.Material.PDiffuse.w := timeRemain / timeAll;
           spr.Position := spr.Position + moveDir * speed * dt;
           moveDir := (moveDir + dfVec2f(0, 2.5 * dt));
         end

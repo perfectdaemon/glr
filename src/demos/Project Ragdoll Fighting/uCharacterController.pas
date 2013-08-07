@@ -3,7 +3,7 @@ unit uCharacterController;
 interface
 
 uses
-  dfHRenderer, dfMath,
+  glr, glrMath,
   uCharacter;
 
 const

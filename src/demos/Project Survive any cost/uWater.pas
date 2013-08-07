@@ -4,7 +4,7 @@ interface
 
 uses
   uLevel_SaveLoad, uWorldObjects,
-  dfHRenderer, dfMath;
+  glr, glrMath;
 
 const
   WATER_ADDTHIRST = BOTTLE_ADDTHIRST;

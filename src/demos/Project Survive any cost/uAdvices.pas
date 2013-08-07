@@ -3,7 +3,7 @@ unit uAdvices;
 interface
 
 uses
-  dfHRenderer, dfMath;
+  glr, glrMath;
 
 const
   ADVICE_BACKGROUND_W = 500;
@@ -100,14 +100,14 @@ end;
 procedure TpdAdviceController.ChangePrevNextState;
 begin
   if FCurrentIndex = FLastIndex then
-    FBtnNext.Material.MaterialOptions.Diffuse := dfVec4f(0.4, 0.4, 0.4, 1.0)
+    FBtnNext.Material.Diffuse := dfVec4f(0.4, 0.4, 0.4, 1.0)
   else
-    FBtnNext.Material.MaterialOptions.Diffuse := dfVec4f(1, 1, 1, 1);
+    FBtnNext.Material.Diffuse := dfVec4f(1, 1, 1, 1);
 
   if FCurrentIndex = 0 then
-    FBtnPrev.Material.MaterialOptions.Diffuse := dfVec4f(0.4, 0.4, 0.4, 1.0)
+    FBtnPrev.Material.Diffuse := dfVec4f(0.4, 0.4, 0.4, 1.0)
   else
-    FBtnPrev.Material.MaterialOptions.Diffuse := dfVec4f(1, 1, 1, 1);
+    FBtnPrev.Material.Diffuse := dfVec4f(1, 1, 1, 1);
 end;
 
 constructor TpdAdviceController.Create;
@@ -153,7 +153,7 @@ begin
     FBackground.Position := dfVec2f((R.WindowWidth - ADVICE_BACKGROUND_W) div 2, ADVICE_TEXT_POSITION_Y - 5);
     FBackground.Width := 500;
     FBackground.Height := 120;
-    FBackground.Material.MaterialOptions.Diffuse := dfVec4f(0 / 255, 132 / 255, 251 / 255);
+    FBackground.Material.Diffuse := dfVec4f(0 / 255, 132 / 255, 251 / 255);
     aScene.RegisterElement(FBackground);
 
     FAdviceText.Font := fontCooper;
@@ -234,7 +234,7 @@ var
   height: Single;
 
 begin
-  Tweener.AddTweenPSingle(@FAdviceText.Material.MaterialOptions.PDiffuse.w, tsExpoEaseIn,
+  Tweener.AddTweenPSingle(@FAdviceText.Material.PDiffuse.w, tsExpoEaseIn,
     0.0, 1.0, 3.0, 0.0);
   FCurrentIndex := aIndex;
   FAdviceText.Text := FAdvices[aIndex];

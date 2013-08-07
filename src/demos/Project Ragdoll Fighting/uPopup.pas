@@ -3,7 +3,7 @@ unit uPopup;
 interface
 
 uses
-  dfHRenderer, dfMath,
+  glr, glrMath,
   uAccum;
 
 const
@@ -38,7 +38,7 @@ implementation
 
 uses
   uGlobal,
-  dfHUtility;
+  glrUtils;
 
 var
   scene: Iglr2DScene;
@@ -70,7 +70,7 @@ begin
   inherited;
   text.Visible := True;
   timeRemain := POPUP_SHOW_TIME;
-  text.Material.MaterialOptions.Diffuse := colorGreen;
+  text.Material.Diffuse := colorGreen;
 end;
 
 { TpdPopups }
@@ -103,7 +103,7 @@ begin
         begin
           timeRemain := timeRemain - dt;
           text.Position := text.Position + dfVec2f(0, -20 * dt);
-          text.Material.MaterialOptions.PDiffuse.w := timeRemain / POPUP_SHOW_TIME;
+          text.Material.PDiffuse.w := timeRemain / POPUP_SHOW_TIME;
         end
         else
           popups.FreeItem(popups.Items[i]);
@@ -125,7 +125,7 @@ begin
   begin
     text.Text := aText;
     text.Position := dfVec2f(X, Y);
-    text.Material.MaterialOptions.Diffuse := aColor;
+    text.Material.Diffuse := aColor;
   end;
 end;
 

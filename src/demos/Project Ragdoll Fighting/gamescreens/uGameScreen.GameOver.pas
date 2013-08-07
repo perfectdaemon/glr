@@ -4,7 +4,7 @@ interface
 
 uses
   uGameScreen,
-  dfHRenderer;
+  glr;
 
 const
   TIME_FADEIN = 1.8;
@@ -56,7 +56,7 @@ implementation
 
 uses
   SysUtils,
-  dfMath, dfTweener,
+  glrMath, dfTweener,
   uGameScreen.Game, uGlobal;
 
 const
@@ -130,7 +130,7 @@ begin
   else
   begin
     Ft := Ft - deltaTime;
-    FBackground.Material.MaterialOptions.PDiffuse.w := 0.75 * (1 - Ft / TIME_FADEIN);
+    FBackground.Material.PDiffuse.w := 0.75 * (1 - Ft / TIME_FADEIN);
   end;
 end;
 
@@ -146,7 +146,7 @@ begin
   else
   begin
     Ft := Ft - deltaTime;
-    FBackground.Material.MaterialOptions.PDiffuse.w := 0.75 * Ft / TIME_FADEOUT;
+    FBackground.Material.PDiffuse.w := 0.75 * Ft / TIME_FADEOUT;
   end;
 end;
 
@@ -161,7 +161,7 @@ begin
 
   with FBackground do
   begin
-    Material.MaterialOptions.Diffuse := dfVec4f(0.0, 0, 0, 0.0);
+    Material.Diffuse := dfVec4f(0.0, 0, 0, 0.0);
     Material.Texture.BlendingMode := tbmTransparency;
     Z := Z_INGAMEMENU;
     PivotPoint := ppTopLeft;
@@ -190,7 +190,7 @@ begin
       Text := 'Еще разок!';
       PivotPoint := ppTopLeft;
       Position := dfVec2f(-150, -15);
-      Material.MaterialOptions.Diffuse := colorWhite;
+      Material.Diffuse := colorWhite;
     end;
 
     TextureNormal := atlasMain.LoadTexture(REPLAY_NORMAL_TEXTURE);
@@ -213,7 +213,7 @@ begin
       Text := 'В меню...';
       PivotPoint := ppTopLeft;
       Position := dfVec2f(-150, -15);
-      Material.MaterialOptions.Diffuse := colorWhite;
+      Material.Diffuse := colorWhite;
     end;
 
     TextureNormal := atlasMain.LoadTexture(MENU_NORMAL_TEXTURE);
@@ -292,7 +292,7 @@ begin
       FGUIManager.RegisterElement(FBtnReplay);
       FGUIManager.RegisterElement(FBtnMenu);
 
-      Tweener.AddTweenPSingle(@FGameOverText.Material.MaterialOptions.PDiffuse.w,
+      Tweener.AddTweenPSingle(@FGameOverText.Material.PDiffuse.w,
         tsSimple, 0.0, 1.0, 1.0, 0.3);
       Tweener.AddTweenPSingle(@FBtnReplay.PPosition.x, tsExpoEaseIn,
         -140, R.WindowWidth div 2 + BTN_RETRY_OFFSET_X, 1.5, 1.0);
@@ -308,7 +308,7 @@ begin
       FGUIManager.UnregisterElement(FBtnReplay);
       FGUIManager.UnregisterElement(FBtnMenu);
 
-      Tweener.AddTweenPSingle(@FGameOverText.Material.MaterialOptions.PDiffuse.w,
+      Tweener.AddTweenPSingle(@FGameOverText.Material.PDiffuse.w,
         tsSimple, 1.0, 0.0, 0.5, 0.0);
       Tweener.AddTweenPSingle(@FBtnReplay.PPosition.x, tsExpoEaseIn,
         R.WindowWidth div 2 + BTN_RETRY_OFFSET_X, -100, 1.5, 0.0);

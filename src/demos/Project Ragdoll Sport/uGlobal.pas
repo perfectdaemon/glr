@@ -3,7 +3,7 @@ unit uGlobal;
 interface
 
 uses
-  dfHRenderer, dfMath, dfHUtility, uBox2DImport, uGUI, uSound,
+  glr, glrMath, glrUtils, uBox2DImport, uGUI, uSound,
   uCharacter, uCharacterController, uPopup, uObjects;
 
 type

@@ -3,7 +3,7 @@ unit uInventory;
 interface
 
 uses
-  dfHRenderer, dfMath, uWorldObjects;
+  glr, glrMath, uWorldObjects;
 
 const
   //Коды ответа от функции "Добавить в инвентарь"
@@ -116,7 +116,7 @@ begin
   backSprite.PivotPoint := ppCenter;
   countText := Factory.NewText();
   countText.Font := fontCooper;
-  countText.Material.MaterialOptions.Diffuse := dfVec4f(0, 0, 0, 1);
+  countText.Material.Diffuse := dfVec4f(0, 0, 0, 1);
   countText.Z := Z_HUD + 2;
 end;
 

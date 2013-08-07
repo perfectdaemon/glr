@@ -4,7 +4,7 @@ interface
 
 uses
   uWorldObjects, uInventory,
-  dfHRenderer, dfMath;
+  glr, glrMath;
 
 
 const
@@ -269,13 +269,13 @@ begin
   FEnabled := Value;
   if FEnabled then
   begin
-    resultSpr.Material.MaterialOptions.Diffuse := dfVec4f(1, 1, 1, 1);
-    backSpr.Material.MaterialOptions.Diffuse := dfVec4f(1, 1, 1, 1);
+    resultSpr.Material.Diffuse := dfVec4f(1, 1, 1, 1);
+    backSpr.Material.Diffuse := dfVec4f(1, 1, 1, 1);
   end
   else
   begin
-    resultSpr.Material.MaterialOptions.Diffuse := dfVec4f(0, 0, 0, 1);
-    backSpr.Material.MaterialOptions.Diffuse := dfVec4f(0.5, 0.5, 0.5, 1);
+    resultSpr.Material.Diffuse := dfVec4f(0, 0, 0, 1);
+    backSpr.Material.Diffuse := dfVec4f(0.5, 0.5, 0.5, 1);
   end;
 end;
 
@@ -800,7 +800,7 @@ begin
 
   countText := Factory.NewText();
   countText.Font := fontCooper;
-  countText.Material.MaterialOptions.Diffuse := dfVec4f(0, 0, 0, 1);
+  countText.Material.Diffuse := dfVec4f(0, 0, 0, 1);
   countText.Z := Z_HUD - 1;
 
   Count := 1;
@@ -812,9 +812,9 @@ end;
 
 procedure TpdCraftResource.SetAlpha(aAlpha: Single);
 begin
-  backSprite.Material.MaterialOptions.PDiffuse.w := aAlpha;
-  aObjectSprite.Material.MaterialOptions.PDiffuse.w := aAlpha;
-  countText.Material.MaterialOptions.PDiffuse.w := aAlpha;
+  backSprite.Material.PDiffuse.w := aAlpha;
+  aObjectSprite.Material.PDiffuse.w := aAlpha;
+  countText.Material.PDiffuse.w := aAlpha;
 end;
 
 procedure TpdCraftResource.SetCount(const Value: Integer);

@@ -4,7 +4,7 @@ interface
 
 uses
   uGameScreen,
-  dfHRenderer;
+  glr;
 
 const
   TIME_FADEIN = 1.0;
@@ -24,8 +24,6 @@ type
 
     Ft: Single; //Время для анимации fadein / fadeout
     FSurviveTime: Double;
-
-    FEscapeDown: Boolean;
 
     procedure InitButtons();
     procedure InitBackground();
@@ -56,7 +54,7 @@ var
 implementation
 
 uses
-  dfMath, dfTweener,
+  glrMath, dfTweener,
   uGameScreen.Game, uGlobal;
 
 const
@@ -166,8 +164,8 @@ procedure SetButtonHideAlpha(aObject: TdfTweenObject; aValue: Single);
 begin
   with aObject as TpdGameOver do
   begin
-    FBtnUpload.Material.MaterialOptions.PDiffuse.w := aValue;
-    FBtnNoUpload.Material.MaterialOptions.PDiffuse.w := aValue;
+    FBtnUpload.Material.PDiffuse.w := aValue;
+    FBtnNoUpload.Material.PDiffuse.w := aValue;
   end;
 end;
 
@@ -185,8 +183,8 @@ procedure SetButtonShowAlpha(aObject: TdfTweenObject; aValue: Single);
 begin
   with aObject as TpdGameOver do
   begin
-    FBtnRetry.Material.MaterialOptions.PDiffuse.w := aValue;
-    FBtnMenu.Material.MaterialOptions.PDiffuse.w := aValue;
+    FBtnRetry.Material.PDiffuse.w := aValue;
+    FBtnMenu.Material.PDiffuse.w := aValue;
   end;
 end;
 
@@ -216,7 +214,7 @@ begin
   else
   begin
     Ft := Ft - deltaTime;
-    FFakeBackground.Material.MaterialOptions.PDiffuse.w := 0.55 * (1 - Ft / TIME_FADEIN);
+    FFakeBackground.Material.PDiffuse.w := 0.55 * (1 - Ft / TIME_FADEIN);
   end;
 end;
 
@@ -232,7 +230,7 @@ begin
   else
   begin
     Ft := Ft - deltaTime;
-    FFakeBackground.Material.MaterialOptions.PDiffuse.w := 0.55 * Ft / TIME_FADEOUT;
+    FFakeBackground.Material.PDiffuse.w := 0.55 * Ft / TIME_FADEOUT;
   end;
 end;
 
@@ -247,7 +245,7 @@ begin
   FFakeBackground := Factory.NewHudSprite();
   with FFakeBackground do
   begin
-    Material.MaterialOptions.Diffuse := dfVec4f(0.7, 0, 0, 0.0);
+    Material.Diffuse := dfVec4f(0.7, 0, 0, 0.0);
     Material.Texture.BlendingMode := tbmTransparency;
     Z := Z_INGAMEMENU - 1;
     PivotPoint := ppTopLeft;
@@ -464,7 +462,7 @@ begin
 
     gssReady:
     begin
-      if R.Input.IsKeyPressed(27, @FEscapeDown) then
+      if R.Input.IsKeyPressed(27) then
         OnMouseClick(FBtnNoUpload as IglrGUIElement, 0, 0, mbLeft, []);
     end;
   end;

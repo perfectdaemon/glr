@@ -4,7 +4,7 @@ interface
 
 uses
   uGameScreen, uAdvices,
-  dfHRenderer;
+  glr;
 
 const
   TIME_FADEIN = 0.7;
@@ -22,8 +22,6 @@ type
     FBtnToPauseMenu: IglrGUIButton;
 
     Ft: Single; //Время для анимации fadein / fadeout
-
-    FEscapeDown: Boolean;
 
     procedure InitButtons();
     procedure InitBackground();
@@ -52,7 +50,7 @@ var
 implementation
 
 uses
-  dfMath, dfTweener,
+  glrMath, dfTweener,
   uGlobal;
 
 const
@@ -158,7 +156,7 @@ begin
   else
   begin
     Ft := Ft - deltaTime;
-    FFakeBackground.Material.MaterialOptions.PDiffuse.w := 0.5 - 0.5 * Ft / TIME_FADEIN;
+    FFakeBackground.Material.PDiffuse.w := 0.5 - 0.5 * Ft / TIME_FADEIN;
   end;
 end;
 
@@ -175,7 +173,7 @@ begin
   else
   begin
     Ft := Ft - deltaTime;
-    FFakeBackground.Material.MaterialOptions.PDiffuse.w := 0.5 * Ft / TIME_FADEOUT;
+    FFakeBackground.Material.PDiffuse.w := 0.5 * Ft / TIME_FADEOUT;
   end;
 end;
 
@@ -190,7 +188,7 @@ begin
   FFakeBackground := Factory.NewHudSprite();
   with FFakeBackground do
   begin
-    Material.MaterialOptions.Diffuse := dfVec4f(0, 0, 0, 0.0);
+    Material.Diffuse := dfVec4f(0, 0, 0, 0.0);
     Material.Texture.BlendingMode := tbmTransparency;
     Z := Z_INGAMEMENU - 2;
     PivotPoint := ppTopLeft;
@@ -285,7 +283,7 @@ begin
 
     gssReady:
     begin
-      if R.Input.IsKeyPressed(27, @FEscapeDown) then
+      if R.Input.IsKeyPressed(27) then
         OnMouseClick(FBtnToPauseMenu as IglrGUIElement, 0, 0, mbLeft, []);
       FAdvc.Update(deltaTime);
     end;

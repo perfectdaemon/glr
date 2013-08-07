@@ -12,7 +12,7 @@ unit dfTweener;
 interface
 
 uses
-  dfMath,
+  glrMath,
   Classes;
 
 type

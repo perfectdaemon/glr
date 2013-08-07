@@ -201,10 +201,6 @@ program survive;
 uses
   glr in '..\..\headers\glr.pas',
   glrUtils in '..\..\headers\glrUtils.pas',
-  dfHEngine in '..\..\common\dfHEngine.pas',
-  ogl in '..\..\common\ogl.pas',
-  glrMath in '..\..\common\glrMath.pas',
-  dfTweener in '..\..\common\dfTweener.pas',
   uGlobal in 'uGlobal.pas',
   uGameScreen.Game in 'gamescreens\uGameScreen.Game.pas',
   uGameScreen.MainMenu in 'gamescreens\uGameScreen.MainMenu.pas',
@@ -221,7 +217,10 @@ uses
   uGameScreen.GameOver in 'gamescreens\uGameScreen.GameOver.pas',
   uCraft in 'uCraft.pas',
   uAdvices in 'uAdvices.pas',
-  uGameScreen.Advices in 'gamescreens\uGameScreen.Advices.pas';
+  uGameScreen.Advices in 'gamescreens\uGameScreen.Advices.pas',
+  dfTweener in '..\..\headers\dfTweener.pas',
+  glrMath in '..\..\headers\glrMath.pas',
+  ogl in '..\..\headers\ogl.pas';
 
 const
   VERSION = '0.10a';

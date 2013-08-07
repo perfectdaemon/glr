@@ -3,7 +3,7 @@ unit uGUI;
 interface
 
 uses
-  dfHRenderer, dfMath;
+  glr, glrMath;
 
 const
   DISAPPEAR_TIME = 3.0;
@@ -39,7 +39,7 @@ implementation
 uses
   SysUtils,
   uGlobal, uPopup, uGameScreen.Game,
-  dfHUtility, dfTweener;
+  glrUtils, dfTweener;
 
 procedure UpdateSliderValue(aSlider: IdfTweenObject; aValue: Single);
 begin
@@ -59,7 +59,7 @@ begin
     Position := dfVec2f(HEALTHBAR_X, 10);
     PivotPoint := ppTopLeft;
     Font := fontCooper;
-    Material.MaterialOptions.Diffuse := dfVec4f(0.2, 0.2, 0.2, 1.0);
+    Material.Diffuse := dfVec4f(0.2, 0.2, 0.2, 1.0);
     Z := Z_HUD;
     case game.GameMode of
       gmSingle:         Text := 'Игрок';
@@ -73,7 +73,7 @@ begin
     Position := dfVec2f(R.WindowWidth - HEALTHBAR_X, 10);
     PivotPoint := ppTopRight;
     Font := fontCooper;
-    Material.MaterialOptions.Diffuse := dfVec4f(0.2, 0.2, 0.2, 1.0);
+    Material.Diffuse := dfVec4f(0.2, 0.2, 0.2, 1.0);
     Z := Z_HUD;
     case game.GameMode of
       gmSingle:       Text := 'Противник';
@@ -87,7 +87,7 @@ begin
     Position := dfVec2f(R.WindowWidth div 2, R.WindowHeight div 2);
     PivotPoint := ppCenter;
     Font := fontCooper;
-    Material.MaterialOptions.Diffuse := dfVec4f(0.2, 0.2, 0.2, 1.0);
+    Material.Diffuse := dfVec4f(0.2, 0.2, 0.2, 1.0);
     Z := Z_HUD;
   end;
 
@@ -97,7 +97,7 @@ begin
     Position := dfVec2f(R.WindowWidth div 2, 70);
     PivotPoint := ppCenter;
     Font := fontCooper;
-    Material.MaterialOptions.Diffuse := dfVec4f(0.2, 0.2, 0.2, 1.0);
+    Material.Diffuse := dfVec4f(0.2, 0.2, 0.2, 1.0);
     Z := Z_HUD;
   end;
 
@@ -139,13 +139,13 @@ begin
   with FPlayerForceBar do
   begin
     Material.Texture := atlasMain.LoadTexture(SLIDER_BACK);
-    Material.MaterialOptions.Diffuse := dfVec4f(0.0, 0.0, 0.0, 1.0);
+    Material.Diffuse := dfVec4f(0.0, 0.0, 0.0, 1.0);
     UpdateTexCoords();
     SetSizeToTextureSize();
     with SliderOver do
     begin
       Material.Texture := atlasMain.LoadTexture(SLIDER_OVER);
-      Material.MaterialOptions.Diffuse := dfVec4f(0.2, 0.2, 0.6, 1.0);
+      Material.Diffuse := dfVec4f(0.2, 0.2, 0.6, 1.0);
       UpdateTexCoords();
       SetSizeToTextureSize();
     end;
@@ -158,13 +158,13 @@ begin
   with FPlayer2ForceBar do
   begin
     Material.Texture := atlasMain.LoadTexture(SLIDER_BACK);
-    Material.MaterialOptions.Diffuse := dfVec4f(0.0, 0.0, 0.0, 1.0);
+    Material.Diffuse := dfVec4f(0.0, 0.0, 0.0, 1.0);
     UpdateTexCoords();
     SetSizeToTextureSize();
     with SliderOver do
     begin
       Material.Texture := atlasMain.LoadTexture(SLIDER_OVER);
-      Material.MaterialOptions.Diffuse := dfVec4f(0.2, 0.2, 0.6, 1.0);
+      Material.Diffuse := dfVec4f(0.2, 0.2, 0.6, 1.0);
       UpdateTexCoords();
       SetSizeToTextureSize();
     end;
@@ -204,7 +204,7 @@ begin
   if Ft > 0 then
   begin
     Ft := Ft - dt;
-    FShowText.Material.MaterialOptions.PDiffuse.w := Ft / DISAPPEAR_TIME;
+    FShowText.Material.PDiffuse.w := Ft / DISAPPEAR_TIME;
   end
 end;
 

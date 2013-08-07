@@ -39,7 +39,7 @@ type
 implementation
 
 uses
-  dfMath;
+  glrMath;
 
 { TpdSoundSystem }
 

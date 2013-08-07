@@ -3,7 +3,7 @@ unit uPlayer;
 interface
 
 uses
-  dfHRenderer, dfMath, uGlobal,
+  glr, glrMath, uGlobal,
   uWorldObjects;
 
 const
@@ -229,7 +229,7 @@ implementation
 uses
   uWater,
   SysUtils,
-  dfTweener, dfHEngine;
+  dfTweener;
 
 const
   EPS = 0.05;
@@ -252,19 +252,19 @@ begin
   params[aParam] := Clamp(params[aParam] + aValue, 0, PLAYER_MAX_PARAM);
   if aValue > 0 then
     case aParam of
-      pHealth:  AddAnim(@FHealthBarContour.Material.MaterialOptions.PDiffuse.y, 0, 1);
-      pHunger:  AddAnim(@FHungerBarContour.Material.MaterialOptions.PDiffuse.y, 0, 1);
-      pThirst:  AddAnim(@FThirstBarContour.Material.MaterialOptions.PDiffuse.y, 0, 1);
-      pFatigue: AddAnim(@FFatigueBarContour.Material.MaterialOptions.PDiffuse.y, 0, 1);
-      pMind:    AddAnim(@FMindBarContour.Material.MaterialOptions.PDiffuse.y, 0, 1);
+      pHealth:  AddAnim(@FHealthBarContour.Material.PDiffuse.y, 0, 1);
+      pHunger:  AddAnim(@FHungerBarContour.Material.PDiffuse.y, 0, 1);
+      pThirst:  AddAnim(@FThirstBarContour.Material.PDiffuse.y, 0, 1);
+      pFatigue: AddAnim(@FFatigueBarContour.Material.PDiffuse.y, 0, 1);
+      pMind:    AddAnim(@FMindBarContour.Material.PDiffuse.y, 0, 1);
     end
   else
     case aParam of
-      pHealth:  AddAnim(@FHealthBarContour.Material.MaterialOptions.PDiffuse.x, 0, 1);
-      pHunger:  AddAnim(@FHungerBarContour.Material.MaterialOptions.PDiffuse.x, 0, 1);
-      pThirst:  AddAnim(@FThirstBarContour.Material.MaterialOptions.PDiffuse.x, 0, 1);
-      pFatigue: AddAnim(@FFatigueBarContour.Material.MaterialOptions.PDiffuse.x, 0, 1);
-      pMind:    AddAnim(@FMindBarContour.Material.MaterialOptions.PDiffuse.x, 0, 1);
+      pHealth:  AddAnim(@FHealthBarContour.Material.PDiffuse.x, 0, 1);
+      pHunger:  AddAnim(@FHungerBarContour.Material.PDiffuse.x, 0, 1);
+      pThirst:  AddAnim(@FThirstBarContour.Material.PDiffuse.x, 0, 1);
+      pFatigue: AddAnim(@FFatigueBarContour.Material.PDiffuse.x, 0, 1);
+      pMind:    AddAnim(@FMindBarContour.Material.PDiffuse.x, 0, 1);
     end
 
 end;
@@ -361,7 +361,7 @@ const
     begin
       Material.Texture := atlasGame.LoadTexture(CONTOUR_BAR);
       Material.Texture.CombineMode := tcmModulate;
-      Material.MaterialOptions.Diffuse := dfVec4f(0, 0, 0, 1);
+      Material.Diffuse := dfVec4f(0, 0, 0, 1);
       UpdateTexCoords();
       PivotPoint := ppTopRight;
       Position := aPosition;
@@ -808,7 +808,7 @@ begin
     with FTextObject do
     begin
       Font := fontCooper;
-      Material.MaterialOptions.Diffuse := dfVec4f(1, 1, 1, 1);
+      Material.Diffuse := dfVec4f(1, 1, 1, 1);
       Z := Z_HUD + 3;
       Position := dfVec2f(R.WindowWidth div 2 + PLAYER_SAY_ORIGIN_X,
         R.WindowHeight div 2 + PLAYER_SAY_ORIGIN_Y);
@@ -862,8 +862,8 @@ var
   lines: Integer;
 begin
   FCurrent := aIndex;
-  FTextObject.Material.MaterialOptions.Diffuse := FSpeeches[FCurrent].color;
-  Tweener.AddTweenPSingle(@FTextObject.Material.MaterialOptions.PDiffuse.w, tsExpoEaseIn, 0.0, 1.0, 1.5);
+  FTextObject.Material.Diffuse := FSpeeches[FCurrent].color;
+  Tweener.AddTweenPSingle(@FTextObject.Material.PDiffuse.w, tsExpoEaseIn, 0.0, 1.0, 1.5);
   //—читаем количество строк в тексте
   lines := CountPos(#13#10, FSpeeches[FCurrent].text);
   FTextObject.Text := FSpeeches[FCurrent].text;

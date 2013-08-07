@@ -44,9 +44,6 @@
 			<DelphiCompile Include="RagdollSport.dpr">
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
-			<DCCReference Include="..\..\common\dfHEngine.pas"/>
-			<DCCReference Include="..\..\common\ogl.pas"/>
-			<DCCReference Include="..\..\common\glrMath.pas"/>
 			<DCCReference Include="..\..\headers\glr.pas"/>
 			<DCCReference Include="..\..\headers\glrUtils.pas"/>
 			<DCCReference Include="..\..\headers\box2d\uBox2DImport.pas"/>
@@ -56,7 +53,6 @@
 			<DCCReference Include="uGUI.pas"/>
 			<DCCReference Include="uCharacter.pas"/>
 			<DCCReference Include="uGlobal.pas"/>
-			<DCCReference Include="..\..\common\dfTweener.pas"/>
 			<DCCReference Include="gamescreens\uGameScreen.Game.pas"/>
 			<DCCReference Include="gamescreens\uGameScreen.GameOver.pas"/>
 			<DCCReference Include="gamescreens\uGameScreen.MainMenu.pas"/>
@@ -70,6 +66,9 @@
 			<DCCReference Include="uPopup.pas"/>
 			<DCCReference Include="uGameSync.pas"/>
 			<DCCReference Include="uSettings_SaveLoad.pas"/>
+			<DCCReference Include="..\..\headers\dfTweener.pas"/>
+			<DCCReference Include="..\..\headers\glrMath.pas"/>
+			<DCCReference Include="..\..\headers\ogl.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

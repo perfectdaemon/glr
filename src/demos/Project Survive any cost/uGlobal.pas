@@ -3,7 +3,7 @@ unit uGlobal;
 interface
 
 uses
-  dfHRenderer, dfHUtility, dfMath, uSound;
+  glr, glrUtils, glrMath, uSound;
 
 type
   TpdParam = (pHealth, pHunger, pThirst, pFatigue, pMind);
@@ -148,7 +148,7 @@ begin
   cursorText.Font := fontCooper;
   cursorText.Z := 100;
   cursorText.Text := '';
-  cursorText.Material.MaterialOptions.Diffuse := dfVec4f(1, 1, 1, 1);//dfVec4f(0, 107.0 / 255, 203 / 255, 1);
+  cursorText.Material.Diffuse := dfVec4f(1, 1, 1, 1);//dfVec4f(0, 107.0 / 255, 203 / 255, 1);
   cursorText.ScaleMult(0.6);
 
   globalScene.RegisterElement(cursor);

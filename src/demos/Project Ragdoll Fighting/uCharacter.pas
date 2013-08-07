@@ -3,8 +3,8 @@ unit uCharacter;
 interface
 
 uses
-  dfHRenderer,
-  dfMath,
+  glr,
+  glrMath,
   UPhysics2D, UPhysics2DTypes, uBox2DImport;
 
 const
@@ -288,7 +288,7 @@ class function TpdCharacter.Init(b2w: Tglrb2World; scene2d: Iglr2DScene;
     aSprite.Z := Z_PLAYER + charInternalZ;
     Inc(charInternalZ);
 
-    aSprite.Material.MaterialOptions.Diffuse := color;
+    aSprite.Material.Diffuse := color;
     Result.FScene2D.RegisterElement(aSprite);
 
     if density = -1 then
@@ -428,7 +428,7 @@ procedure QuickInit(var aSprite: IglrSprite; var aBody: Tb2Body; aPos: TdfVec2f;
     aSprite.Material.Texture := atlasMain.LoadTexture(WEIGHT_TEXTURE);
     aSprite.UpdateTexCoords();
     aSprite.SetSizeToTextureSize();
-    aSprite.Material.MaterialOptions.Diffuse := dfVec4f(1, 1, 1, 1.0);
+    aSprite.Material.Diffuse := dfVec4f(1, 1, 1, 1.0);
 
     aSprite.Z := Z_PLAYER + charInternalZ + 1;
     FScene2D.RegisterElement(aSprite);
@@ -640,9 +640,9 @@ procedure TglrContactListener.ProcessCharToCharCollision(data1,
       particles.AddPunch(GetContactPoint(contact));
       lastHitCountdown := TIME_BETWEEN_BLOCKS;
       gui.ShowText('Double Hit!');
-      Tweener.AddTweenPSingle(@Character1.aObjectSprite.Material.MaterialOptions.PDiffuse.x,
+      Tweener.AddTweenPSingle(@Character1.aObjectSprite.Material.PDiffuse.x,
         tsExpoEaseIn, 0.9, (Character1.aObject as TpdCharacter).NormalColor.x, 2.0, 1.5);
-      Tweener.AddTweenPSingle(@Character2.aObjectSprite.Material.MaterialOptions.PDiffuse.x,
+      Tweener.AddTweenPSingle(@Character2.aObjectSprite.Material.PDiffuse.x,
         tsExpoEaseIn, 0.9, (Character2.aObject as TpdCharacter).NormalColor.x, 2.0, 1.5);
       with (Character1.aObject as TpdCharacter) do
         Health := Health - (Character2.aObject as TpdCharacter).Damage;
@@ -665,7 +665,7 @@ procedure TglrContactListener.ProcessCharToCharCollision(data1,
         Health := Health - (Damager.aObject as TpdCharacter).Damage;
       with (Damager.aObject as TpdCharacter) do
         Force := Force + 10;
-      Tweener.AddTweenPSingle(@Reciever.aObjectSprite.Material.MaterialOptions.PDiffuse.x,
+      Tweener.AddTweenPSingle(@Reciever.aObjectSprite.Material.PDiffuse.x,
         tsExpoEaseIn, 0.9, (Reciever.aObject as TpdCharacter).NormalColor.x, 2.0, 1.5);
       gui.UpdateSliders();
       sound.PlaySample(sPunch);

@@ -7,7 +7,7 @@ unit uLevel_SaveLoad;
 interface
 
 uses
-  dfHRenderer, dfMath;
+  glr, glrMath;
 
 const
   //Самые первые два байта - магическое число для идентификации файла уровня

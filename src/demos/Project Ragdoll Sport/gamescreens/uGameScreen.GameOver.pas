@@ -4,7 +4,7 @@ interface
 
 uses
   uGameScreen, uGameSync,
-  dfHRenderer;
+  glr;
 
 const
   TIME_FADEIN = 1.8;
@@ -71,7 +71,7 @@ implementation
 
 uses
   SysUtils,
-  dfMath, dfTweener,
+  glrMath, dfTweener,
   uGameScreen.Game, uGlobal;
 
 const
@@ -132,7 +132,7 @@ begin
       else
       begin
         FSubmitScore.Text := 'Онлайн-сервисы отключены в настройках';
-        FSubmitScore.Material.MaterialOptions.Diffuse := colorRed;
+        FSubmitScore.Material.Diffuse := colorRed;
       end;
     end
     else if Sender = FBtnMenu as IglrGUIElement then
@@ -230,7 +230,7 @@ begin
   else
   begin
     Ft := Ft - deltaTime;
-    FBackground.Material.MaterialOptions.PDiffuse.w := 0.75 * (1 - Ft / TIME_FADEIN);
+    FBackground.Material.PDiffuse.w := 0.75 * (1 - Ft / TIME_FADEIN);
   end;
 end;
 
@@ -252,7 +252,7 @@ begin
   else
   begin
     Ft := Ft - deltaTime;
-    FBackground.Material.MaterialOptions.PDiffuse.w := 0.75 * Ft / TIME_FADEOUT;
+    FBackground.Material.PDiffuse.w := 0.75 * Ft / TIME_FADEOUT;
   end;
 end;
 
@@ -280,7 +280,7 @@ begin
 
   with FBackground do
   begin
-    Material.MaterialOptions.Diffuse := dfVec4f(0.0, 0, 0, 0.0);
+    Material.Diffuse := dfVec4f(0.0, 0, 0, 0.0);
     Material.Texture.BlendingMode := tbmTransparency;
     Z := Z_INGAMEMENU;
     PivotPoint := ppTopLeft;
@@ -333,7 +333,7 @@ begin
     TextObject.Text := uGlobal.playerName;
     MaxTextLength := 24;
     CursorObject.Width := 10;
-    CursorObject.Material.MaterialOptions.Diffuse := dfVec4f(1,1,1,1);
+    CursorObject.Material.Diffuse := dfVec4f(1,1,1,1);
     TextOffset := dfVec2f(9, 9);
     CursorOffset := dfVec2f(3, 12);
     Material.Texture := atlasMain.LoadTexture(TEXTBOX_TEXTURE);
@@ -378,7 +378,7 @@ procedure TpdGameOver.LoadRecords;
     Result.Z := Z_INGAMEMENU + 2;
     Result.Text := aText;
     Result.Position := aPos;
-    Result.Material.MaterialOptions.Diffuse := aColor;
+    Result.Material.Diffuse := aColor;
     FScene.RegisterElement(Result);
   end;
 
@@ -400,13 +400,13 @@ begin
   if not FSync.IsServerAvailable() then
   begin
     FOnlineTableText.Text := 'Таблица рекордов — сервер недоступен';
-    FOnlineTableText.Material.MaterialOptions.Diffuse := colorRed;
+    FOnlineTableText.Material.Diffuse := colorRed;
     Exit();
   end
   else
   begin
     FOnlineTableText.Text := 'Таблица рекордов';
-    FOnlineTableText.Material.MaterialOptions.Diffuse := colorWhite;
+    FOnlineTableText.Material.Diffuse := colorWhite;
     rawData := FSync.GetScoreTable();
     SetLength(FTable, Length(rawData) + 1);
 
@@ -457,7 +457,7 @@ begin
   with FScores do
   begin
     Font := fontCooper;
-    Material.MaterialOptions.Diffuse := colorWhite;
+    Material.Diffuse := colorWhite;
     Z := Z_INGAMEMENU + 2;
     PivotPoint := ppTopLeft;
     Position := dfVec2f(SCORES_OFFSET_X, SCORES_OFFSET_Y);
@@ -466,7 +466,7 @@ begin
   with FMaxPower do
   begin
     Font := fontCooper;
-    Material.MaterialOptions.Diffuse := colorWhite;
+    Material.Diffuse := colorWhite;
     Z := Z_INGAMEMENU + 2;
     PivotPoint := ppTopLeft;
     Position := FScores.Position + dfVec2f(MAXPOWER_OFFSET_X, MAXPOWER_OFFSET_Y);
@@ -475,7 +475,7 @@ begin
   with FFoulsCount do
   begin
     Font := fontCooper;
-    Material.MaterialOptions.Diffuse := colorWhite;
+    Material.Diffuse := colorWhite;
     Z := Z_INGAMEMENU + 2;
     PivotPoint := ppTopLeft;
     Position := FScores.Position +  dfVec2f(FOULS_OFFSET_X, FOULS_OFFSET_Y);
@@ -484,7 +484,7 @@ begin
   with FSubmitScore do
   begin
     Font := fontCooper;
-    Material.MaterialOptions.Diffuse := colorWhite;
+    Material.Diffuse := colorWhite;
     Z := Z_INGAMEMENU + 2;
     PivotPoint := ppTopLeft;
     Position := dfVec2f(R.WindowWidth div 2 + SUBMIT_OFFSET_X, SUBMIT_OFFSET_Y);
@@ -494,7 +494,7 @@ begin
   with FOnlineTableText do
   begin
     Font := fontCooper;
-    Material.MaterialOptions.Diffuse := colorWhite;
+    Material.Diffuse := colorWhite;
     Z := Z_INGAMEMENU + 2;
     PivotPoint := ppTopLeft;
     Position := dfVec2f(TEXT_TABLE_OFFSET_X, TEXT_TABLE_OFFSET_Y);
@@ -519,10 +519,10 @@ begin
     FFoulsCount.Text := 'Игра рукой: ' + IntToStr(foulsCount);
   end;
   FOnlineTableText.Text := '';
-  FOnlineTableText.Material.MaterialOptions.Diffuse := colorWhite;
+  FOnlineTableText.Material.Diffuse := colorWhite;
 
   FSubmitScore.Text := 'Загрузить результат на сервер';
-  FSubmitScore.Material.MaterialOptions.Diffuse := colorWhite;
+  FSubmitScore.Material.Diffuse := colorWhite;
 
   FPlayerName.TextObject.Text := uGlobal.playerName;
 end;
@@ -590,7 +590,7 @@ begin
       if FSync.AddScore(FPlayerName.TextObject.Text, scores, maxPower) then
       begin
         FSubmitScore.Text := 'Успешно загружено!';
-        FSubmitScore.Material.MaterialOptions.Diffuse := colorGreen;
+        FSubmitScore.Material.Diffuse := colorGreen;
         FBtnSubmit.Enabled := False;
         LoadRecords();
         Tweener.AddTweenSingle(Self, SubmitBlockTween, tsExpoEaseIn, SUBMIT_OFFSET_Y, -95, 1.5, 2.5);
@@ -598,12 +598,12 @@ begin
       else
       begin
         FSubmitScore.Text := 'Ошибка загрузки';
-        FSubmitScore.Material.MaterialOptions.Diffuse := colorRed;
+        FSubmitScore.Material.Diffuse := colorRed;
       end
   else
   begin
     FSubmitScore.Text := 'Сервер недоступен';
-    FSubmitScore.Material.MaterialOptions.Diffuse := colorRed;
+    FSubmitScore.Material.Diffuse := colorRed;
   end;
 end;
 

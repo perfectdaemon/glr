@@ -4,7 +4,7 @@ interface
 
 uses
   uGameScreen,
-  dfHRenderer;
+  glr;
 
 const
   TIME_FADEIN = 0.5;
@@ -54,7 +54,7 @@ var
 implementation
 
 uses
-  dfMath, dfTweener,
+  glrMath, dfTweener,
   uGlobal;
 
 const
@@ -119,7 +119,7 @@ begin
   else
   begin
     Ft := Ft - deltaTime;
-    FFakeBackground.Material.MaterialOptions.PDiffuse.w := 0.7 - 0.7 * Ft / TIME_FADEIN;
+    FFakeBackground.Material.PDiffuse.w := 0.7 - 0.7 * Ft / TIME_FADEIN;
   end;
 end;
 
@@ -135,7 +135,7 @@ begin
   else
   begin
     Ft := Ft - deltaTime;
-    FFakeBackground.Material.MaterialOptions.PDiffuse.w := 0.7 * Ft / TIME_FADEOUT;
+    FFakeBackground.Material.PDiffuse.w := 0.7 * Ft / TIME_FADEOUT;
   end;
 end;
 
@@ -150,7 +150,7 @@ begin
   FFakeBackground := Factory.NewHudSprite();
   with FFakeBackground do
   begin
-    Material.MaterialOptions.Diffuse := dfVec4f(0, 0, 0, 0.0);
+    Material.Diffuse := dfVec4f(0, 0, 0, 0.0);
     Material.Texture.BlendingMode := tbmTransparency;
     Z := Z_INGAMEMENU - 1;
     PivotPoint := ppTopLeft;
@@ -182,7 +182,7 @@ begin
       Text := 'Продолжить';
       PivotPoint := ppTopLeft;
       Position := dfVec2f(-150, -15);
-      Material.MaterialOptions.Diffuse := colorWhite;
+      Material.Diffuse := colorWhite;
     end;
 
 
@@ -205,7 +205,7 @@ begin
       Text := 'В меню';
       PivotPoint := ppTopLeft;
       Position := dfVec2f(-150, -15);
-      Material.MaterialOptions.Diffuse := colorWhite;
+      Material.Diffuse := colorWhite;
     end;
 
     UpdateTexCoords();

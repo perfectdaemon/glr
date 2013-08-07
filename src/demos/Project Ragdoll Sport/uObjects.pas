@@ -3,7 +3,7 @@ unit uObjects;
 interface
 
 uses
-  dfHRenderer, dfMath, UPhysics2D, uAccum, uCharacter;
+  glr, glrMath, UPhysics2D, uAccum, uCharacter;
 
 type
   TpdDropObject = class (TpdAccumItem)
@@ -72,7 +72,7 @@ begin
   aSprite.UpdateTexCoords();
   aSprite.Width := 40;
   aSprite.Height := 40;
-  aSprite.Material.MaterialOptions.Diffuse := dfVec4f(0.2, 0.2, 0.2, 1);
+  aSprite.Material.Diffuse := dfVec4f(0.2, 0.2, 0.2, 1);
   aSprite.Position := dfVec2f(140, 140);
   aSprite.Z := Z_DROPOBJECTS;
 
@@ -80,7 +80,7 @@ begin
   aText.PivotPoint := ppCenter;
   aText.Position := aSprite.Position + dfVec2f(TEXT_OFFSET_X, TEXT_OFFSET_Y);
   aText.Z := Z_DROPOBJECTS + 1;
-  aText.Material.MaterialOptions.Diffuse := dfVec4f(1, 1, 1, 1);
+  aText.Material.Diffuse := dfVec4f(1, 1, 1, 1);
 
   mainScene.RegisterElement(aSprite);
   mainScene.RegisterElement(aText);

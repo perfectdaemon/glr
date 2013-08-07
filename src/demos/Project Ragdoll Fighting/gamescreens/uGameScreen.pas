@@ -6,7 +6,7 @@ unit uGameScreen;
 interface
 
 uses
-  dfHRenderer;
+  glr;
 
 type
   TpdGameScreen = class;

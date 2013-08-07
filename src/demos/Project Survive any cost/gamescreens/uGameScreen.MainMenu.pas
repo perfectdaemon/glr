@@ -3,7 +3,7 @@ unit uGameScreen.MainMenu;
 interface
 
 uses
-  dfHRenderer,
+  glr,
   uGameScreen;
 
 const
@@ -77,7 +77,7 @@ implementation
 
 uses
   Windows,
-  dfMath, dfHGL, dfTweener,
+  glrMath, ogl, dfTweener,
   uGlobal;
 
 procedure OnMouseClick(Sender: IglrGUIElement; X, Y: Integer; mb: TglrMouseButton;
@@ -169,7 +169,7 @@ begin
     Text := 'only for' + #10 + 'igdc #93';
     Position := dfVec2f(R.WindowWidth - 130, R.WindowHeight - 60);
     Z := Z_MAINMENU_BUTTONS;
-    Material.MaterialOptions.Diffuse := dfVec4f(0, 107.0 / 255, 203 / 255, 1);
+    Material.Diffuse := dfVec4f(0, 107.0 / 255, 203 / 255, 1);
     Rotation := -30;
   end;
   FScene.RegisterElement(FForIGDCText);
@@ -182,7 +182,7 @@ begin
     Text := '[ñîçäàë]' + #10 + 'perfect.daemon';
     Position := dfVec2f(50, 320);
     Z := Z_MAINMENU_BUTTONS;
-    Material.MaterialOptions.Diffuse := dfVec4f(1, 1, 1, 1);//dfVec4f(0, 107.0 / 255, 203 / 255, 1);
+    Material.Diffuse := dfVec4f(1, 1, 1, 1);//dfVec4f(0, 107.0 / 255, 203 / 255, 1);
     Rotation := 0;
     Visible := False;
   end;
@@ -195,7 +195,7 @@ begin
     Text := '[îçâó÷èë]' + #10 + 'Alexandr Zhelanov';
     Position := dfVec2f(R.WindowWidth - 250, 320);
     Z := Z_MAINMENU_BUTTONS;
-    Material.MaterialOptions.Diffuse := dfVec4f(1, 1, 1, 1); //dfVec4f(0, 107.0 / 255, 203 / 255, 1);
+    Material.Diffuse := dfVec4f(1, 1, 1, 1); //dfVec4f(0, 107.0 / 255, 203 / 255, 1);
     Rotation := 0;
     Visible := False;
   end;
@@ -208,7 +208,7 @@ begin
     Text := '[óëó÷øèëè]' + #13#10 + 'Àëåêñåé «Ulop», Ìàêñèì «Ìîíàõ»,'#13#10'«Lampogolovii», Åâãåíèé «ist.flash»,'#13#10'Íàñòÿ «Kisslika»';
     Position := dfVec2f(R.WindowWidth div 2 - 150, R.WindowHeight + ABOUT3_OFFSET_Y);
     Z := Z_MAINMENU_BUTTONS;
-    Material.MaterialOptions.Diffuse := dfVec4f(1, 1, 1, 1); //dfVec4f(0, 107.0 / 255, 203 / 255, 1);
+    Material.Diffuse := dfVec4f(1, 1, 1, 1); //dfVec4f(0, 107.0 / 255, 203 / 255, 1);
     Rotation := 0;
     Visible := False;
   end;
@@ -218,7 +218,7 @@ begin
   FFakeBackground := Factory.NewHudSprite();
   FFakeBackground.Position := dfVec2f(0, 0);
   FFakeBackground.Z := 100;
-  FFakeBackground.Material.MaterialOptions.Diffuse := dfVec4f(1, 1, 1, 1);
+  FFakeBackground.Material.Diffuse := dfVec4f(1, 1, 1, 1);
   FFakeBackground.Material.Texture.BlendingMode := tbmTransparency;
   FFakeBackground.Width := R.WindowWidth;
   FFakeBackground.Height := R.WindowHeight;
@@ -238,7 +238,7 @@ begin
   else
   begin
     Ft := Ft - deltaTime;
-    FFakeBackground.Material.MaterialOptions.PDiffuse.w := Ft / TIME_FADEIN;
+    FFakeBackground.Material.PDiffuse.w := Ft / TIME_FADEIN;
   end;
 end;
 
@@ -259,7 +259,7 @@ begin
   else
   begin
     Ft := Ft - deltaTime;
-    FFakeBackground.Material.MaterialOptions.PDiffuse.w := 1 - Ft / TIME_FADEOUT;
+    FFakeBackground.Material.PDiffuse.w := 1 - Ft / TIME_FADEOUT;
   end;
 end;
 
@@ -491,7 +491,7 @@ begin
       Tweener.AddTweenPSingle(@FCBSound.PPosition.x, tsExpoEaseIn, R.WindowWidth + 250, SOUND_X, TIME_SN, TIME_SN_PAUSE);
       Tweener.AddTweenPSingle(@FBtnExit.PPosition.y, tsExpoEaseIn, R.WindowHeight + 50, EXIT_Y, TIME_EX, TIME_EX_PAUSE);
       Tweener.AddTweenPSingle(@FFish.PPosition.y, tsElasticEaseOut, 70, 175, 2.0, 1.0);
-      Tweener.AddTweenPSingle(@FGameName.Material.MaterialOptions.PDiffuse.w,
+      Tweener.AddTweenPSingle(@FGameName.Material.PDiffuse.w,
         tsExpoEaseIn, 0.0, 1.0, 5.0, TIME_AB_PAUSE);
 
       Tweener.AddTweenPSingle(@FForIGDCText.PPosition.y, tsExpoEaseIn,

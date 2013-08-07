@@ -18,12 +18,6 @@
 			<Projects Include="demos\Checker6 - Box2D Car Demo\Checker6.dproj">
 				<Dependencies/>
 			</Projects>
-			<Projects Include="demos\Project SpaceSim 2D\SpaceSim2D.dproj">
-				<Dependencies/>
-			</Projects>
-			<Projects Include="demos\Project shmup-rpg\shmup.dproj">
-				<Dependencies/>
-			</Projects>
 			<Projects Include="demos\Project Survive any cost\survive.dproj">
 				<Dependencies/>
 			</Projects>
@@ -86,24 +80,6 @@
 		<Target Name="Checker6:Make">
 			<MSBuild Targets="Make" Projects="demos\Checker6 - Box2D Car Demo\Checker6.dproj"/>
 		</Target>
-		<Target Name="SpaceSim2D">
-			<MSBuild Projects="demos\Project SpaceSim 2D\SpaceSim2D.dproj"/>
-		</Target>
-		<Target Name="SpaceSim2D:Clean">
-			<MSBuild Targets="Clean" Projects="demos\Project SpaceSim 2D\SpaceSim2D.dproj"/>
-		</Target>
-		<Target Name="SpaceSim2D:Make">
-			<MSBuild Targets="Make" Projects="demos\Project SpaceSim 2D\SpaceSim2D.dproj"/>
-		</Target>
-		<Target Name="shmup">
-			<MSBuild Projects="demos\Project shmup-rpg\shmup.dproj"/>
-		</Target>
-		<Target Name="shmup:Clean">
-			<MSBuild Targets="Clean" Projects="demos\Project shmup-rpg\shmup.dproj"/>
-		</Target>
-		<Target Name="shmup:Make">
-			<MSBuild Targets="Make" Projects="demos\Project shmup-rpg\shmup.dproj"/>
-		</Target>
 		<Target Name="survive">
 			<MSBuild Projects="demos\Project Survive any cost\survive.dproj"/>
 		</Target>
@@ -132,13 +108,13 @@
 			<MSBuild Targets="Make" Projects="demos\Project Ragdoll Fighting\RagdollFighting.dproj"/>
 		</Target>
 		<Target Name="Build">
-			<CallTarget Targets="glRenderer;Checker1;Checker2;Checker5_GUI;Checker6;SpaceSim2D;shmup;survive;RagdollSport;RagdollFighting"/>
+			<CallTarget Targets="glRenderer;Checker1;Checker2;Checker5_GUI;Checker6;survive;RagdollSport;RagdollFighting"/>
 		</Target>
 		<Target Name="Clean">
-			<CallTarget Targets="glRenderer:Clean;Checker1:Clean;Checker2:Clean;Checker5_GUI:Clean;Checker6:Clean;SpaceSim2D:Clean;shmup:Clean;survive:Clean;RagdollSport:Clean;RagdollFighting:Clean"/>
+			<CallTarget Targets="glRenderer:Clean;Checker1:Clean;Checker2:Clean;Checker5_GUI:Clean;Checker6:Clean;survive:Clean;RagdollSport:Clean;RagdollFighting:Clean"/>
 		</Target>
 		<Target Name="Make">
-			<CallTarget Targets="glRenderer:Make;Checker1:Make;Checker2:Make;Checker5_GUI:Make;Checker6:Make;SpaceSim2D:Make;shmup:Make;survive:Make;RagdollSport:Make;RagdollFighting:Make"/>
+			<CallTarget Targets="glRenderer:Make;Checker1:Make;Checker2:Make;Checker5_GUI:Make;Checker6:Make;survive:Make;RagdollSport:Make;RagdollFighting:Make"/>
 		</Target>
 		<Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 	</Project>
