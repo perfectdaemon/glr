@@ -105,8 +105,8 @@ const
 
 implementation
 
-uses
-  Graphics;
+//uses
+//  Graphics;
 
 procedure LoadGlobalResources();
 begin

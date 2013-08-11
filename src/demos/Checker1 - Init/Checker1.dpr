@@ -6,6 +6,7 @@ program Checker1;
 
 {$APPTYPE CONSOLE}
 uses
+  ShareMem,
   Windows,
   SysUtils,
   glr in '..\..\headers\glr.pas',
@@ -68,7 +69,7 @@ begin
 
   LoadRendererLib();
 
-  R := glrCreateRenderer();
+  R := glrGetRenderer();
   R.Init('settings.txt');
   R.OnMouseDown := OnMouseDown;
   R.OnMouseMove := OnMouseMove;

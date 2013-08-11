@@ -45,15 +45,6 @@
 			<DelphiCompile Include="Checker6.dpr">
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
-			<DCCReference Include="..\..\headers\glr.pas"/>
-			<DCCReference Include="..\..\headers\glrUtils.pas"/>
-			<DCCReference Include="..\..\headers\box2d\uBox2DImport.pas"/>
-			<DCCReference Include="..\..\headers\box2d\UPhysics2D.pas"/>
-			<DCCReference Include="..\..\headers\box2d\UPhysics2DTypes.pas"/>
-			<DCCReference Include="uCar.pas"/>
-			<DCCReference Include="uUtils.pas"/>
-			<DCCReference Include="..\..\headers\glrMath.pas"/>
-			<DCCReference Include="..\..\headers\ogl.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

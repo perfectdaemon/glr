@@ -3,10 +3,10 @@ unit uMaterial;
 interface
 
 uses
-  glr, glrMath;
+  glr, glrMath, uBaseInterfaceObject;
 
 type
-  TglrMaterial = class(TInterfacedObject, IglrMaterial)
+  TglrMaterial = class(TglrInterfacedObject, IglrMaterial)
   protected
     FTexture: IglrTexture;
     FShader: IglrShaderProgram;

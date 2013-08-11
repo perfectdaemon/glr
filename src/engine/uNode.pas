@@ -3,10 +3,11 @@ unit uNode;
 interface
 
 uses
-  Classes, glr, glrMath;
+  Classes,
+  glr, glrMath, uBaseInterfaceObject;
 
 type
-  TglrNode = class(TInterfacedObject, IglrNode)
+  TglrNode = class(TglrInterfacedObject, IglrNode)
   private
     function GetChildIndex(aChild: IglrNode): Integer;
 //    function IsChild(aChild: IdfNode): Boolean;

@@ -50,28 +50,6 @@
 				<ContainerId>RC</ContainerId>
 				<Form>icon.res</Form>
 			</RcCompile>
-			<DCCReference Include="..\..\headers\glr.pas"/>
-			<DCCReference Include="..\..\headers\glrUtils.pas"/>
-			<DCCReference Include="uGlobal.pas"/>
-			<DCCReference Include="gamescreens\uGameScreen.Game.pas"/>
-			<DCCReference Include="gamescreens\uGameScreen.MainMenu.pas"/>
-			<DCCReference Include="gamescreens\uGameScreen.pas"/>
-			<DCCReference Include="gamescreens\uGameScreen.PauseMenu.pas"/>
-			<DCCReference Include="gamescreens\uGameScreenManager.pas"/>
-			<DCCReference Include="..\..\headers\Bass.pas"/>
-			<DCCReference Include="uSound.pas"/>
-			<DCCReference Include="uPlayer.pas"/>
-			<DCCReference Include="uWorldObjects.pas"/>
-			<DCCReference Include="uLevel_SaveLoad.pas"/>
-			<DCCReference Include="uInventory.pas"/>
-			<DCCReference Include="uWater.pas"/>
-			<DCCReference Include="gamescreens\uGameScreen.GameOver.pas"/>
-			<DCCReference Include="uCraft.pas"/>
-			<DCCReference Include="uAdvices.pas"/>
-			<DCCReference Include="gamescreens\uGameScreen.Advices.pas"/>
-			<DCCReference Include="..\..\headers\dfTweener.pas"/>
-			<DCCReference Include="..\..\headers\glrMath.pas"/>
-			<DCCReference Include="..\..\headers\ogl.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

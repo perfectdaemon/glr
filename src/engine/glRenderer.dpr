@@ -120,6 +120,7 @@ library glRenderer;
 {$R *.res}
 
 uses
+  ShareMem,
   uRenderer in 'uRenderer.pas',
   uCamera in 'uCamera.pas',
   uLight in 'uLight.pas',
@@ -154,8 +155,6 @@ uses
   uBaseInterfaceObject in 'uBaseInterfaceObject.pas';
 
 exports
-  CreateRenderer, DestroyRenderer,
-
-  GetObjectFactory;
+  GetRenderer, GetObjectFactory;
 begin
 end.

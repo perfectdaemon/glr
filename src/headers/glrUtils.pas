@@ -90,10 +90,6 @@ type
     destructor Destroy; override;
   end;
 
-  {”прощенное задание спрайта, скрывает создание рендер-узла}
-//  function dfNewSpriteWithNode(const aParent: IglrNode): IglrSprite; overload;
-  {”прощенное задание спрайта, скрывает создание рендер-узла, который возвращает в ResultNode}
-//  function dfNewSpriteWithNode(const aParent: IglrNode; var ResultNode: IdfNode): IdfSprite; overload;
   {—оздает шрифт с заполненными по умолчанию значени€ми}
   function glrNewFilledFont(aFontName: String; aFontSize: Integer = 10): IglrFont;
 
@@ -101,21 +97,6 @@ implementation
 
 uses
   Windows, SysUtils;
-
-//function dfNewSpriteWithNode(const aParent: IdfNode): IdfSprite;
-//var
-//  rNode: IdfNode;
-//begin
-//  Result := dfNewSpriteWithNode(aParent, rNode);
-//  rNode := nil;
-//end;
-//
-//function dfNewSpriteWithNode(const aParent: IdfNode; var ResultNode: IdfNode): IdfSprite;
-//begin
-//  ResultNode := dfCreateNode(aParent);
-//  Result := dfCreateHUDSprite();
-//  ResultNode.Renderable := Result;
-//end;
 
 function glrNewFilledFont(aFontName: String; aFontSize: Integer = 10): IglrFont;
 begin

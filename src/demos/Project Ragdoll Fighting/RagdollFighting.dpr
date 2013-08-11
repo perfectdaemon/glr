@@ -66,6 +66,7 @@
 
 program RagdollFighting;
 uses
+  ShareMem,
   Windows,
   glr in '..\..\headers\glr.pas',
   glrUtils in '..\..\headers\glrUtils.pas',
@@ -142,7 +143,7 @@ begin
   LoadRendererLib();
   gl.Init();
 
-  R := glrCreateRenderer();
+  R := glrGetRenderer();
   R.Init('settings_rds.txt');
   R.OnUpdate := OnUpdate;
   R.OnMouseMove := OnMouseMove;

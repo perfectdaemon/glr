@@ -1,6 +1,7 @@
 program Checker6;
 
 uses
+  ShareMem,
   Windows,
   glr in '..\..\headers\glr.pas',
   glrUtils in '..\..\headers\glrUtils.pas',
@@ -100,7 +101,7 @@ var
 begin
   LoadRendererLib();
 
-  R := glrCreateRenderer();
+  R := glrGetRenderer();
   R.Init('settings.txt');
   R.OnUpdate := OnUpdate;
   uCar.CarR := R;

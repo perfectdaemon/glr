@@ -1,6 +1,7 @@
 program Checker5_GUI;
 
 uses
+  ShareMem,
   Windows,
   SysUtils,
   glr in '..\..\headers\glr.pas',
@@ -151,7 +152,7 @@ var
 begin
   LoadRendererLib();
 
-  R := glrCreateRenderer();
+  R := glrGetRenderer();
   Factory := glrGetObjectFactory();
 
   R.Init('settings.txt');
@@ -242,6 +243,21 @@ begin
   R.DeInit();
   scene1.UnregisterElements();
   R := nil;
+  scene1 := nil;
+  Button1 := nil;
+  Button2 := nil;
+
+  tn := nil;
+  tn2 := nil;
+  tn3 := nil;
+  tn_r := nil;
+
+  checkbox1 := nil;
+  textbox1 := nil;
+  font1 := nil;
+  text1 := nil;
+  text2 := nil;
+  text2PivotPoint := nil;
 
   fpsCounter.Free;
 

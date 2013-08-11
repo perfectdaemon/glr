@@ -9,10 +9,10 @@ interface
 uses
   Windows, Messages, SysUtils, Classes,
   ogl, glr, glrMath,
-  uCamera;
+  uBaseInterfaceObject, uCamera, uHudSprite, uTexture, uNode, uInput, uGUIManager;
 
 type
-  TglrRenderer = class(TInterfacedObject, IglrRenderer)
+  TglrRenderer = class(TglrInterfacedObject, IglrRenderer)
   private
     FEnabled: Boolean;
     //Готовность рендера к, собственно, рендеру
@@ -51,14 +51,18 @@ type
 
     //Активная камера
     FCamera: IglrCamera;
+//    FCameraObj: TglrCamera;
 
     //Корень сцены
     FRootNode: IglrNode;
+//    FRootNodeObj: TglrNode;
 
     //Объект для отслеживания ввода
     FInput: IglrInput;
+//    FInputObj: TglrInput;
 
     FGUIManager: IglrGUIManager;
+//    FGUIManagerObj: TglrGUIManager;
 
     //коллбэки для мыши
     FOnMouseDown: TglrOnMouseDownProc;
@@ -193,12 +197,11 @@ type
   function WindowProc(hWnd: HWND; Msg: UINT; wParam: WPARAM; lParam: LPARAM): LRESULT; stdcall;
 
 var
-  TheRenderer: TglrRenderer;
+  TheRenderer: IglrRenderer;
 
 implementation
 
 uses
-  uLight, uHudSprite, uTexture, uNode, uInput, uGUIManager,
   uLogger;
 
 
@@ -259,6 +262,7 @@ begin
   ShowWindow(FWHandle, CmdShow);
   UpdateWindow(FWHandle);
 
+//  FCameraObj := TglrCamera.Create();
   FCamera := TglrCamera.Create();
   FCamera.Viewport(0, 0, FWWidth, FWHeight, aFOV, aZNear, aZFar);
   FCamera.SetCamera(camPos, camLook, camUp);
@@ -568,6 +572,8 @@ procedure TglrRenderer.WMLButtonDown(var Msg: TMessage);
 var
   X, Y: Integer;
 begin
+  if not FRenderReady then Exit();
+  
   X := LOWORD(Msg.LParam);
   Y := HIWORD(Msg.LParam);
   if Assigned(FOnMouseDown) then
@@ -583,6 +589,8 @@ procedure TglrRenderer.WMLButtonUp(var Msg: TMessage);
 var
   X, Y: Integer;
 begin
+  if not FRenderReady then Exit();
+
   X := LOWORD(Msg.LParam);
   Y := HIWORD(Msg.LParam);
   if Assigned(FOnMouseUp) then
@@ -596,24 +604,31 @@ end;
 
 procedure TglrRenderer.WMActivate(var Msg: TWMActivate);
 begin
+  if not FRenderReady then Exit();
+
   FInput.AllowKeyCapture := (Msg.Active <> WA_INACTIVE);
 end;
 
 procedure TglrRenderer.WMClose(var Msg: TWMClose);
 begin
+  if not FRenderReady then Exit();
+
   Stop();
 end;
 
 procedure TglrRenderer.WMKeyDown(var Msg: TWMKeyDown);
 begin
-  FGUIManager.KeyDown(Msg.CharCode, Msg.KeyData);
+  if not FRenderReady then Exit();
 
+  FGUIManager.KeyDown(Msg.CharCode, Msg.KeyData);
 end;
 
 procedure TglrRenderer.WMLButtonDblClick(var Msg: TMessage);
 var
   X, Y: Integer;
 begin
+  if not FRenderReady then Exit();
+
   X := LOWORD(Msg.LParam);
   Y := HIWORD(Msg.LParam);
   if Assigned(FOnMouseDown) then
@@ -628,6 +643,8 @@ procedure TglrRenderer.WMRButtonDown(var Msg: TMessage);
 var
   X, Y: Integer;
 begin
+  if not FRenderReady then Exit();
+
   X := LOWORD(Msg.LParam);
   Y := HIWORD(Msg.LParam);
   if Assigned(FOnMouseDown) then
@@ -643,6 +660,8 @@ procedure TglrRenderer.WMRButtonUp(var Msg: TMessage);
 var
   X, Y: Integer;
 begin
+  if not FRenderReady then Exit();
+
   X := LOWORD(Msg.LParam);
   Y := HIWORD(Msg.LParam);
   if Assigned(FOnMouseUp) then
@@ -658,6 +677,8 @@ procedure TglrRenderer.WMRButtonDblClick(var Msg: TMessage);
 var
   X, Y: Integer;
 begin
+  if not FRenderReady then Exit();
+
   X := LOWORD(Msg.LParam);
   Y := HIWORD(Msg.LParam);
   if Assigned(FOnMouseDown) then
@@ -672,6 +693,8 @@ procedure TglrRenderer.WMMButtonDown(var Msg: TMessage);
 var
   X, Y: Integer;
 begin
+  if not FRenderReady then Exit();
+
   X := LOWORD(Msg.LParam);
   Y := HIWORD(Msg.LParam);
   if Assigned(FOnMouseDown) then
@@ -687,6 +710,8 @@ procedure TglrRenderer.WMMButtonUp(var Msg: TMessage);
 var
   X, Y: Integer;
 begin
+  if not FRenderReady then Exit();
+
   X := LOWORD(Msg.LParam);
   Y := HIWORD(Msg.LParam);
   if Assigned(FOnMouseUp) then
@@ -702,6 +727,8 @@ procedure TglrRenderer.WMMButtonDblClick(var Msg: TMessage);
 var
   X, Y: Integer;
 begin
+  if not FRenderReady then Exit();
+
   X := LOWORD(Msg.LParam);
   Y := HIWORD(Msg.LParam);
   if Assigned(FOnMouseDown) then
@@ -717,6 +744,8 @@ var
   X, Y: Integer;
   Shift: TglrMouseShiftState;
 begin
+  if not FRenderReady then Exit();
+
   X := LOWORD(Msg.LParam);
   Y := HIWORD(Msg.LParam);
   Shift := [];
@@ -739,6 +768,8 @@ var
   X, Y: Integer;
   delta: SmallInt;
 begin
+  if not FRenderReady then Exit();
+
   X := LOWORD(Msg.LParam);
   Y := HIWORD(Msg.LParam);
   delta := HIWORD(Msg.WParam);
@@ -749,6 +780,8 @@ end;
 
 procedure TglrRenderer.WMSize(var Msg: TWMSize);
 begin
+  if not FRenderReady then Exit();
+
   if (Camera <> nil) then
   begin
     Camera.ViewportOnly(0, 0, Msg.Width, Msg.Height);
@@ -757,6 +790,8 @@ end;
 
 procedure TglrRenderer.WMSetCursor(var Msg: TWMSetCursor);
 begin
+  if not FRenderReady then Exit();
+
   if (Msg.HitTest = HTCLIENT) and (FhDefaultCursor = 0) then
   begin
     SetCursor(0);
@@ -769,16 +804,21 @@ end;
 
 constructor TglrRenderer.Create;
 begin
+  inherited;
   FRenderReady := False;
   FWHandle := 0;
   FWCaption := cDefWindowCaption;
   FEnabled := True;
 
+//  FRootNodeObj := TglrNode.Create();
   FRootNode := TglrNode.Create();
+
   FScenes := TInterfaceList.Create;
 
+//  FInputObj := TglrInput.Create();
   FInput := TglrInput.Create();
 
+//  FGUIManagerObj := TglrGUIManager.Create();
   FGUIManager := TglrGUIManager.Create();
 
   uLogger.LogInit();
@@ -787,10 +827,15 @@ end;
 destructor TglrRenderer.Destroy;
 begin
   FRenderReady := False;
-  FRootNode := nil;
+  FScenes.Free();
   FCamera := nil;
+//  FreeAndNil(FCameraObj);
+  FRootNode := nil;
+//  FreeAndNil(FRootNodeObj);
   FInput := nil;
+//  FreeAndNil(FInputObj);
   FGUIManager := nil;
+//  FreeAndNil(FGUIManagerObj);
 
   uLogger.LogDeinit();
   inherited;
@@ -1229,12 +1274,7 @@ procedure TglrRenderer.DeInit();
 begin
   logWriteMessage('Деинициализация рендера');
   UnregisterScenes();
-  FScenes.Free;
   FRenderReady := False;
-  FCamera := nil;
-  FRootNode := nil;
-  FInput := nil;
-  FGUIManager := nil;
   wglMakeCurrent(FWDC, 0);
   wglDeleteContext(FGLRC);
   ReleaseDC(FWHandle, FWDC);
@@ -1252,4 +1292,9 @@ end;
 
 {$ENDREGION}
 
+initialization
+  TheRenderer := TglrRenderer.Create();
+
+finalization
+  TheRenderer := nil;
 end.

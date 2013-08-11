@@ -10,10 +10,10 @@ unit uTexture;
 interface
 
 uses
-  glr, ogl;
+  glr, ogl, uBaseInterfaceObject;
 
 type
-  TglrTexture = class(TInterfacedObject, IglrTexture)
+  TglrTexture = class(TglrInterfacedObject, IglrTexture)
   private
 //    FName: String;
     FTex: TglrTextureDecription;

@@ -3,12 +3,20 @@ unit uFactory;
 interface
 
 uses
-  glr;
+  glr, uBaseInterfaceObject,
+  Contnrs;
 
 type
-  TglrObjectFactory = class (TInterfacedObject, IglrObjectFactory)
+  TglrObjectFactory = class (TglrInterfacedObject, IglrObjectFactory)
+  protected
+//    FObjectList: TObjectList;
+//
+//    procedure FreeAllObjects();
   public
-    function NewNode(aParent: IglrNode): IglrNode;
+    constructor Create(); virtual;
+    destructor Destroy(); override;
+
+    function NewNode(): IglrNode;
     function NewUserRender(): IglrUserRenderable;
     function NewHudSprite(): IglrSprite;
     function NewSprite(): IglrSprite; //for future uses
@@ -25,7 +33,7 @@ type
   end;
 
 var
-  MainFactory: TglrObjectFactory;
+  MainFactory: IglrObjectFactory;
 
 implementation
 
@@ -36,76 +44,158 @@ uses
   u2DScene;
 
 function TglrObjectFactory.NewUserRender(): IglrUserRenderable;
+var
+  obj: TglrInterfacedObject;
 begin
-  Result := TglrUserRenderable.Create();
+  obj := TglrUserRenderable.Create();
+//  FObjectList.Add(obj);
+  Result := obj as IglrUserRenderable;
 end;
 
 function TglrObjectFactory.NewHudSprite(): IglrSprite;
+var
+  obj: TglrInterfacedObject;
 begin
-  Result := TglrHUDSprite.Create();
+  obj := TglrHUDSprite.Create();
+//  FObjectList.Add(obj);
+  Result := obj as IglrSprite;
 end;
 
 function TglrObjectFactory.NewSprite(): IglrSprite;
+var
+  obj: TglrInterfacedObject;
 begin
-  Result := TglrHUDSprite.Create();
+  obj := TglrHUDSprite.Create();
+//  FObjectList.Add(obj);
+  Result := obj as IglrSprite;
 end;
 
 function TglrObjectFactory.NewMaterial(): IglrMaterial;
+var
+  obj: TglrInterfacedObject;
 begin
-  Result := TglrMaterial.Create();
+  obj := TglrMaterial.Create();
+//  FObjectList.Add(obj);
+  Result := obj as IglrMaterial;
 end;
 
-function TglrObjectFactory.NewNode(aParent: IglrNode): IglrNode;
+function TglrObjectFactory.NewNode(): IglrNode;
+var
+  obj: TglrInterfacedObject;
 begin
-  if aParent = nil then
-    Result := TglrNode.Create
-  else
-    Result := aParent.AddNewChild();
+  obj := TglrNode.Create();
+//  FObjectList.Add(obj);
+  Result := obj as IglrNode;
 end;
 
 function TglrObjectFactory.NewTexture(): IglrTexture;
+var
+  obj: TglrInterfacedObject;
 begin
-  Result := TglrTexture.Create();
+  obj := TglrTexture.Create();
+//  FObjectList.Add(obj);
+  Result := obj as IglrTexture;
 end;
 
 function TglrObjectFactory.NewFont(): IglrFont;
+var
+  obj: TglrInterfacedObject;
 begin
-  Result := TglrFont.Create();
+  obj := TglrFont.Create();
+//  FObjectList.Add(obj);
+  Result:= obj as IglrFont;
 end;
 
 function TglrObjectFactory.NewText(): IglrText;
+var
+  obj: TglrInterfacedObject;
 begin
-  Result := TglrText.Create();
+  obj := TglrText.Create();
+//  FObjectList.Add(obj);
+  Result := obj as IglrText;
 end;
 
 function TglrObjectFactory.NewGUIButton(): IglrGUIButton;
+var
+  obj: TglrInterfacedObject;
 begin
-  Result := TglrGUIButton.Create();
+  obj := TglrGUIButton.Create();
+//  FObjectList.Add(obj);
+  Result := obj as IglrGUIButton;
 end;
 
 function TglrObjectFactory.NewGUITextButton(): IglrGUITextButton;
+var
+  obj: TglrInterfacedObject;
 begin
-  Result := TglrGUITextButton.Create();
+  obj := TglrGUITextButton.Create();
+//  FObjectList.Add(obj);
+  Result := obj as IglrGUITextButton;
 end;
 
 function TglrObjectFactory.NewGUICheckBox(): IglrGUICheckBox;
+var
+  obj: TglrInterfacedObject;
 begin
-  Result := TglrGUICheckBox.Create();
+  obj := TglrGUICheckBox.Create();
+//  FObjectList.Add(obj);
+  Result := obj as IglrGUICheckBox;
 end;
 
 function TglrObjectFactory.NewGUITextBox(): IglrGUITextBox;
+var
+  obj: TglrInterfacedObject;
 begin
-  Result := TglrGUITextBox.Create();
+  obj := TglrGUITextBox.Create();
+//  FObjectList.Add(obj);
+  Result := obj as IglrGUITextBox;
 end;
 
 function TglrObjectFactory.NewGUISlider(): IglrGUISlider;
+var
+  obj: TglrInterfacedObject;
 begin
-  Result := TglrGUISlider.Create();
+  obj := TglrGUISlider.Create();
+//  FObjectList.Add(obj);
+  Result := obj as IglrGUISlider;
 end;
 
 function TglrObjectFactory.New2DScene(): Iglr2DScene;
+var
+  obj: TglrInterfacedObject;
 begin
-  Result := Tglr2DScene.Create();
+  obj := Tglr2DScene.Create();
+//  FObjectList.Add(obj);
+  Result := obj as Iglr2DScene;
 end;
+
+
+constructor TglrObjectFactory.Create;
+begin
+  inherited;
+//  FObjectList := TObjectList.Create(False);
+end;
+
+destructor TglrObjectFactory.Destroy;
+begin
+//  FreeAllObjects();
+//  FObjectList.Free();
+  inherited;
+end;
+
+//procedure TglrObjectFactory.FreeAllObjects;
+//var
+//  i: Integer;
+//begin
+//  for i := 0 to FObjectList.Count - 1 do
+//    if Assigned(FObjectList[i]) then
+//      FObjectList[i].Free();
+//end;
+
+initialization
+  MainFactory := TglrObjectFactory.Create();
+
+finalization
+  MainFactory := nil;
 
 end.

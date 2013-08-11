@@ -4,10 +4,10 @@ interface
 
 uses
   Classes,
-  glrMath, glr;
+  glrMath, glr, uBaseInterfaceObject;
 
 type
-  Tglr2DScene = class(TInterfacedObject, Iglr2DScene)
+  Tglr2DScene = class(TglrInterfacedObject, Iglr2DScene)
   private
     FElements: TInterfaceList;
     FUpdProc: TglrOnUpdateProc;

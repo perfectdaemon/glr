@@ -5,7 +5,7 @@ interface
 uses
   Windows,
   Graphics,
-  glr, glrMath;
+  glr, glrMath, uBaseInterfaceObject;
 
 type
   TglrCharData = record
@@ -15,7 +15,7 @@ type
   end;
   PdfCharData = ^TglrCharData;
 
-  TglrFont = class(TInterfacedObject, IglrFont)
+  TglrFont = class(TglrInterfacedObject, IglrFont)
   private
     FFontName: String;
     FFontSize: Integer;

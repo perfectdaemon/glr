@@ -1,3 +1,8 @@
+{
+
+  TODO: TOTAL REWRITE!
+}
+
 unit uShader;
 
 interface

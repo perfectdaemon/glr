@@ -5,10 +5,10 @@ interface
 uses
   Classes,
   uMaterial,
-  glr, glrMath;
+  glr, glrMath, uBaseInterfaceObject;
 
 type
-  TglrRenderable = class(TInterfacedObject, IglrRenderable)
+  TglrRenderable = class(TglrInterfacedObject, IglrRenderable)
   private
   protected
     FMaterial: IglrMaterial;

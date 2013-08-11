@@ -4,10 +4,10 @@ interface
 
 uses
   Classes,
-  glr;
+  glr, uBaseInterfaceObject;
 
 type
-  TglrGUIManager = class(TInterfacedObject, IglrGUIManager)
+  TglrGUIManager = class(TglrInterfacedObject, IglrGUIManager)
   private
     FElements: TInterfaceList;
     FFocused: IglrGUIElement;

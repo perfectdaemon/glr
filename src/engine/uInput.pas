@@ -4,10 +4,10 @@ interface
 
 uses
   Windows,
-  glr;
+  glr, uBaseInterfaceObject;
 
 type
-  TglrInput = class(TInterfacedObject, IglrInput)
+  TglrInput = class(TglrInterfacedObject, IglrInput)
   protected
     FAllow: Boolean;
     vLastWheelDelta : Integer;

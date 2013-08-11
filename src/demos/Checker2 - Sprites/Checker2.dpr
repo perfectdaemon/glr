@@ -7,6 +7,7 @@ program Checker2;
 {$APPTYPE CONSOLE}
 
 uses
+  ShareMem,
   Windows,
   SysUtils,
   glr in '..\..\headers\glr.pas',
@@ -85,7 +86,7 @@ begin
 
   LoadRendererLib();
 
-  R := glrCreateRenderer();
+  R := glrGetRenderer();
   Factory := glrGetObjectFactory();
   R.Init('settings.txt');
   R.OnMouseDown := OnMouseDown;
@@ -127,6 +128,15 @@ begin
   Scene2d.UnregisterElements();
   R.DeInit();
   R := nil;
+//  pp.Material.Texture := nil;
+//  pp.Material := nil;
+  pp := nil;
+  Factory := nil;
+//  spr.Material.Texture := nil;
+//  spr.Material := nil;
+  spr := nil;
+  Scene2d := nil;
+
 
   UnLoadRendererLib();
 end.

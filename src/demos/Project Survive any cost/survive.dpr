@@ -199,6 +199,7 @@ program survive;
 {$R 'icon.res' 'icon.rc'}
 
 uses
+  ShareMem,
   glr in '..\..\headers\glr.pas',
   glrUtils in '..\..\headers\glrUtils.pas',
   uGlobal in 'uGlobal.pas',
@@ -266,7 +267,7 @@ var
 begin
   Randomize();
   LoadRendererLib();
-  R := glrCreateRenderer();
+  R := glrGetRenderer();
   R.Init('settings_survive.txt');
   Factory := glrGetObjectFactory();
 

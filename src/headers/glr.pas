@@ -1009,7 +1009,8 @@ type
   end;
 
   IglrObjectFactory = interface
-    function NewNode(aParent: IglrNode): IglrNode;
+    ['{18D6C31A-3ECC-4F13-B5D0-5F4BF6FB466B}']
+    function NewNode(): IglrNode;
     function NewUserRender(): IglrUserRenderable;
     function NewHudSprite(): IglrSprite;
     function NewSprite(): IglrSprite; //for future uses
@@ -1029,9 +1030,7 @@ type
   procedure UnLoadRendererLib();
 
 var
-  {ѕока все в стадии дебага, впоследствии заменить на фабрики}
-  glrCreateRenderer: function(): IglrRenderer; stdcall;
-  glrDestroyRenderer: function(): Integer; stdcall;
+  glrGetRenderer: function(): IglrRenderer; stdcall;
   glrGetObjectFactory: function(): IglrObjectFactory; stdcall;
 
   dllHandle: THandle;
@@ -1043,18 +1042,13 @@ begin
   dllHandle := LoadLibrary(dllname);
   Assert(dllHandle <> 0, 'ќшибка загрузки библиотеки: веро€тно библиотека не найдена');
 
-  glrCreateRenderer := GetProcAddress(dllHandle, 'CreateRenderer');
-  glrDestroyRenderer := GetProcAddress(dllHandle, 'DestroyRenderer');
-
+  glrGetRenderer := GetProcAddress(dllHandle, 'GetRenderer');
   glrGetObjectFactory := GetProcAddress(dllHandle, 'GetObjectFactory');
 end;
 
 procedure UnLoadRendererLib();
 begin
-//  dfCreateRenderer := nil;
-//  dfCreateNode := nil;
-//  dfDestroyRenderer();
-//  FreeLibraryAndExitThread(dllHandle, 0);
+//  FreeLibrary(dllHandle);
 end;
 
 class function TglrStream.Init(Memory: Pointer; MemSize: LongInt): TglrStream;
