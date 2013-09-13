@@ -18,7 +18,7 @@ var
   R: IglrRenderer;
   Factory: IglrObjectFactory;
   Scene2d: Iglr2DScene;
-  spr, pp: IglrSprite;
+  spr, pp, childSprite: IglrSprite;
 
   deltaRot: Single;
 
@@ -74,6 +74,10 @@ var
     if R.Input.IsKeyDown(VK_ESCAPE) then
       R.Stop();
     spr.Rotation := spr.Rotation + deltaRot * dt;
+    if spr.Position.x < 50 then
+      spr.Position := spr.Position + dfVec2f(30 * dt, 0)
+    else
+      spr.Position := spr.Position + dfVec2f(-30 * dt, 0);
     if spr.Rotation > 30 then
       deltaRot := -10
     else if spr.Rotation < -30 then
@@ -96,6 +100,7 @@ begin
 
   spr := Factory.NewHudSprite();
   pp := Factory.NewHudSprite();
+  childSprite := Factory.NewHudSprite();
   with spr do
   begin
     Width := 200;
@@ -110,16 +115,27 @@ begin
 
   with pp do
   begin
-    Width := 200;
-    Height := 100;
     PivotPoint := ppCenter;
-    Position := dfVec2f(300, 300);
+    Position := dfVec2f(0, 0);
     Material.Diffuse := dfVec4f(1, 1, 1, 1);
     Width := 5;
     Height := 5;
     Z := 1;
   end;
-  Scene2d.RegisterElement(pp);
+  spr.AddChild(pp);
+
+  with childSprite do
+  begin
+    Width := 30;
+    Height := 30;
+    PivotPoint := ppCenter;
+    Position := dfVec2f(400, 0);
+    Material.Diffuse := dfVec4f(1, 0, 0, 0);
+    Z := 2;
+    AbsolutePosition := False;
+  end;
+
+  spr.AddChild(childSprite);
 
   deltaRot := 10;
 

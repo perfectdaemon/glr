@@ -45,6 +45,9 @@
 			<DelphiCompile Include="Checker2.dpr">
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
+			<DCCReference Include="..\..\headers\glr.pas"/>
+			<DCCReference Include="..\..\headers\glrMath.pas"/>
+			<DCCReference Include="..\..\headers\ogl.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

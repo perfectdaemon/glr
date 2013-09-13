@@ -287,10 +287,33 @@ type
     {$REGION '[private]'}
     function GetMaterial(): IglrMaterial;
     procedure SetMaterial(const aMat: IglrMaterial);
+    function GetChild(Index: Integer): IglrRenderable;
+    procedure SetChild(Index: Integer; aChild: IglrRenderable);
+    function GetParent(): IglrRenderable;
+    procedure SetParent(aParent: IglrRenderable);
+    function GetChildsCount(): Integer;
+    function GetVis(): Boolean;
+    procedure SetVis(aVis: Boolean);
     {$ENDREGION}
+    procedure Render();
     procedure DoRender;
 
     property Material: IglrMaterial read GetMaterial write SetMaterial;
+
+
+    property Parent: IglrRenderable read GetParent write SetParent;
+    property Childs[Index: Integer]: IglrRenderable read GetChild write SetChild;
+    property ChildsCount: Integer read GetChildsCount;
+
+    //Добавить уже существующий рендер-узел себе в потомки
+    function AddChild(aChild: IglrRenderable): Integer;
+    //Удалить потомка из списка по индексу. Физически объект остается в памяти.
+    procedure RemoveChild(Index: Integer); overload;
+    //Удалить потомка из списка по указателю. Физически объект остается в памяти.
+    procedure RemoveChild(aChild: IglrRenderable); overload;
+    //Удалить потомка из списка по индексу. Физически объект уничтожается.
+    procedure FreeChild(Index: Integer);
+
   end;
 
   {$REGION ' RenderNodes and scenes '}
@@ -514,11 +537,11 @@ type
     function GetInternalZ(): Single; // -1.0 .. 1.0
     procedure SetZ(const aValue: Integer);
 
-    function GetChild(Index: Integer): Iglr2DRenderable;
-    procedure SetChild(Index: Integer; aChild: Iglr2DRenderable);
-    function GetParent(): Iglr2DRenderable;
-    procedure SetParent(aParent: Iglr2DRenderable);
-    function GetChildsCount(): Integer;
+//    function GetChild(Index: Integer): Iglr2DRenderable;
+//    procedure SetChild(Index: Integer; aChild: Iglr2DRenderable);
+//    function GetParent(): Iglr2DRenderable;
+//    procedure SetParent(aParent: Iglr2DRenderable);
+//    function GetChildsCount(): Integer;
     function GetBB: TdfBB;
 
     function GetParentScene(): Iglr2DScene;
@@ -560,20 +583,20 @@ type
 
     procedure SetSizeToTextureSize();
 
-    property Parent: Iglr2DRenderable read GetParent write SetParent;
-    property Childs[Index: Integer]: Iglr2DRenderable read GetChild write SetChild;
-    property ChildsCount: Integer read GetChildsCount;
-
-    //Добавить уже существующий рендер-узел себе в потомки
-    function AddChild(aChild: Iglr2DRenderable): Integer;
-    //Добавить нового потомка
-    function AddNewChild(): Iglr2DRenderable;
-    //Удалить потомка из списка по индексу. Физически объект остается в памяти.
-    procedure RemoveChild(Index: Integer); overload;
-    //Удалить потомка из списка по указателю. Физически объект остается в памяти.
-    procedure RemoveChild(aChild: Iglr2DRenderable); overload;
-    //Удалить потомка из списка по индексу. Физически объект уничтожается.
-    procedure FreeChild(Index: Integer);
+//    property Parent: Iglr2DRenderable read GetParent write SetParent;
+//    property Childs[Index: Integer]: Iglr2DRenderable read GetChild write SetChild;
+//    property ChildsCount: Integer read GetChildsCount;
+//
+//    //Добавить уже существующий рендер-узел себе в потомки
+//    function AddChild(aChild: Iglr2DRenderable): Integer;
+//    //Добавить нового потомка
+//    function AddNewChild(): Iglr2DRenderable;
+//    //Удалить потомка из списка по индексу. Физически объект остается в памяти.
+//    procedure RemoveChild(Index: Integer); overload;
+//    //Удалить потомка из списка по указателю. Физически объект остается в памяти.
+//    procedure RemoveChild(aChild: Iglr2DRenderable); overload;
+//    //Удалить потомка из списка по индексу. Физически объект уничтожается.
+//    procedure FreeChild(Index: Integer);
 
     property BoundingBox: TdfBB read GetBB;
 
