@@ -157,7 +157,7 @@ begin
 
   R.Init('settings.txt');
 
-  fpsCounter := TglrFPSCounter.Create(R.RootNode, 'FPS:', 1, nil);
+  fpsCounter := TglrFPSCounter.Create(scene1, 'FPS:', 1, nil);
 
   R.OnUpdate := OnUpdate;
 

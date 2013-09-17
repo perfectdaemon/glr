@@ -51,18 +51,15 @@ type
 
     //Активная камера
     FCamera: IglrCamera;
-//    FCameraObj: TglrCamera;
 
     //Корень сцены
-    FRootNode: IglrNode;
-//    FRootNodeObj: TglrNode;
+//    FRootNode: IglrNode;
+    FRoot: IglrRenderable;
 
     //Объект для отслеживания ввода
     FInput: IglrInput;
-//    FInputObj: TglrInput;
 
     FGUIManager: IglrGUIManager;
-//    FGUIManagerObj: TglrGUIManager;
 
     //коллбэки для мыши
     FOnMouseDown: TglrOnMouseDownProc;
@@ -90,8 +87,10 @@ type
     function GetFPS(): Single;
     function GetCamera(): IglrCamera;
     procedure SetCamera(const aCamera: IglrCamera);
-    function GetRoot: IglrNode;
-    procedure SetRoot(const aRoot: IglrNode);
+//    function GetRootNode: IglrNode;
+//    procedure SetRootNode(const aRoot: IglrNode);
+    function GetRoot: IglrRenderable;
+    procedure SetRoot(const aRoot: IglrRenderable);
 
     procedure SetOnMouseDown(aProc: TglrOnMouseDownProc);
     procedure SetOnMouseUp(aProc: TglrOnMouseUpProc);
@@ -174,7 +173,8 @@ type
 
     property Camera: IglrCamera read GetCamera write SetCamera;
 
-    property RootNode: IglrNode read GetRoot write SetRoot;
+//    property RootNode: IglrNode read GetRootNode write SetRootNode;
+    property Root: IglrRenderable read GetRoot write SetRoot;
 
     property Input: IglrInput read GetInput write SetInput;
 
@@ -202,7 +202,7 @@ var
 implementation
 
 uses
-  uLogger;
+  uRenderable, uLogger;
 
 
 const
@@ -419,10 +419,15 @@ begin
   Result := FRenderReady;
 end;
 
-function TglrRenderer.GetRoot: IglrNode;
+function TglrRenderer.GetRoot: IglrRenderable;
 begin
-  Result := FRootNode;
+  Result := FRoot;
 end;
+
+//function TglrRenderer.GetRootNode: IglrNode;
+//begin
+//  Result := FRootNode;
+//end;
 
 function TglrRenderer.GetSelfVersion: PWideChar;
 var
@@ -561,10 +566,15 @@ begin
   FOnUpdate := aProc;
 end;
 
-procedure TglrRenderer.SetRoot(const aRoot: IglrNode);
+procedure TglrRenderer.SetRoot(const aRoot: IglrRenderable);
 begin
-  FRootNode := aRoot;
+  FRoot := aRoot;
 end;
+
+//procedure TglrRenderer.SetRootNode(const aRoot: IglrNode);
+//begin
+//  FRootNode := aRoot;
+//end;
 
 {$REGION 'Коллбэки'}
 
@@ -810,8 +820,8 @@ begin
   FWCaption := cDefWindowCaption;
   FEnabled := True;
 
-//  FRootNodeObj := TglrNode.Create();
-  FRootNode := TglrNode.Create();
+//  FRootNode := TglrNode.Create();
+  FRoot := TglrRenderable.Create();
 
   FScenes := TInterfaceList.Create;
 
@@ -829,13 +839,10 @@ begin
   FRenderReady := False;
   FScenes.Free();
   FCamera := nil;
-//  FreeAndNil(FCameraObj);
-  FRootNode := nil;
-//  FreeAndNil(FRootNodeObj);
+//  FRootNode := nil;
+  FRoot := nil;
   FInput := nil;
-//  FreeAndNil(FInputObj);
   FGUIManager := nil;
-//  FreeAndNil(FGUIManagerObj);
 
   uLogger.LogDeinit();
   inherited;
@@ -1048,8 +1055,6 @@ begin
       FreeWindow();
       InitWindow();
       OpenGLInitContext(msFormat);
-      //Destroy Window
-      //Create window with nex context
     end;
 
     OpenGLInit(bVSync, cFOV, cZNear, cZFar, camPos, camLook, camUp);
@@ -1226,7 +1231,8 @@ begin
     for i := 0 to FScenes.Count - 1 do
       IdfBaseScene(FScenes[i]).Render();
 
-    FRootNode.Render(deltaTime);
+//    FRootNode.Render(deltaTime);
+    FRoot.Render();
   gl.PopMatrix();
   Windows.SwapBuffers(FWDC);
   FTexSwitches := uTexture.textureSwitches;

@@ -26,7 +26,8 @@ type
   public
     TextObject: IglrText;
     FontObject: IglrFont;
-    constructor Create(aRootNode: IglrNode; aText: String; aFreq: Double; aFont: IglrFont = nil); overload; virtual;
+//    constructor Create(aRootNode: IglrNode; aText: String; aFreq: Double; aFont: IglrFont = nil); overload; virtual;
+//    constructor Create(aRoot: IglrRenderable; aText: String; aFreq: Double; aFont: IglrFont = nil); overload; virtual;
     constructor Create(aScene: Iglr2DScene; aText: String; aFreq: Double; aFont: IglrFont = nil); overload; virtual;
     destructor Destroy; override;
 
@@ -115,15 +116,15 @@ end;
 
 { TdfFPSCounter }
 
-constructor TglrFPSCounter.Create(aRootNode: IglrNode; aText: String; aFreq: Double; aFont: IglrFont);
-begin
-  _Create(aText, aFreq, aFont);
-
-  FNode := aRootNode.AddNewChild();
-  FNode.Renderable := TextObject;
-
-  FScene := nil;
-end;
+//constructor TglrFPSCounter.Create(aRootNode: IglrNode; aText: String; aFreq: Double; aFont: IglrFont);
+//begin
+//  _Create(aText, aFreq, aFont);
+//
+//  FNode := aRootNode.AddNewChild();
+//  FNode.Renderable := TextObject;
+//
+//  FScene := nil;
+//end;
 
 constructor TglrFPSCounter.Create(aScene: Iglr2DScene; aText: String;
   aFreq: Double; aFont: IglrFont);

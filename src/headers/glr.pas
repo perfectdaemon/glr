@@ -389,10 +389,10 @@ type
   Idf3DScene = interface(IdfBaseScene)
     ['{5E52434E-3A00-478E-AE73-BA45C77BD2AC}']
     {$REGION '[private]'}
-    function GetRoot: IglrNode;
-    procedure SetRoot(const aRoot: IglrNode);
+//    function GetRoot: IglrNode;
+//    procedure SetRoot(const aRoot: IglrNode);
     {$ENDREGION}
-    property RootNode: IglrNode read GetRoot write SetRoot;
+//    property RootNode: IglrNode read GetRoot write SetRoot;
   end;
 
 //  { IdfSceneManager - оперирует сценами IdfScene, загружает, подгружает и
@@ -531,17 +531,10 @@ type
     procedure SetTexCoord(aIndex: Integer; aCoord: TdfVec2f);
     function GetAbsPosition(): Boolean;
     procedure SetAbsPosition(const Value: Boolean);
-    function GetVis(): Boolean;
-    procedure SetVis(aVis: Boolean);
     function GetZ(): Integer;
     function GetInternalZ(): Single; // -1.0 .. 1.0
     procedure SetZ(const aValue: Integer);
 
-//    function GetChild(Index: Integer): Iglr2DRenderable;
-//    procedure SetChild(Index: Integer; aChild: Iglr2DRenderable);
-//    function GetParent(): Iglr2DRenderable;
-//    procedure SetParent(aParent: Iglr2DRenderable);
-//    function GetChildsCount(): Integer;
     function GetBB: TdfBB;
 
     function GetParentScene(): Iglr2DScene;
@@ -583,24 +576,7 @@ type
 
     procedure SetSizeToTextureSize();
 
-//    property Parent: Iglr2DRenderable read GetParent write SetParent;
-//    property Childs[Index: Integer]: Iglr2DRenderable read GetChild write SetChild;
-//    property ChildsCount: Integer read GetChildsCount;
-//
-//    //Добавить уже существующий рендер-узел себе в потомки
-//    function AddChild(aChild: Iglr2DRenderable): Integer;
-//    //Добавить нового потомка
-//    function AddNewChild(): Iglr2DRenderable;
-//    //Удалить потомка из списка по индексу. Физически объект остается в памяти.
-//    procedure RemoveChild(Index: Integer); overload;
-//    //Удалить потомка из списка по указателю. Физически объект остается в памяти.
-//    procedure RemoveChild(aChild: Iglr2DRenderable); overload;
-//    //Удалить потомка из списка по индексу. Физически объект уничтожается.
-//    procedure FreeChild(Index: Integer);
-
     property BoundingBox: TdfBB read GetBB;
-
-    procedure Render();
   end;
 
   { IdfSprite - двумерный спрайт, отображающийся на экране (HUD-sprite) без искажений }
@@ -943,8 +919,10 @@ type
     function GetFPS(): Single;
     function GetCamera(): IglrCamera;
     procedure SetCamera(const aCamera: IglrCamera);
-    function GetRoot: IglrNode;
-    procedure SetRoot(const aRoot: IglrNode);
+//    function GetRootNode: IglrNode;
+//    procedure SetRootNode(const aRoot: IglrNode);
+    function GetRoot: IglrRenderable;
+    procedure SetRoot(const aRoot: IglrRenderable);
 
     procedure SetOnMouseDown(aProc: TglrOnMouseDownProc);
     procedure SetOnMouseUp(aProc: TglrOnMouseUpProc);
@@ -1015,8 +993,8 @@ type
 
     property Camera: IglrCamera read GetCamera write SetCamera;
 
-    {debug - надо юзать IdfScene}
-    property RootNode: IglrNode read GetRoot write SetRoot;
+//    property RootNode: IglrNode read GetRootNode write SetRootNode;
+    property Root: IglrRenderable read GetRoot write SetRoot;
 
     property Input: IglrInput read GetInput write SetInput;
 
@@ -1033,7 +1011,7 @@ type
 
   IglrObjectFactory = interface
     ['{18D6C31A-3ECC-4F13-B5D0-5F4BF6FB466B}']
-    function NewNode(): IglrNode;
+//    function NewNode(): IglrNode;
     function NewUserRender(): IglrUserRenderable;
     function NewHudSprite(): IglrSprite;
     function NewSprite(): IglrSprite; //for future uses
