@@ -47,25 +47,10 @@ var
       R.Stop();
   end;
 
-//  procedure OnMouseMove(X, Y: TdfInteger; Shift: TdfMouseShiftState);
-//  begin
-//    if ssLeft in Shift then
-//      with RM.Renderer.Camera.LocalMatrix do
-//      begin
-//        Rotate(deg2rad*(x - dx), dfVec3f(0, 1, 0));
-//        Rotate(deg2rad*(y - dy), dfVec3f(e00, e01, e02));
-//        dx := x;
-//        dy := y;
-//      end;
-//  end;
-
 begin
   WriteLn(' ========= Demonstration ======== ');
   WriteLn(' ===== Press ESCAPE to EXIT ===== ');
   WriteLn(' ===== Use LEFT MOUSE BUTTON to rotate the scene');
-  WriteLn(' ===== Use RIGHT MOUSE BUTTON to pan');
-  WriteLn(' ===== Use Z and X buttons to roll the scene (additional rotate angle)');
-  WriteLn(' ===== Use MOUSE WHEEL to scale the scene');
 
   LoadRendererLib();
 
@@ -74,6 +59,7 @@ begin
   R.OnMouseDown := OnMouseDown;
   R.OnMouseMove := OnMouseMove;
   R.OnUpdate := OnUpdate;
+  R.Camera.ProjectionMode := pmPerpective;
 
   R.Start();
   R.DeInit();

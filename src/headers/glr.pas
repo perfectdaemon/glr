@@ -279,43 +279,6 @@ type
 
   {$ENDREGION}
 
-  { IdfRenderable - базовый класс чего-то, способного отобразиться на экране.
-    Имеется материал и метод рендера, который переопределяется в потомках
-    данного класса }
-  IglrRenderable = interface
-    ['{A2DD3046-3FDE-43DD-93AE-83C7A29A2196}']
-    {$REGION '[private]'}
-    function GetMaterial(): IglrMaterial;
-    procedure SetMaterial(const aMat: IglrMaterial);
-    function GetChild(Index: Integer): IglrRenderable;
-    procedure SetChild(Index: Integer; aChild: IglrRenderable);
-    function GetParent(): IglrRenderable;
-    procedure SetParent(aParent: IglrRenderable);
-    function GetChildsCount(): Integer;
-    function GetVis(): Boolean;
-    procedure SetVis(aVis: Boolean);
-    {$ENDREGION}
-    procedure Render();
-    procedure DoRender;
-
-    property Material: IglrMaterial read GetMaterial write SetMaterial;
-
-
-    property Parent: IglrRenderable read GetParent write SetParent;
-    property Childs[Index: Integer]: IglrRenderable read GetChild write SetChild;
-    property ChildsCount: Integer read GetChildsCount;
-
-    //Добавить уже существующий рендер-узел себе в потомки
-    function AddChild(aChild: IglrRenderable): Integer;
-    //Удалить потомка из списка по индексу. Физически объект остается в памяти.
-    procedure RemoveChild(Index: Integer); overload;
-    //Удалить потомка из списка по указателю. Физически объект остается в памяти.
-    procedure RemoveChild(aChild: IglrRenderable); overload;
-    //Удалить потомка из списка по индексу. Физически объект уничтожается.
-    procedure FreeChild(Index: Integer);
-
-  end;
-
   {$REGION ' RenderNodes and scenes '}
 
 
@@ -332,8 +295,8 @@ type
     procedure SetUp(const aUp: TdfVec3f);
     function GetDir(): TdfVec3f;
     procedure SetDir(const aDir: TdfVec3f);
-    function GetLeft(): TdfVec3f;
-    procedure SetLeft(const aLeft: TdfVec3f);
+    function GetRight(): TdfVec3f;
+    procedure SetRight(const aRight: TdfVec3f);
     function GetModel(): TdfMat4f;
     procedure SetModel(const aModel: TdfMat4f);
     function GetVis(): Boolean;
@@ -342,23 +305,19 @@ type
     procedure SetChild(Index: Integer; aChild: IglrNode);
     function GetParent(): IglrNode;
     procedure SetParent(aParent: IglrNode);
-    function GetRenderable(): IglrRenderable;
-    procedure SetRenderable(aRenderable: IglrRenderable);
     function GetChildsCount(): Integer;
     {$ENDREGION}
 
     property Position: TdfVec3f read GetPos write SetPos;
     property Up: TdfVec3f read GetUp write SetUp;
     property Direction: TdfVec3f read GetDir write SetDir;
-    property Left: TdfVec3f read GetLeft write SetLeft;
+    property Right: TdfVec3f read GetRight write SetRight;
     property ModelMatrix: TdfMat4f read GetModel write SetModel;
     property Parent: IglrNode read GetParent write SetParent;
     property Visible: Boolean read GetVis write SetVis;
 
     property Childs[Index: Integer]: IglrNode read GetChild write SetChild;
     property ChildsCount: Integer read GetChildsCount;
-
-    property Renderable: IglrRenderable read GetRenderable write SetRenderable;
 
     //Добавить уже существующий рендер-узел себе в потомки
     function AddChild(aChild: IglrNode): Integer;
@@ -371,7 +330,22 @@ type
     //Удалить потомка из списка по индексу. Физически объект уничтожается.
     procedure FreeChild(Index: Integer);
 
-    procedure Render(aDeltaTime: Single);
+    procedure Render();
+  end;
+
+  { IdfRenderable - базовый класс чего-то, способного отобразиться на экране.
+    Имеется материал и метод рендера, который переопределяется в потомках
+    данного класса }
+  IglrRenderable = interface (IglrNode)
+    ['{A2DD3046-3FDE-43DD-93AE-83C7A29A2196}']
+    {$REGION '[private]'}
+    function GetMaterial(): IglrMaterial;
+    procedure SetMaterial(const aMat: IglrMaterial);
+
+    {$ENDREGION}
+    procedure DoRender;
+
+    property Material: IglrMaterial read GetMaterial write SetMaterial;
   end;
 
 
@@ -513,10 +487,8 @@ type
     procedure SetWidth(const aWidth: Single);
     function GetHeight(): Single;
     procedure SetHeight(const aHeight: Single);
-    function GetPos(): TdfVec2f;
-    procedure SetPos(const aPos: TdfVec2f);
-    function GetPPos(): PdfVec2f;
-    procedure SetPPos(const aPos: PdfVec2f);
+    function GetPos2D(): TdfVec2f;
+    procedure SetPos2D(const aPos: TdfVec2f);
     function GetScale(): TdfVec2f;
     procedure SetScale(const aScale: TdfVec2f);
     function GetRot(): Single;
@@ -531,9 +503,6 @@ type
     procedure SetTexCoord(aIndex: Integer; aCoord: TdfVec2f);
     function GetAbsPosition(): Boolean;
     procedure SetAbsPosition(const Value: Boolean);
-    function GetZ(): Integer;
-    function GetInternalZ(): Single; // -1.0 .. 1.0
-    procedure SetZ(const aValue: Integer);
 
     function GetBB: TdfBB;
 
@@ -541,13 +510,8 @@ type
     procedure SetParentScene(const aScene: Iglr2DScene);
     {$ENDREGION}
 
-    property Visible: Boolean read GetVis write SetVis;
 
-    property Position: TdfVec2f read GetPos write SetPos;
-    //Позволяет напрямую манипулировать составляющими
-    property PPosition: PdfVec2f read GetPPos write SetPPos;
-    //Z-координата, от -100 до 100.
-    property Z: Integer read GetZ write SetZ;
+    property Position2D: TdfVec2f read GetPos2D write SetPos2D;
     property Scale: TdfVec2f read GetScale write SetScale;
     procedure ScaleMult(const aScale: TdfVec2f); overload;
     procedure ScaleMult(const aScale: Single); overload;
@@ -919,10 +883,8 @@ type
     function GetFPS(): Single;
     function GetCamera(): IglrCamera;
     procedure SetCamera(const aCamera: IglrCamera);
-//    function GetRootNode: IglrNode;
-//    procedure SetRootNode(const aRoot: IglrNode);
-    function GetRoot: IglrRenderable;
-    procedure SetRoot(const aRoot: IglrRenderable);
+    function GetRootNode: IglrNode;
+    procedure SetRootNode(const aRoot: IglrNode);
 
     procedure SetOnMouseDown(aProc: TglrOnMouseDownProc);
     procedure SetOnMouseUp(aProc: TglrOnMouseUpProc);
@@ -993,8 +955,7 @@ type
 
     property Camera: IglrCamera read GetCamera write SetCamera;
 
-//    property RootNode: IglrNode read GetRootNode write SetRootNode;
-    property Root: IglrRenderable read GetRoot write SetRoot;
+    property RootNode: IglrNode read GetRootNode write SetRootNode;
 
     property Input: IglrInput read GetInput write SetInput;
 

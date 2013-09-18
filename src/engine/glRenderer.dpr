@@ -1,5 +1,6 @@
 {
   TODO:
+    Переписать GUI с учетом того, что Renderable - наследник Node
     Доступ к логгеру для приложений
     Поддержка align у текста
  +  Поддержка pivot point у текста
@@ -8,15 +9,27 @@
  +  Замутить дополнительные свйоства для TdfVec-параметров:
       DiffuseP - pointer. Чтобы можно было Diffuse.X менять
 
-    Проверить SetParent у Node и 2DRenderable
-    RenderChilds у 2DRenderable пока не используется
+ -  Проверить SetParent у Node и 2DRenderable
+ -  RenderChilds у 2DRenderable пока не используется
  +  Рерайт CheckHit в HudSprite
     Рерайт системы Scene - Renderable в целом. Уход от Scene в пользу пустых Renderable
+
+ ПОСЛЕ РЕРАЙТА Renderable-Node ПРОВЕРИТЬ КЛАССЫ:
+  GUI
+  Camera
+  Font
+  HudSprite
+  Light
+  Node
+  Renderable
+  Text
+  UserRenderable
 
 
   LD - Last Developed - Над чем работал в последний раз в этот день
 
 
+  2013-09-18 - LD - Renderable - наследник Node. Рерайт жуткий
   2013-08-05 - -- - Ответвление 0.3.0. Рефакторинг всего и вся, причесывание
   2013-07-31 - LD - Начат рефакторинг имен (df -> glr)
   2013-07-30 - LD - Добавлен glrObjectFactory

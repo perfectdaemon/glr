@@ -152,7 +152,7 @@ begin
     max := i;
     for j := i + 1 to FElements.Count - 2 do
     begin
-      if (FElements[j] as Iglr2DRenderable).Z > (FElements[max] as Iglr2DRenderable).Z then
+      if (FElements[j] as Iglr2DRenderable).Position.z > (FElements[max] as Iglr2DRenderable).Position.z then
         max := j;
     end;
     //--Μενÿεμ

@@ -25,10 +25,8 @@ type
     procedure SetCurOffset(aOffset: TdfVec2f);
     function GetCursor: IglrSprite;
     procedure SetCursor(const aCursor: IglrSprite);
-    procedure SetPos(const aPos: TdfVec2f); override;
-    procedure SetPPos(const aPos: PdfVec2f); override;
-    procedure SetZ(const aValue: Integer); override;
-    procedure SetVis(aVis: Boolean); override;
+    procedure SetPos(const aPos: TdfVec3f); override;
+    procedure SetVis(const aVis: Boolean); override;
 
     procedure _Focused(); override;
     procedure _Unfocused(); override;
@@ -60,12 +58,14 @@ begin
   inherited;
   FTextObj := GetObjectFactory().NewText();
   FTextObj.AbsolutePosition := False;
-  FTextObj.Z := 1;
+  with FTextObj.Position do
+    z := 1;
   FTextOffset.Reset();
   FCursorOffset.Reset();
   FCursor := GetObjectFactory().NewHudSprite();
   FCursor.AbsolutePosition := False;
-  FCursor.Z := 1;
+  with FCursor.Position do
+    z := 1;
   FMaxTextLength := 100;
   _Unfocused();
 end;
@@ -138,18 +138,16 @@ begin
   FMaxTextLength := aLength;
 end;
 
-procedure TglrGUITextBox.SetPos(const aPos: TdfVec2f);
+procedure TglrGUITextBox.SetPos(const aPos: TdfVec3f);
 begin
   inherited;
-  FPos := aPos;
   //FTextObj.Position := FPos + FTextOffset;
   UpdateCursor();
-end;
 
-procedure TglrGUITextBox.SetPPos(const aPos: PdfVec2f);
-begin
-  inherited;
-  Position := aPos^;
+  with FTextObj.Position do
+    z := aPos.z + 1;
+  with FCursor.Position do
+    z := aPos.z + 1;
 end;
 
 procedure TglrGUITextBox.SetTextObject(const aTextObject: IglrText);
@@ -161,22 +159,15 @@ end;
 procedure TglrGUITextBox.SetTextOffset(aOffset: TdfVec2f);
 begin
   FTextOffset := aOffset;
-  FTextObj.Position := {FPos + }FTextOffset;
+  FTextObj.Position2D := {FPos + }FTextOffset;
   UpdateCursor();
 end;
 
-procedure TglrGUITextBox.SetVis(aVis: Boolean);
+procedure TglrGUITextBox.SetVis(const aVis: Boolean);
 begin
   inherited;
   FTextObj.Visible := aVis;
   FCursor.Visible := False;
-end;
-
-procedure TglrGUITextBox.SetZ(const aValue: Integer);
-begin
-  inherited;
-  FTextObj.Z := aValue + 1;
-  FCursor.Z := aValue + 1;
 end;
 
 procedure TglrGUITextBox.UpdateCursor;
@@ -184,7 +175,7 @@ begin
   with FCursor do
   begin
     Height := Self.Height - 2 * FCursorOffset.y;
-    Position := {Self.Position + }FCursorOffset + dfVec2f(FTextObj.Width + FTextOffset.x, 0);
+    Position2D := {Self.Position + }FCursorOffset + dfVec2f(FTextObj.Width + FTextOffset.x, 0);
   end;
 end;
 

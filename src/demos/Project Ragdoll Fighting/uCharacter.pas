@@ -282,7 +282,7 @@ class function TpdCharacter.Init(b2w: Tglrb2World; scene2d: Iglr2DScene;
     aSprite := Factory.NewSprite();
     aSprite.PivotPoint := ppCenter;
     aSprite.Position := aPos;
-    aSprite.Width := aSize.x;
+    aSprite.Width := aSize._x;
     aSprite.Height := aSize.y;
     aSprite.Rotation := aRot;
     aSprite.Z := Z_PLAYER + charInternalZ;
@@ -295,7 +295,7 @@ class function TpdCharacter.Init(b2w: Tglrb2World; scene2d: Iglr2DScene;
       density := CHAR_DENSITY;
     if bodyPart = bpHead then
     begin
-      aBody := dfb2InitCircle(b2w, aSize.x / 2, aPos,
+      aBody := dfb2InitCircle(b2w, aSize._x / 2, aPos,
         CHAR_DENSITY, CHAR_FRICTION, CHAR_RESTITUTION,
         $FFFF, $0000 + params.charGroup, -params.charGroup);
       aSprite.Material.Texture := texHead;
@@ -330,7 +330,7 @@ class function TpdCharacter.Init(b2w: Tglrb2World; scene2d: Iglr2DScene;
     aPos := b1p + (b2p - b1p) * 0.5;
     def := Tb2RevoluteJointDef.Create;
     def.Initialize(b1, b2, ConvertGLToB2(aPos));
-    def.lowerAngle := limits.x;
+    def.lowerAngle := limits._x;
     def.upperAngle := limits.y;
     def.enableLimit := True;
 //    def.enableMotor := True;
@@ -457,7 +457,7 @@ procedure QuickInit(var aSprite: IglrSprite; var aBody: Tb2Body; aPos: TdfVec2f;
     aPos := b1p + (b2p - b1p) * 0.5;
     def := Tb2RevoluteJointDef.Create;
     def.Initialize(b1, b2, ConvertGLToB2(aPos));
-    def.lowerAngle := limits.x;
+    def.lowerAngle := limits._x;
     def.upperAngle := limits.y;
     def.enableLimit := True;
 //    def.enableMotor := True;

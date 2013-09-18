@@ -358,7 +358,7 @@ begin
   FTexture.Bind;
   scale := aText.Scale;
   pivot := aText.Coords[2]; //Top left corner coordinates
-  z := aText.GetInternalZ();
+  z := aText.Position.z;
   gl.Beginp(GL_QUADS);
     px := pivot.x;
     py := pivot.y;

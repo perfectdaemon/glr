@@ -63,7 +63,7 @@ begin
       if CheckHit(X - Trunc(ParentScene.Origin.x), Y - Trunc(ParentScene.Origin.y)) then //если есть попадание
         if Result <> -1 then // если до этого уже есть кандидат
         begin
-          if Z < IglrGUIElement(FElements[Result]).Z then
+          if Position.z < IglrGUIElement(FElements[Result]).Position.z then
             Result := i
         end
         else

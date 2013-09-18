@@ -26,10 +26,8 @@ type
     procedure SetSliderOver(const Value: IglrSprite);
     procedure SetValue(const Value: Integer);
     procedure SetOnValueChanged(const aOnValueChanged: TglrValueChangedEvent);
-    procedure SetPos(const aPos: TdfVec2f); override;
-    procedure SetPPos(const aPos: PdfVec2f); override;
-    procedure SetZ(const aValue: Integer); override;
-    procedure SetVis(aVis: Boolean); override;
+    procedure SetPos(const aPos: TdfVec3f); override;
+    procedure SetVis(const aVis: Boolean); override;
 
     procedure _MouseMove (X, Y: Integer; Shift: TglrMouseShiftState); override;
     procedure _MouseDown (X, Y: Integer; MouseButton: TglrMouseButton; Shift: TglrMouseShiftState); override;
@@ -164,16 +162,15 @@ begin
   FOnValueChanged := aOnValueChanged;
 end;
 
-procedure TglrGUISlider.SetPos(const aPos: TdfVec2f);
+procedure TglrGUISlider.SetPos(const aPos: TdfVec3f);
 begin
   inherited;
   UpdateSprites();
-end;
 
-procedure TglrGUISlider.SetPPos(const aPos: PdfVec2f);
-begin
-  inherited;
-  UpdateSprites();
+  with FSliderOver.Position do
+    z := aPos.z + 1;
+  with FSliderBtn.Position do
+    z := aPos.z + 1;
 end;
 
 procedure TglrGUISlider.SetSliderBtn(const Value: IglrSprite);
@@ -197,18 +194,11 @@ begin
   end;
 end;
 
-procedure TglrGUISlider.SetVis(aVis: Boolean);
+procedure TglrGUISlider.SetVis(const aVis: Boolean);
 begin
   inherited;
   FSliderBtn.Visible := aVis;
   FSliderOver.Visible := aVis;
-end;
-
-procedure TglrGUISlider.SetZ(const aValue: Integer);
-begin
-  inherited;
-  FSliderOver.Z := aValue + 1;
-  FSliderBtn.Z := aValue + 2;
 end;
 
 procedure TglrGUISlider.UpdateSprites;
@@ -217,7 +207,7 @@ var
 begin
   //Получаем значение Value в пределах 0..1
   percentage := Value / (FMaxValue - FMinValue);
-  FSliderBtn.Position := {Self.Position + }dfVec2f(Self.Width * percentage, Self.Height / 2);
+  FSliderBtn.Position2D := {Self.Position + }dfVec2f(Self.Width * percentage, Self.Height / 2);
   {FSliderOver.Position := Self.Position;}
 
   FSliderOver.Width := Self.Width * percentage;

@@ -56,7 +56,7 @@ type
 
     property DebugRender: Boolean read GetDR write SetDR;
 
-    procedure Render(aDeltaTime: Single); override;
+    procedure Render(); override;
   end;
 
 implementation
@@ -161,7 +161,7 @@ begin
   Result := FSpec;
 end;
 
-procedure TglrLight.Render(aDeltaTime: Single);
+procedure TglrLight.Render();
 begin
   if FDebugRender then
     DrawLight();

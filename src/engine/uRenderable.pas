@@ -5,58 +5,30 @@ interface
 uses
   Classes,
   uMaterial,
-  glr, glrMath, uBaseInterfaceObject;
+  glr, glrMath, uNode;
 
 type
-  TglrRenderable = class(TglrInterfacedObject, IglrRenderable)
-  private
-    function GetChildIndex(aChild: IglrRenderable): Integer;
+  TglrRenderable = class(TglrNode, IglrRenderable)
   protected
-    FVisible: Boolean;
     FMaterial: IglrMaterial;
-    FParent: IglrRenderable;
-    FChilds: TInterfaceList; //TList;
     function GetMaterial(): IglrMaterial;
     procedure SetMaterial(const aMat: IglrMaterial);
-
-    function GetChild(Index: Integer): IglrRenderable;
-    procedure SetChild(Index: Integer; aChild: IglrRenderable);
-    function GetParent(): IglrRenderable;
-    procedure SetParent(aParent: IglrRenderable);
-    function GetChildsCount(): Integer;
-    function GetVis(): Boolean;
-    procedure SetVis(aVis: Boolean); virtual;
-
-    procedure RenderChilds(); virtual;
   public
     constructor Create(); virtual;
     destructor Destroy(); override;
 
     procedure DoRender; virtual;
-    procedure Render(); virtual;
+    procedure Render(); override;
 
     property Material: IglrMaterial read GetMaterial write SetMaterial;
-
-    property Parent: IglrRenderable read GetParent write SetParent;
-    property Childs[Index: Integer]: IglrRenderable read GetChild write SetChild;
-    property ChildsCount: Integer read GetChildsCount;
-
-    function AddChild(aChild: IglrRenderable): Integer;
-    procedure RemoveChild(Index: Integer); overload;
-    procedure RemoveChild(aChild: IglrRenderable); overload;
-    procedure FreeChild(Index: Integer);
-
-
   end;
 
   Tglr2DRenderable = class(TglrRenderable, Iglr2DRenderable)
   protected
     FParentScene: Iglr2DScene;
-    FZ: Integer;
-    FInternalZ: Single;
     FAbsolutePosition: Boolean;
     FWidth, FHeight: Single;
-    FPos, FScale: TdfVec2f;
+    FScale: TdfVec2f;
     FRot: Single;
     FPivot: Tglr2DPivotPoint;
     FCustomPivot: TdfVec2f;
@@ -67,10 +39,8 @@ type
     procedure SetWidth(const aWidth: Single); virtual;
     function GetHeight(): Single; virtual;
     procedure SetHeight(const aHeight: Single); virtual;
-    function GetPos(): TdfVec2f; virtual;
-    procedure SetPos(const aPos: TdfVec2f); virtual;
-    function GetPPos(): PdfVec2f; virtual;
-    procedure SetPPos(const aPos: PdfVec2f); virtual;
+    function GetPos2D(): TdfVec2f; virtual;
+    procedure SetPos2D(const aPos: TdfVec2f); virtual;
     function GetScale(): TdfVec2f; virtual;
     procedure SetScale(const aScale: TdfVec2f); virtual;
     function GetRot(): Single; virtual;
@@ -85,9 +55,6 @@ type
     procedure SetTexCoord(aIndex: Integer; aCoord: TdfVec2f); virtual;
     function GetAbsPosition: Boolean; virtual;
     procedure SetAbsPosition(const Value: Boolean); virtual;
-    function GetZ(): Integer;
-    function GetInternalZ(): Single; // -1.0 .. 1.0
-    procedure SetZ(const aValue: Integer); virtual;
 
     function GetBB: TdfBB;
 
@@ -100,8 +67,7 @@ type
     property Width: Single read GetWidth write SetWidth;
     property Height: Single read GetHeight write SetHeight;
 
-    property Position: TdfVec2f read GetPos write SetPos;
-    property PPosition: PdfVec2f read GetPPos write SetPPos;
+    property Position2D: TdfVec2f read GetPos2D write SetPos2D;
     property Scale: TdfVec2f read GetScale write SetScale;
     procedure ScaleMult(const aScale: TdfVec2f); overload; virtual;
     procedure ScaleMult(const aScale: Single); overload; virtual;
@@ -128,86 +94,11 @@ implementation
 
 uses
   Windows, uRenderer, ogl,
-  {debug}
   ExportFunc;
-
-function TglrRenderable.AddChild(aChild: IglrRenderable): Integer;
-var
-  Index: Integer;
-begin
-  Index := GetChildIndex(aChild);
-  if Index <> -1 then //Такой потомок уже есть
-    Exit(Index)  //Возвращаем его индекс
-  else
-  begin
-    aChild.Parent := Self;
-//    aChild.AbsolutePosition := False;
-    Result := FChilds.Add(aChild);
-  end;
-end;
-
-procedure TglrRenderable.FreeChild(Index: Integer);
-begin
-  if (Index >= 0) and (Index < FChilds.Count) then
-    if Assigned(FChilds[Index]) then
-    begin
-//      RemoveChild(Index);
-      //Это зануляет ссылку в листе. Значит, объект должен освободиться,
-      //если на него нет других ссылок
-      FChilds.Delete(Index);
-    end;
-end;
-
-function TglrRenderable.GetChild(Index: Integer): IglrRenderable;
-begin
-  if (Index >= 0) and (Index < FChilds.Count) then
-    if Assigned(FChilds[Index]) then
-      Result := IglrRenderable(FChilds[Index]);
-end;
-
-function TglrRenderable.GetChildIndex(aChild: IglrRenderable): Integer;
-var
-  i: Integer;
-begin
-  Result := -1;
-  for i := 0 to FChilds.Count - 1 do
-    if FChilds[i] = (aChild as IInterface)then
-      Exit(i);
-end;
-
-function TglrRenderable.GetChildsCount: Integer;
-begin
-  Result := FChilds.Count;
-end;
-
-function TglrRenderable.GetParent: IglrRenderable;
-begin
-  Result := Parent;
-end;
-
-function TglrRenderable.GetVis: Boolean;
-begin
-  Result := FVisible;
-end;
-
-procedure TglrRenderable.RemoveChild(Index: Integer);
-begin
-  //Аналогично FreeChild, так как удалить чайлда напрямую с интерфейсной ссылкой
-  // нельзя, AFAIK
-  if (Index >= 0) and (Index < FChilds.Count) then
-    if Assigned(FChilds[Index]) then
-      FChilds.Delete(Index);
-end;
-
-procedure TglrRenderable.RemoveChild(aChild: IglrRenderable);
-begin
-  FChilds.Remove(aChild);
-end;
 
 constructor TglrRenderable.Create;
 begin
   inherited;
-  {debug}
   FMaterial := GetObjectFactory().NewMaterial();
 end;
 
@@ -222,6 +113,7 @@ begin
   if not FVisible then
     Exit();
   gl.PushMatrix();
+    gl.MultMatrixf(FModelMatrix);
     Material.Apply();
     DoRender();
     Material.Unapply();
@@ -229,13 +121,7 @@ begin
   gl.PopMatrix();
 end;
 
-procedure TglrRenderable.RenderChilds;
-var
-  i: Integer;
-begin
-  for i := 0 to FChilds.Count - 1 do
-    IglrRenderable(FChilds[i]).Render;
-end;
+
 
 procedure TglrRenderable.DoRender;
 begin
@@ -247,26 +133,9 @@ begin
   Result := FMaterial;
 end;
 
-procedure TglrRenderable.SetChild(Index: Integer; aChild: IglrRenderable);
-begin
-  FChilds[Index] := aChild;
-end;
-
 procedure TglrRenderable.SetMaterial(const aMat: IglrMaterial);
 begin
   FMaterial := aMat;
-end;
-
-procedure TglrRenderable.SetParent(aParent: IglrRenderable);
-begin
-  if Assigned(Parent) and (Parent <> aParent) then
-    FParent.RemoveChild(Self);
-  FParent := aParent;
-end;
-
-procedure TglrRenderable.SetVis(aVis: Boolean);
-begin
-  FVisible := aVis;
 end;
 
 { Tdf2DRenderable }
@@ -280,20 +149,14 @@ begin
   FTexCoords[3] := dfVec2f(0, 1);
 
   FAbsolutePosition := True;
-  FVisible := True;
-  FZ := 0;
-  FInternalZ := 0;
 
   FCustomPivot := dfVec2f(0, 0);
-
-  FChilds := TInterfaceList.Create();
 end;
 
 destructor Tglr2DRenderable.Destroy;
 begin
   FParentScene := nil;
   FParent := nil;
-  FChilds.Free();
   inherited;
 end;
 
@@ -335,11 +198,6 @@ begin
   Result := FHeight;
 end;
 
-function Tglr2DRenderable.GetInternalZ: Single;
-begin
-  Result := FInternalZ;
-end;
-
 
 function Tglr2DRenderable.GetParentScene: Iglr2DScene;
 begin
@@ -351,14 +209,9 @@ begin
   Result := FPivot;
 end;
 
-function Tglr2DRenderable.GetPos: TdfVec2f;
+function Tglr2DRenderable.GetPos2D: TdfVec2f;
 begin
-  Result := FPos;
-end;
-
-function Tglr2DRenderable.GetPPos: PdfVec2f;
-begin
-  Result := @FPos;
+  Result := dfVec2f(FPos);
 end;
 
 function Tglr2DRenderable.GetPRot: System.PSingle;
@@ -385,11 +238,6 @@ end;
 function Tglr2DRenderable.GetWidth: Single;
 begin
   Result := FWidth;
-end;
-
-function Tglr2DRenderable.GetZ: Integer;
-begin
-  Result := FZ;
 end;
 
 {TODO: улучшить быстродействие, не считать уже посчитанное}
@@ -506,24 +354,23 @@ begin
   end;
 end;
 
-procedure Tglr2DRenderable.SetPos(const aPos: TdfVec2f);
+procedure Tglr2DRenderable.SetPos2D(const aPos: TdfVec2f);
 begin
-  FPos := aPos;
+  FPos.x := aPos.x;
+  FPos.y := aPos.y;
+  SetPos(FPos);
 //  RecalcCoords();
 end;
 
-procedure Tglr2DRenderable.SetPPos(const aPos: PdfVec2f);
-begin
-  FPos := aPos^;
-end;
 
 procedure Tglr2DRenderable.SetPRot(const aRot: System.PSingle);
 begin
-  FRot := aRot^;
+  Rotation := aRot^;
 end;
 
 procedure Tglr2DRenderable.SetRot(const aRot: Single);
 begin
+  FModelMatrix.Rotate((aRot - FRot) * deg2rad, dfVec3f(0, 0, 1));
   FRot := aRot;
 //  RecalcCoords();
 end;
@@ -550,12 +397,6 @@ procedure Tglr2DRenderable.SetWidth(const aWidth: Single);
 begin
   FWidth := aWidth;
   RecalcCoords();
-end;
-
-procedure Tglr2DRenderable.SetZ(const aValue: Integer);
-begin
-  FZ := Clamp(aValue, -100, 100);
-  FInternalZ := FZ / 100;
 end;
 
 procedure Tglr2DRenderable.UpdateTexCoords;

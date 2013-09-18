@@ -74,10 +74,6 @@ var
     if R.Input.IsKeyDown(VK_ESCAPE) then
       R.Stop();
     spr.Rotation := spr.Rotation + deltaRot * dt;
-    if spr.Position.x < 50 then
-      spr.Position := spr.Position + dfVec2f(30 * dt, 0)
-    else
-      spr.Position := spr.Position + dfVec2f(-30 * dt, 0);
     if spr.Rotation > 30 then
       deltaRot := -10
     else if spr.Rotation < -30 then
@@ -106,21 +102,22 @@ begin
     Width := 200;
     Height := 100;
     PivotPoint := ppTopLeft;
-    Position := dfVec2f(300, 300);
+    Position2D := dfVec2f(300, 300);
     Material.Texture := Factory.NewTexture();
     Material.Texture.Load2D('data\tile.bmp');
     Material.Diffuse := dfVec4f(1, 1, 1, 1);
   end;
-  Scene2d.RegisterElement(spr);
+  R.RootNode.AddChild(spr);
+  //Scene2d.RegisterElement(spr);
 
   with pp do
   begin
     PivotPoint := ppCenter;
-    Position := dfVec2f(0, 0);
+    Position := dfVec3f(0, 0, 5);
     Material.Diffuse := dfVec4f(1, 1, 1, 1);
+    AbsolutePosition := False;
     Width := 5;
     Height := 5;
-    Z := 1;
   end;
   spr.AddChild(pp);
 
@@ -129,9 +126,8 @@ begin
     Width := 30;
     Height := 30;
     PivotPoint := ppCenter;
-    Position := dfVec2f(400, 0);
+    Position := dfVec3f(100, 0, 10);
     Material.Diffuse := dfVec4f(1, 0, 0, 0);
-    Z := 2;
     AbsolutePosition := False;
   end;
 

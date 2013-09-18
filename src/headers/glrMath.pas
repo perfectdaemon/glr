@@ -41,7 +41,9 @@ type
 
 {$REGION ' Single Vectors '}
   TdfVec2f = record
-    x, y: Single;
+  private
+    _x, _y: Single;
+  public
     class operator Equal(const v1, v2: TdfVec2f): Boolean;
     class operator Add(const v1, v2: TdfVec2f): TdfVec2f;
     class operator Subtract(const v1, v2: TdfVec2f): TdfVec2f;
@@ -63,10 +65,15 @@ type
     procedure Normalize();
     procedure Reset();
     function GetRotationAngle(): Single;
+
+    property x: Single read _x write _x;
+    property y: Single read _y write _y;
   end;
 
   TdfVec3f = record
-    x, y, z: Single;
+  private
+    _x, _y, _z: Single;
+  public
     class operator Equal(const v1, v2: TdfVec3f): Boolean;
     class operator Add(const v1, v2: TdfVec3f): TdfVec3f;
     class operator Subtract(const v1, v2: TdfVec3f): TdfVec3f;
@@ -87,15 +94,25 @@ type
     function NegateVector(): TdfVec3f;
     procedure Negate;
     procedure Reset();
+
+    property x: Single read _x write _x;
+    property y: Single read _y write _y;
+    property z: Single read _z write _z;
   end;
 
   TdfVec4f = record
-    x, y, z, w: Single;
+  private
+    _x, _y, _z, _w: Single;
+  public
     class operator Multiply(const A: Single; v: TdfVec4f): TdfVec4f;
     class operator Multiply(const v1, v2: TdfVec4f): TdfVec4f;
     function Dot(const v: TdfVec3f): Single;
     function Normal: TdfVec4f;
     procedure Normalize;
+    property x: Single read _x write _x;
+    property y: Single read _y write _y;
+    property z: Single read _z write _z;
+    property w: Single read _w write _w;
   end;
 {$ENDREGION}
 

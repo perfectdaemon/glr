@@ -280,7 +280,7 @@ begin
   FGUIManager.UnregisterElement(FMusicVol);
   FGUIManager.UnregisterElement(FDifficulty);
   FGUIManager.UnregisterElement(FBtnBack);
-  Tweener.AddTweenSingle(Self, @TweenSceneOrigin, tsExpoEaseIn, FScene.Origin.x, 0, 2.0, 0.0);
+  Tweener.AddTweenSingle(Self, @TweenSceneOrigin, tsExpoEaseIn, FScene.Origin._x, 0, 2.0, 0.0);
   FSettingsShowed := False;
 end;
 
@@ -669,7 +669,7 @@ begin
   FGUIManager.RegisterElement(FMusicVol);
   FGUIManager.RegisterElement(FDifficulty);
   FGUIManager.RegisterElement(FBtnBack);
-  Tweener.AddTweenSingle(Self, @TweenSceneOrigin, tsExpoEaseIn, FScene.Origin.x, R.WindowWidth, 2.0, 0.0);
+  Tweener.AddTweenSingle(Self, @TweenSceneOrigin, tsExpoEaseIn, FScene.Origin._x, R.WindowWidth, 2.0, 0.0);
 
   FSettingsShowed := True;
 end;

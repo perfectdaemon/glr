@@ -21,6 +21,7 @@ type
     procedure SetProjMode(aMode: TglrCameraProjectionMode);
     procedure SetPerspective();
     procedure SetOrtho();
+    procedure UpdateDirUpRight(NewDir, NewUp, NewRight: TdfVec3f); override;
   public
     procedure Viewport(x, y, w, h: Integer; FOV, ZNear, ZFar: Single);
     procedure ViewportOnly(x, y, w, h: Integer);
@@ -103,7 +104,7 @@ var
   v: TdfVec3f;
 begin
   v := Up * X * 0.01;
-  v := v + Left * Y * 0.01;
+  v := v + Right * Y * 0.01;
   FModelMatrix.Translate(v);
 end;
 
@@ -116,7 +117,6 @@ end;
 
 procedure TglrCamera.Update();
 begin
-//Вероятно, не нужно.
 //  gl.MatrixMode(GL_PROJECTION);
 //  gl.LoadMatrixf(FProjMatrix);
   gl.MatrixMode(GL_MODELVIEW);
@@ -130,21 +130,20 @@ end;
 
 procedure TglrCamera.SetCamera(aPos, aTargetPos, aUp: TdfVec3f);
 var
-  vDir, vUp, vLeft: TdfVec3f;
+  vDir, vUp, vRight: TdfVec3f;
 begin
   FModelMatrix.Identity;
   vUp := aUp;
   vUp.Normalize;
   vDir := aPos - aTargetPos;
   vDir.Normalize;
-  vLeft := vUp.Cross(vDir);
-  vLeft.Negate;
-  vLeft.Normalize;
-  vUp := vDir.Cross(vLeft);
+  vRight := vUp.Cross(vDir);
+  vRight.Normalize;
+  vUp := vDir.Cross(vRight);
   vUp.Normalize;
 
   Position := aPos;
-  UpdateDirUpLeft(vDir, vUp, vLeft);
+  UpdateDirUpRight(vDir, vUp, vRight);
 
   FTargetPoint := aTargetPos;
   FMode := mPoint;
@@ -174,6 +173,7 @@ begin
     pmPerpective: SetPerspective();
     pmOrtho: SetOrtho();
   end;
+  FProjMode := aMode;
 end;
 
 procedure TglrCamera.SetTarget(aPoint: TdfVec3f);
@@ -191,7 +191,7 @@ begin
     vUp :=vLeft.Cross(vDir);
     vUp.Normalize;
     vLeft.Negate;
-    UpdateDirUpLeft(vDir, vUp, vLeft);
+    UpdateDirUpRight(vDir, vUp, vLeft);
   end;
   FMode := mPoint;
 end;
@@ -201,6 +201,20 @@ begin
   FTarget := aTarget;
   SetTarget(aTarget.Position);
   FMode := mTarget;
+end;
+
+procedure TglrCamera.UpdateDirUpRight(NewDir, NewUp, NewRight: TdfVec3f);
+begin
+  with FModelMatrix do
+  begin
+    e00 :=  NewRight.x; e01 :=  NewRight.y; e02 :=  NewRight.z; e03 := -FPos.Dot(NewRight);
+    e10 :=  NewUp.x;   e11 :=  NewUp.y;   e12 :=  NewUp.z;   e13 := -FPos.Dot(NewUp);
+    e20 :=  NewDir.x;  e21 :=  NewDir.y;  e22 :=  NewDir.z;  e23 := -FPos.Dot(NewDir);
+    e30 :=  0;         e31 :=  0;         e32 :=  0;         e33 :=  1;
+  end;
+  FRight := NewRight;
+  FUp   := NewUp;
+  FDir  := NewDir;
 end;
 
 end.

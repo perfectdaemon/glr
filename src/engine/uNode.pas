@@ -7,20 +7,18 @@ uses
   glr, glrMath, uBaseInterfaceObject;
 
 type
+
   TglrNode = class(TglrInterfacedObject, IglrNode)
   private
     function GetChildIndex(aChild: IglrNode): Integer;
-//    function IsChild(aChild: IdfNode): Boolean;
   protected
     FParent: IglrNode;
-    FChilds: TInterfaceList; //TList;
+    FChilds: TInterfaceList;
 
     FVisible: Boolean;
 
-    FDir, FLeft, FUp: TdfVec3f;
+    FDir, FRight, FUp, FPos: TdfVec3f;
     FModelMatrix: TdfMat4f;
-
-    FRenderable: IglrRenderable;
 
     function GetPos(): TdfVec3f;
     procedure SetPos(const aPos: TdfVec3f); virtual;
@@ -28,21 +26,21 @@ type
     procedure SetUp(const aUp: TdfVec3f);
     function GetDir(): TdfVec3f;
     procedure SetDir(const aDir: TdfVec3f);
-    function GetLeft(): TdfVec3f;
-    procedure SetLeft(const aLeft: TdfVec3f);
+    function GetRight(): TdfVec3f;
+    procedure SetRight(const aRight: TdfVec3f);
     function GetModel(): TdfMat4f;
     procedure SetModel(const aModel: TdfMat4f);
     function GetVis(): Boolean;
-    procedure SetVis(const aVis: Boolean);
+    procedure SetVis(const aVis: Boolean); virtual;
     function GetChild(Index: Integer): IglrNode;
     procedure SetChild(Index: Integer; aChild: IglrNode);
     function GetParent(): IglrNode;
     procedure SetParent(aParent: IglrNode);
-    function GetRenderable(): IglrRenderable;
-    procedure SetRenderable(aRenderable: IglrRenderable);
     function GetChildsCount: Integer;
 
-    procedure UpdateDirUpLeft(NewDir, NewUp, NewLeft: TdfVec3f);
+    procedure UpdateDirUpRight(NewDir, NewUp, NewRight: TdfVec3f); virtual;
+
+    procedure RenderChilds(); virtual;
   public
 
     constructor Create; virtual;
@@ -51,13 +49,11 @@ type
     property Position: TdfVec3f read GetPos write SetPos;
     property Up: TdfVec3f read GetUp write SetUp;
     property Direction: TdfVec3f read GetDir write SetDir;
-    property Left: TdfVec3f read GetLeft write SetLeft;
+    property Right: TdfVec3f read GetRight write SetRight;
     property ModelMatrix: TdfMat4f read GetModel write SetModel;
 
     property Visible: Boolean read GetVis write SetVis;
     property Parent: IglrNode read GetParent write SetParent;
-    property Renderable: IglrRenderable read GetRenderable write SetRenderable;
-//    procedure Render(deltaTime: Double); virtual;
     property Childs[Index: Integer]: IglrNode read GetChild write SetChild;
     property ChildsCount: Integer read GetChildsCount;
     //Добавить уже существующий рендер-узел себе в потомки
@@ -71,7 +67,7 @@ type
     //Удалить потомка из списка по индексу. Физически объект уничтожается.
     procedure FreeChild(Index: Integer);
 
-    procedure Render(aDeltaTime: Single); virtual;
+    procedure Render(); virtual;
   end;
 
 implementation
@@ -101,7 +97,6 @@ begin
   Result.Parent := Self;
   Self._Release();
   FChilds.Add(Result);
-//  Left := dfVec3f(5, 5, 2);
 end;
 
 constructor TglrNode.Create;
@@ -109,6 +104,7 @@ begin
   inherited;
   FChilds := TInterfaceList.Create;
   FModelMatrix.Identity;
+  SetModel(FModelMatrix);
   FVisible := True;
 end;
 
@@ -162,9 +158,9 @@ begin
   Result := FDir;
 end;
 
-function TglrNode.GetLeft: TdfVec3f;
+function TglrNode.GetRight: TdfVec3f;
 begin
-  Result := FLeft;
+  Result := FRight;
 end;
 
 function TglrNode.GetModel: TdfMat4f;
@@ -179,12 +175,7 @@ end;
 
 function TglrNode.GetPos: TdfVec3f;
 begin
-  Result := FModelMatrix.Pos;
-end;
-
-function TglrNode.GetRenderable: IglrRenderable;
-begin
-  Result := FRenderable;
+  Result := FPos;
 end;
 
 function TglrNode.GetUp: TdfVec3f;
@@ -212,27 +203,22 @@ begin
   FChilds.Remove(aChild);
 end;
 
-procedure TglrNode.Render(aDeltaTime: Single);
-var
-  i: Integer;
+procedure TglrNode.Render();
 begin
   if not FVisible then
     Exit();
   gl.PushMatrix();
     gl.MultMatrixf(FModelMatrix);
-    if Assigned(FRenderable) then
-    begin
-      if Assigned(FRenderable.Material) then
-        FRenderable.Material.Apply;
-
-      FRenderable.DoRender();
-
-      if Assigned(FRenderable.Material) then
-        FRenderable.Material.Unapply;
-    end;
-    for i := 0 to FChilds.Count - 1 do
-      IglrNode(FChilds[i]).Render(aDeltaTime);
+    RenderChilds();
   gl.PopMatrix();
+end;
+
+procedure TglrNode.RenderChilds;
+var
+  i: Integer;
+begin
+  for i := 0 to FChilds.Count - 1 do
+    IglrNode(FChilds[i]).Render;
 end;
 
 procedure TglrNode.SetChild(Index: Integer; aChild: IglrNode);
@@ -249,18 +235,18 @@ begin
   NewLeft.Normalize;
   NewUp := aDir.Cross(NewLeft);
   NewUp.Normalize;
-  UpdateDirUpLeft(aDir, NewUp, NewLeft);
+  UpdateDirUpRight(aDir, NewUp, NewLeft);
 end;
 
-procedure TglrNode.SetLeft(const aLeft: TdfVec3f);
+procedure TglrNode.SetRight(const aRight: TdfVec3f);
 var
   NewDir, NewUp: TdfVec3f;
 begin
-  NewDir := aLeft.Cross(FUp);
+  NewDir := aRight.Cross(FUp);
   NewDir.Normalize;
-  NewUp := NewDir.Cross(aLeft);
+  NewUp := NewDir.Cross(aRight);
   NewUp.Normalize;
-  UpdateDirUpLeft(NewDir, NewUp, aLeft);
+  UpdateDirUpRight(NewDir, NewUp, aRight);
 end;
 
 procedure TglrNode.SetModel(const aModel: TdfMat4f);
@@ -268,7 +254,7 @@ begin
   FModelMatrix := aModel;
   with FModelMatrix do
   begin
-    FLeft := dfVec3f(e00, e01, e02);
+    FRight := dfVec3f(e00, e01, e02);
     FUp   := dfVec3f(e10, e11, e12);
     FDir  := dfVec3f(e20, e21, e22);
   end;
@@ -283,12 +269,8 @@ end;
 
 procedure TglrNode.SetPos(const aPos: TdfVec3f);
 begin
-  FModelMatrix.Pos := aPos;
-end;
-
-procedure TglrNode.SetRenderable(aRenderable: IglrRenderable);
-begin
-  FRenderable := aRenderable;
+  FPos := aPos;
+  FModelMatrix.Pos := FPos;
 end;
 
 procedure TglrNode.SetUp(const aUp: TdfVec3f);
@@ -300,7 +282,7 @@ begin
   NewLeft.Normalize;
   NewDir := NewLeft.Cross(aUp);
   NewDir.Normalize;
-  UpdateDirUpLeft(NewDir, aUp, NewLeft);
+  UpdateDirUpRight(NewDir, aUp, NewLeft);
 end;
 
 procedure TglrNode.SetVis(const aVis: Boolean);
@@ -308,19 +290,16 @@ begin
   FVisible := aVis;
 end;
 
-procedure TglrNode.UpdateDirUpLeft(NewDir, NewUp, NewLeft: TdfVec3f);
-var
-  NewPos: TdfVec3f;
+procedure TglrNode.UpdateDirUpRight(NewDir, NewUp, NewRight: TdfVec3f);
 begin
-  NewPos := FModelMatrix.Pos;
   with FModelMatrix do
   begin
-    e00 := NewLeft.x; e01 := NewLeft.y; e02 := NewLeft.z; e03 := -NewPos.Dot(NewLeft);
-    e10 := NewUp.x;   e11 := NewUp.y;   e12 := NewUp.z;   e13 := -NewPos.Dot(NewUp);
-    e20 := NewDir.x;  e21 := NewDir.y;  e22 := NewDir.z;  e23 := -NewPos.Dot(NewDir);
+    e00 := NewRight.x; e01 := NewRight.y; e02 := NewRight.z; e03 := FPos.Dot(NewRight);
+    e10 := NewUp.x;   e11 := NewUp.y;   e12 := NewUp.z;   e13 := FPos.Dot(NewUp);
+    e20 := NewDir.x;  e21 := NewDir.y;  e22 := NewDir.z;  e23 := FPos.Dot(NewDir);
     e30 := 0;         e31 := 0;         e32 := 0;         e33 := 1;
   end;
-  FLeft := NewLeft;
+  FRight := NewRight;
   FUp   := NewUp;
   FDir  := NewDir;
 end;

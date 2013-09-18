@@ -44,6 +44,30 @@
 			<DelphiCompile Include="RagdollFighting.dpr">
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
+			<DCCReference Include="..\..\headers\glr.pas"/>
+			<DCCReference Include="..\..\headers\glrUtils.pas"/>
+			<DCCReference Include="..\..\headers\box2d\uBox2DImport.pas"/>
+			<DCCReference Include="..\..\headers\box2d\UPhysics2D.pas"/>
+			<DCCReference Include="..\..\headers\box2d\UPhysics2DTypes.pas"/>
+			<DCCReference Include="uCharacterController.pas"/>
+			<DCCReference Include="uGUI.pas"/>
+			<DCCReference Include="uCharacter.pas"/>
+			<DCCReference Include="uGlobal.pas"/>
+			<DCCReference Include="gamescreens\uGameScreen.Game.pas"/>
+			<DCCReference Include="gamescreens\uGameScreen.GameOver.pas"/>
+			<DCCReference Include="gamescreens\uGameScreen.MainMenu.pas"/>
+			<DCCReference Include="gamescreens\uGameScreen.pas"/>
+			<DCCReference Include="gamescreens\uGameScreen.PauseMenu.pas"/>
+			<DCCReference Include="gamescreens\uGameScreenManager.pas"/>
+			<DCCReference Include="uSound.pas"/>
+			<DCCReference Include="..\..\headers\bass.pas"/>
+			<DCCReference Include="uAccum.pas"/>
+			<DCCReference Include="uPopup.pas"/>
+			<DCCReference Include="uSettings_SaveLoad.pas"/>
+			<DCCReference Include="uParticles.pas"/>
+			<DCCReference Include="..\..\headers\dfTweener.pas"/>
+			<DCCReference Include="..\..\headers\glrMath.pas"/>
+			<DCCReference Include="..\..\headers\ogl.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

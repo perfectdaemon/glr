@@ -15,8 +15,8 @@ type
     procedure SetText(const aText: IglrText);
     function GetTextOffset(): TdfVec2f;
     procedure SetTextOffset(aOffset: TdfVec2f);
-    procedure SetZ(const aValue: Integer); override;
-    procedure SetVis(aVis: Boolean); override;
+    procedure SetPos(const aPos: TdfVec3f); override;
+    procedure SetVis(const aVis: Boolean); override;
   public
     property TextObject: IglrText read GetText write SetText;
     property TextOffset: TdfVec2f read GetTextOffset write SetTextOffset;
@@ -63,6 +63,13 @@ begin
   Result := FTextOffset;
 end;
 
+procedure TglrGUITextButton.SetPos(const aPos: TdfVec3f);
+begin
+  inherited;
+  with FText.Position do
+    z := aPos.z + 1;
+end;
+
 procedure TglrGUITextButton.SetText(const aText: IglrText);
 begin
   FText := aText;
@@ -71,19 +78,13 @@ end;
 procedure TglrGUITextButton.SetTextOffset(aOffset: TdfVec2f);
 begin
   FTextOffset := aOffset;
-  FText.Position := aOffset;
+  FText.Position2D := aOffset;
 end;
 
-procedure TglrGUITextButton.SetVis(aVis: Boolean);
+procedure TglrGUITextButton.SetVis(const aVis: Boolean);
 begin
   inherited;
   FText.Visible := aVis;
-end;
-
-procedure TglrGUITextButton.SetZ(const aValue: Integer);
-begin
-  inherited;
-  FText.Z := aValue + 1;
 end;
 
 end.
