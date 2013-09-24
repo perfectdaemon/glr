@@ -12,6 +12,6 @@ cursor true
 FOV 90
 zNear -1
 zFar 500
-cameraPos 10 10 10
+cameraPos 1 1 1
 cameraLook 0 0 0
 cameraUp 0 1 0

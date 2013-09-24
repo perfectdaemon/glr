@@ -34,7 +34,7 @@ var
       with R.Camera do
       begin
         Rotate(deg2rad*(x - dx), Up);
-        Rotate(deg2rad*(y - dy), Left);
+        Rotate(deg2rad*(y - dy), Right);
       end;
       dx := x;
       dy := y;
@@ -59,7 +59,7 @@ begin
   R.OnMouseDown := OnMouseDown;
   R.OnMouseMove := OnMouseMove;
   R.OnUpdate := OnUpdate;
-  R.Camera.ProjectionMode := pmPerpective;
+  R.Camera.ProjectionMode := pmOrtho;
 
   R.Start();
   R.DeInit();

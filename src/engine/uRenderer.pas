@@ -1211,10 +1211,10 @@ begin
     if FDrawAxes then
       DrawAxes();
 
-    for i := 0 to FScenes.Count - 1 do
-      IdfBaseScene(FScenes[i]).Render();
+    //for i := 0 to FScenes.Count - 1 do
+    //  IdfBaseScene(FScenes[i]).Render();
 
-    FRootNode.Render();
+    //FRootNode.Render();
   gl.PopMatrix();
   Windows.SwapBuffers(FWDC);
   FTexSwitches := uTexture.textureSwitches;

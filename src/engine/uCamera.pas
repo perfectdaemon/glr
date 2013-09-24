@@ -117,8 +117,8 @@ end;
 
 procedure TglrCamera.Update();
 begin
-//  gl.MatrixMode(GL_PROJECTION);
-//  gl.LoadMatrixf(FProjMatrix);
+  gl.MatrixMode(GL_PROJECTION);
+  gl.LoadMatrixf(FProjMatrix);
   gl.MatrixMode(GL_MODELVIEW);
   gl.MultMatrixf(FModelMatrix);
 end;
