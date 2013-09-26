@@ -35,8 +35,8 @@ type
     procedure Update;
 
     procedure SetCamera(aPos, aTargetPos, aUp: TdfVec3f);
-    procedure SetTarget(aPoint: TdfVec3f); overload;
-    procedure SetTarget(aTarget: IglrNode); overload;
+//    procedure SetTarget(aPoint: TdfVec3f); overload;
+//    procedure SetTarget(aTarget: IglrNode); overload;
 
     property ProjectionMode: TglrCameraProjectionMode read GetProjMode write SetProjMode;
   end;
@@ -103,24 +103,22 @@ procedure TglrCamera.Pan(X, Y: Single);
 var
   v: TdfVec3f;
 begin
-  v := Up * X * 0.01;
-  v := v + Right * Y * 0.01;
+  v := Up * X;
+  v := v + Right * Y;
   FModelMatrix.Translate(v);
 end;
 
 procedure TglrCamera.Scale(aScale: Single);
 begin
   FModelMatrix.Scale(dfVec3f(aScale, aScale, aScale));
-// Мастштабирование смещением камеры вперед:
-//  ModelMatrix.Translate(dfVec3f(0,0,0) - (Direction * AScale));
 end;
 
 procedure TglrCamera.Update();
 begin
-  gl.MatrixMode(GL_PROJECTION);
-  gl.LoadMatrixf(FProjMatrix);
+//  gl.MatrixMode(GL_PROJECTION);
+//  gl.LoadMatrixf(FProjMatrix);
   gl.MatrixMode(GL_MODELVIEW);
-  gl.MultMatrixf(FModelMatrix);
+  gl.LoadMatrixf(FModelMatrix);
 end;
 
 procedure TglrCamera.Rotate(delta: Single; Axis: TdfVec3f);
@@ -139,6 +137,7 @@ begin
   vDir.Normalize;
   vRight := vUp.Cross(vDir);
   vRight.Normalize;
+  //vRight.Negate;
   vUp := vDir.Cross(vRight);
   vUp.Normalize;
 
@@ -176,45 +175,46 @@ begin
   FProjMode := aMode;
 end;
 
-procedure TglrCamera.SetTarget(aPoint: TdfVec3f);
-var
-  vDir, vUp, vLeft: TdfVec3f;
-begin
-  FTargetPoint := aPoint;
-  with FModelMatrix do
-  begin
-    vDir := Position - aPoint;
-    vDir.Normalize;
-    vUp := Up;
-    vLeft := vDir.Cross(vUp);
-    vLeft.Normalize;
-    vUp :=vLeft.Cross(vDir);
-    vUp.Normalize;
-    vLeft.Negate;
-    UpdateDirUpRight(vDir, vUp, vLeft);
-  end;
-  FMode := mPoint;
-end;
-
-procedure TglrCamera.SetTarget(aTarget: IglrNode);
-begin
-  FTarget := aTarget;
-  SetTarget(aTarget.Position);
-  FMode := mTarget;
-end;
+//procedure TglrCamera.SetTarget(aPoint: TdfVec3f);
+//var
+//  vDir, vUp, vLeft: TdfVec3f;
+//begin
+//  FTargetPoint := aPoint;
+//  with FModelMatrix do
+//  begin
+//    vDir := Position - aPoint;
+//    vDir.Normalize;
+//    vUp := Up;
+//    vLeft := vDir.Cross(vUp);
+//    vLeft.Normalize;
+//    vUp :=vLeft.Cross(vDir);
+//    vUp.Normalize;
+//    vLeft.Negate;
+//    UpdateDirUpRight(vDir, vUp, vLeft);
+//  end;
+//  FMode := mPoint;
+//end;
+//
+//procedure TglrCamera.SetTarget(aTarget: IglrNode);
+//begin
+//  FTarget := aTarget;
+//  SetTarget(aTarget.Position);
+//  FMode := mTarget;
+//end;
 
 procedure TglrCamera.UpdateDirUpRight(NewDir, NewUp, NewRight: TdfVec3f);
 begin
   with FModelMatrix do
   begin
     e00 :=  NewRight.x; e01 :=  NewRight.y; e02 :=  NewRight.z; e03 := -FPos.Dot(NewRight);
-    e10 :=  NewUp.x;   e11 :=  NewUp.y;   e12 :=  NewUp.z;   e13 := -FPos.Dot(NewUp);
-    e20 :=  NewDir.x;  e21 :=  NewDir.y;  e22 :=  NewDir.z;  e23 := -FPos.Dot(NewDir);
-    e30 :=  0;         e31 :=  0;         e32 :=  0;         e33 :=  1;
+    e10 :=  NewUp.x;    e11 :=  NewUp.y;    e12 :=  NewUp.z;    e13 := -FPos.Dot(NewUp);
+    e20 :=  NewDir.x;   e21 :=  NewDir.y;   e22 :=  NewDir.z;   e23 := -FPos.Dot(NewDir);
+    e30 := 0;     e31 := 0;     e32 := 0;  e33 :=  1;
   end;
   FRight := NewRight;
   FUp   := NewUp;
   FDir  := NewDir;
+  FPos := FModelMatrix.Pos;
 end;
 
 end.

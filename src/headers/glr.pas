@@ -403,8 +403,8 @@ type
     procedure Scale(aScale: Single);
     procedure Rotate(delta: Single; Axis: TdfVec3f);
     procedure SetCamera(Pos, TargetPos, Up: TdfVec3f);
-    procedure SetTarget(Point: TdfVec3f); overload;
-    procedure SetTarget(Target: IglrNode); overload;
+//    procedure SetTarget(Point: TdfVec3f); overload;
+//    procedure SetTarget(Target: IglrNode); overload;
 
     function GetViewport(): TglrViewportParams;
 
@@ -972,7 +972,7 @@ type
 
   IglrObjectFactory = interface
     ['{18D6C31A-3ECC-4F13-B5D0-5F4BF6FB466B}']
-//    function NewNode(): IglrNode;
+    function NewNode(): IglrNode;
     function NewUserRender(): IglrUserRenderable;
     function NewHudSprite(): IglrSprite;
     function NewSprite(): IglrSprite; //for future uses

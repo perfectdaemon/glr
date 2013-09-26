@@ -1183,11 +1183,11 @@ procedure TglrRenderer.Step(deltaTime: Double);
     gl.Beginp(GL_LINES);
       gl.Color4ub(255, 0, 0, 255);
       gl.Vertex3f(0, 0, 0);
-      gl.Vertex3f(10, 0, 0);
+      gl.Vertex3f(100, 0, 0);
 
       gl.Color4ub(0, 255, 0, 255);
       gl.Vertex3f(0, 0, 0);
-      gl.Vertex3f(0, 10, 0);
+      gl.Vertex3f(0, 100, 0);
 
       gl.Color4ub(0, 0, 255, 255);
       gl.Vertex3f(0, 0, 0);
@@ -1206,16 +1206,15 @@ begin
   gl.Clear(GL_COLOR_BUFFER_BIT);
   gl.Clear(GL_DEPTH_BUFFER_BIT);
   gl.MatrixMode(GL_MODELVIEW);
-  gl.PushMatrix();
-    FCamera.Update();
-    if FDrawAxes then
-      DrawAxes();
+  gl.LoadIdentity();
+  FCamera.Update();
+  if FDrawAxes then
+    DrawAxes();
 
     //for i := 0 to FScenes.Count - 1 do
     //  IdfBaseScene(FScenes[i]).Render();
 
-    //FRootNode.Render();
-  gl.PopMatrix();
+  FRootNode.Render();
   Windows.SwapBuffers(FWDC);
   FTexSwitches := uTexture.textureSwitches;
 //  wglMakeCurrent(0, 0);

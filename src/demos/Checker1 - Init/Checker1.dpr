@@ -45,6 +45,14 @@ var
   begin
     if R.Input.IsKeyDown(VK_ESCAPE) then
       R.Stop();
+    if R.Input.IsKeyDown(VK_LEFT) then
+      R.Camera.Position := R.Camera.Position + dfVec3f(50 * dt, 0, 0);
+    if R.Input.IsKeyDown(VK_RIGHT) then
+      R.Camera.Position := R.Camera.Position + dfVec3f(-50 * dt, 0, 0);
+    if R.Input.IsKeyDown(VK_UP) then
+      R.Camera.Position := R.Camera.Position + dfVec3f(0, 50 * dt, 0);
+    if R.Input.IsKeyDown(VK_DOWN) then
+      R.Camera.Position := R.Camera.Position + dfVec3f(0, -50 * dt, 0);
   end;
 
 begin
@@ -59,7 +67,6 @@ begin
   R.OnMouseDown := OnMouseDown;
   R.OnMouseMove := OnMouseMove;
   R.OnUpdate := OnUpdate;
-  R.Camera.ProjectionMode := pmOrtho;
 
   R.Start();
   R.DeInit();

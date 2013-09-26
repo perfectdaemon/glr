@@ -17,7 +17,6 @@ uses
 var
   R: IglrRenderer;
   Factory: IglrObjectFactory;
-  Scene2d: Iglr2DScene;
   spr, pp, childSprite: IglrSprite;
 
   deltaRot: Single;
@@ -91,8 +90,6 @@ begin
   R.Init('settings.txt');
   R.OnMouseDown := OnMouseDown;
   R.OnUpdate := OnUpdate;
-  Scene2d := Factory.New2DScene();
-  R.RegisterScene(Scene2d);
 
   spr := Factory.NewHudSprite();
   pp := Factory.NewHudSprite();
@@ -102,13 +99,13 @@ begin
     Width := 200;
     Height := 100;
     PivotPoint := ppTopLeft;
-    Position2D := dfVec2f(300, 300);
+    Position := dfVec3f(300, 300, -5);
     Material.Texture := Factory.NewTexture();
     Material.Texture.Load2D('data\tile.bmp');
     Material.Diffuse := dfVec4f(1, 1, 1, 1);
+    AbsolutePosition := False;
   end;
   R.RootNode.AddChild(spr);
-  //Scene2d.RegisterElement(spr);
 
   with pp do
   begin
@@ -137,7 +134,6 @@ begin
 
   R.Start();
 
-  Scene2d.UnregisterElements();
   R.DeInit();
   R := nil;
 //  pp.Material.Texture := nil;
@@ -147,8 +143,6 @@ begin
 //  spr.Material.Texture := nil;
 //  spr.Material := nil;
   spr := nil;
-  Scene2d := nil;
-
 
   UnLoadRendererLib();
 end.

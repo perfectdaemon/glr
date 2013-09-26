@@ -14,7 +14,7 @@ type
     function GetMaterial(): IglrMaterial;
     procedure SetMaterial(const aMat: IglrMaterial);
   public
-    constructor Create(); virtual;
+    constructor Create(); override;
     destructor Destroy(); override;
 
     procedure DoRender; virtual;
@@ -33,8 +33,10 @@ type
     FPivot: Tglr2DPivotPoint;
     FCustomPivot: TdfVec2f;
     FCoords, FTexCoords: array[0..3] of TdfVec2f;
-    procedure RecalcCoords(); virtual;
 
+    vp: TglrViewportParams;
+
+    procedure RecalcCoords(); virtual;
     function GetWidth(): Single; virtual;
     procedure SetWidth(const aWidth: Single); virtual;
     function GetHeight(): Single; virtual;
@@ -86,6 +88,8 @@ type
     procedure SetSizeToTextureSize();
 
     property BoundingBox: TdfBB read GetBB;
+
+    procedure Render(); override;
   end;
 
 implementation
@@ -304,6 +308,29 @@ begin
 end;
 
 
+
+procedure Tglr2DRenderable.Render();
+begin
+  if not FVisible then
+    Exit();
+  gl.MatrixMode(GL_PROJECTION);
+  gl.PushMatrix();
+    gl.LoadIdentity();
+    vp := TheRenderer.Camera.GetViewport();
+    with vp do
+      gl.Ortho(X, W, H, Y, ZNear, ZFar);
+    gl.MatrixMode(GL_MODELVIEW);
+    gl.PushMatrix();
+      gl.MultMatrixf(FModelMatrix);
+      Material.Apply();
+      DoRender();
+      Material.Unapply();
+      RenderChilds();
+    gl.PopMatrix();
+  gl.MatrixMode(GL_PROJECTION);
+  gl.PopMatrix();
+  gl.MatrixMode(GL_MODELVIEW);
+end;
 
 procedure Tglr2DRenderable.ScaleMult(const aScale: TdfVec2f);
 begin

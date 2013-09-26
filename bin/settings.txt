@@ -10,8 +10,8 @@ vsync true
 cursor true
 //Камера
 FOV 90
-zNear -1
+zNear 0.01
 zFar 500
-cameraPos 1 1 1
+cameraPos 15 15 15
 cameraLook 0 0 0
 cameraUp 0 1 0
