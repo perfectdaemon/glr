@@ -321,6 +321,8 @@ begin
       gl.Ortho(X, W, H, Y, ZNear, ZFar);
     gl.MatrixMode(GL_MODELVIEW);
     gl.PushMatrix();
+      if FAbsolutePosition then
+        gl.LoadIdentity();
       gl.MultMatrixf(FModelMatrix);
       Material.Apply();
       DoRender();

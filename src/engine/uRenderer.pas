@@ -148,7 +148,7 @@ type
     destructor Destroy; override;
 
     procedure Init(FileName: PAnsiChar); overload;
-    procedure Init(Handle: THandle; FileName: PAnsiChar); overload;
+    procedure Init(Handle: THandle; FileName: PAnsiChar); overload; deprecated;
     procedure Step(deltaTime: Double);
     procedure Start();
     procedure Stop();
@@ -184,8 +184,8 @@ type
     property OnUpdate: TglrOnUpdateProc read GetOnUpdate write SetOnUpdate;
 
     {Функционал для работы со сценами}
-    function RegisterScene(const aScene: IdfBaseScene): Integer;
-    procedure UnregisterScene(const aScene: IdfBaseScene);
+    function RegisterScene(const aScene: IglrBaseScene): Integer;
+    procedure UnregisterScene(const aScene: IglrBaseScene);
     procedure UnregisterScenes();
   end;
 
@@ -258,7 +258,6 @@ begin
   ShowWindow(FWHandle, CmdShow);
   UpdateWindow(FWHandle);
 
-//  FCameraObj := TglrCamera.Create();
   FCamera := TglrCamera.Create();
   FCamera.Viewport(0, 0, FWWidth, FWHeight, aFOV, aZNear, aZFar);
   FCamera.SetCamera(camPos, camLook, camUp);
@@ -384,7 +383,7 @@ begin
   end;
 end;
 
-function TglrRenderer.RegisterScene(const aScene: IdfBaseScene): Integer;
+function TglrRenderer.RegisterScene(const aScene: IglrBaseScene): Integer;
 begin
   Result := FScenes.Add(aScene)
 end;
@@ -810,10 +809,8 @@ begin
 
   FScenes := TInterfaceList.Create;
 
-//  FInputObj := TglrInput.Create();
   FInput := TglrInput.Create();
 
-//  FGUIManagerObj := TglrGUIManager.Create();
   FGUIManager := TglrGUIManager.Create();
 
   uLogger.LogInit();
@@ -838,7 +835,6 @@ var
 
   cFOV, cZNear, cZFar: Single;
   bVSync, bCursor: Boolean;
-  //tmpString: String;
   msFormat: Integer;
 
   procedure LoadSettings();
@@ -1225,7 +1221,7 @@ begin
   FEnabled := False;
 end;
 
-procedure TglrRenderer.UnregisterScene(const aScene: IdfBaseScene);
+procedure TglrRenderer.UnregisterScene(const aScene: IglrBaseScene);
 begin
   FScenes.Remove(aScene);
 end;

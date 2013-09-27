@@ -283,9 +283,7 @@ type
 
 
   { IdfNode - рендер-узел, обладает структурой Родитель-Дети, имеет матрицу,
-    позиционирующую его в пространстве, а также привязанный объект Renderable,
-    который он собственно и рендерит, предварительно определив необходимость
-    рендера и установив матрицу, опции и материал }
+    позиционирующую его в пространстве}
   IglrNode = interface
     ['{3D31C699-4B5F-4FC3-8F08-2E91BA918135}']
     {$REGION '[private]'}
@@ -349,7 +347,7 @@ type
   end;
 
 
-  IdfBaseScene = interface
+  IglrBaseScene = interface
     ['{5285C5A6-11A1-4F53-8327-71CBBD20E010}']
     function GetUpdateProc(): TglrOnUpdateProc;
     procedure SetUpdateProc(aProc: TglrOnUpdateProc);
@@ -360,25 +358,14 @@ type
 
   { Idf3DScene - идентифицирует игровую сцену, иерархию рендер-узлов с привязанными
     к ним графическими объектами }
-  Idf3DScene = interface(IdfBaseScene)
+  Idf3DScene = interface(IglrBaseScene)
     ['{5E52434E-3A00-478E-AE73-BA45C77BD2AC}']
     {$REGION '[private]'}
-//    function GetRoot: IglrNode;
-//    procedure SetRoot(const aRoot: IglrNode);
+    function GetRoot: IglrNode;
+    procedure SetRoot(const aRoot: IglrNode);
     {$ENDREGION}
-//    property RootNode: IglrNode read GetRoot write SetRoot;
+    property RootNode: IglrNode read GetRoot write SetRoot;
   end;
-
-//  { IdfSceneManager - оперирует сценами IdfScene, загружает, подгружает и
-//    выгружает их ресурсы }
-//  IdfSceneManager = interface
-//    ['{4AE2CAE0-4273-45B0-85A5-BAC06D198AA5}']
-//    {$REGION '[private]'}
-//    function GetScene(Index: String): IdfScene;
-//    procedure SetScene(Index: String; aScene: IdfScene);
-//    {$ENDREGION}
-//    property Scene[Index: String]: IdfScene read GetScene write SetScene;
-//  end;
 
   {$ENDREGION}
 
@@ -462,14 +449,11 @@ type
     ['{750E2517-93F9-498B-B760-4F4BE3047CBD}']
   end;
 
-  (*
-
-  IdfMesh = interface (IdfRenderable)
+  IglrMesh = interface (IglrRenderable)
     ['{90223F0B-7F8F-4EBF-9752-DF84CE75B7E7}']
 
   end;
 
-  *)
 
   {$REGION ' 2D-рендер '}
 
@@ -579,7 +563,6 @@ type
     procedure GenerateFromFont(aFontName: WideString);
     property Texture: IglrTexture read GetTexture;
 
-//    procedure PrintText(aText: String); overload;
     procedure PrintText(aText: IglrText); //overload;
 
     function GetTextLength(aText: WideString): Single;
@@ -605,13 +588,10 @@ type
 
     property Font: IglrFont read GetFont write SetFont;
     property Text: WideString read GetText write SetText;
-
-//    property Width: Single read GetWidth write SetWidth;
-//    property Height: Single read GetHeight write SetHeight;
   end;
 
   { Idf2DScene - класс, организующий все Idf2DRenderable-сущности}
-  Iglr2DScene = interface (IdfBaseScene)
+  Iglr2DScene = interface (IglrBaseScene)
     ['{3D0DB66F-077A-406B-88A4-882972D8077A}']
     {$REGION '[private]'}
     function GetElement(aIndex: Integer): Iglr2DRenderable;
@@ -924,7 +904,7 @@ type
     //Инициализация с параметрами из файла
     procedure Init(FileName: PAnsiChar); overload;
     //Инициализация в определенный хэндл
-    procedure Init(Handle: THandle; FileName: PAnsiChar); overload;
+    procedure Init(Handle: THandle; FileName: PAnsiChar); overload; deprecated;
     procedure Step(deltaTime: Double);
     procedure Start();
     procedure Stop();
@@ -965,8 +945,8 @@ type
     property TextureSwitches: Integer read GetTexSwitches;
 
     {Функционал для работы со сценами}
-    function RegisterScene(const aScene: IdfBaseScene): Integer;
-    procedure UnregisterScene(const aScene: IdfBaseScene);
+    function RegisterScene(const aScene: IglrBaseScene): Integer;
+    procedure UnregisterScene(const aScene: IglrBaseScene);
     procedure UnregisterScenes();
   end;
 

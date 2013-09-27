@@ -156,7 +156,7 @@ uses
   uGUIButton in 'GUI\uGUIButton.pas',
   uInput in 'uInput.pas',
   uGUIManager in 'GUI\uGUIManager.pas',
-  u2DScene in 'u2DScene.pas',
+  uScene in 'uScene.pas',
   uGUICheckbox in 'GUI\uGUICheckbox.pas',
   uGUITextBox in 'GUI\uGUITextBox.pas',
   uGUISlider in 'GUI\uGUISlider.pas',

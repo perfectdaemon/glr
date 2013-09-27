@@ -99,11 +99,11 @@ begin
     Width := 200;
     Height := 100;
     PivotPoint := ppTopLeft;
-    Position := dfVec3f(300, 300, -5);
+    Position := dfVec3f(300, 300, 5);
     Material.Texture := Factory.NewTexture();
     Material.Texture.Load2D('data\tile.bmp');
     Material.Diffuse := dfVec4f(1, 1, 1, 1);
-    AbsolutePosition := False;
+    AbsolutePosition := True;
   end;
   R.RootNode.AddChild(spr);
 

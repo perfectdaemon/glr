@@ -41,7 +41,7 @@ uses
   uRenderer, uNode, uUserRenderable,
   uHudSprite, uTexture, uMaterial, uFont, uText,
   uGUIButton, uGUITextButton, uGUICheckbox, uGUITextBox, uGUISlider,
-  u2DScene;
+  uScene;
 
 function TglrObjectFactory.NewUserRender(): IglrUserRenderable;
 var

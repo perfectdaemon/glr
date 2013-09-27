@@ -44,12 +44,6 @@ end;
 
 procedure TglrHUDSprite.DoRender;
 begin
-  inherited;
-  gl.MatrixMode(GL_MODELVIEW);
-  if FAbsolutePosition then
-    gl.LoadIdentity();
-  //gl.Translatef(FPos.x, FPos.y, 0);
-  //gl.Rotatef(FRot, 0, 0, 1);
   gl.Disable(GL_LIGHTING);
   gl.Beginp(GL_TRIANGLE_STRIP);
     gl.TexCoord2fv(FTexCoords[0]); gl.Vertex3f(FCoords[0].x, FCoords[0].y, FPos.z);
@@ -59,7 +53,6 @@ begin
     gl.TexCoord2fv(FTexCoords[0]); gl.Vertex3f(FCoords[0].x, FCoords[0].y, FPos.z);
   gl.Endp();
   gl.Enable(GL_LIGHTING);
-  gl.MatrixMode(GL_MODELVIEW);
 end;
 
 end.
