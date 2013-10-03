@@ -136,6 +136,16 @@ const
   BTN_BACK_X = 900;
   BTN_BACK_Y = 350;
 
+procedure InterfacePositionXTween(aInt: IInterface; aValue: Single);
+begin
+  (aInt as IglrNode).PPosition.x := aValue;
+end;
+
+procedure InterfacePositionYTween(aInt: IInterface; aValue: Single);
+begin
+  (aInt as IglrNode).PPosition.y := aValue;
+end;
+
 procedure OnMouseClick(Sender: IglrGUIElement; X, Y: Integer; mb: TglrMouseButton;
   Shift: TglrMouseShiftState);
 begin
@@ -169,11 +179,15 @@ procedure OnMouseOver(Sender: IglrGUIElement; X, Y: Integer; Button: TglrMouseBu
 begin
   with mainMenu do
     if Sender = (FCbOnline as IglrGUIElement) then
-      Tweener.AddTweenPSingle(@FHintOnline.PPosition.y, tsExpoEaseIn,
+      Tweener.AddTweenInterface(FHintOnline, InterfacePositionYTween, tsExpoEaseIn,
         R.WindowHeight + 60, R.WindowHeight + HINT_ONLINE_OFFSET_Y, 1.0, 0.0)
+//      Tweener.AddTweenPSingle(@FHintOnline.PPosition.y, tsExpoEaseIn,
+//        R.WindowHeight + 60, R.WindowHeight + HINT_ONLINE_OFFSET_Y, 1.0, 0.0)
     else if Sender = (FCbControl as IglrGUIElement) then
-      Tweener.AddTweenPSingle(@FHintControl.PPosition.y, tsExpoEaseIn,
+      Tweener.AddTweenInterface(FHintControl, InterfacePositionYTween, tsExpoEaseIn,
         R.WindowHeight + 60, R.WindowHeight + HINT_CONTROL_OFFSET_Y, 1.0, 0.0)
+//      Tweener.AddTweenPSingle(@FHintControl.PPosition.y, tsExpoEaseIn,
+//        R.WindowHeight + 60, R.WindowHeight + HINT_CONTROL_OFFSET_Y, 1.0, 0.0)
 end;
 
 procedure OnMouseOut(Sender: IglrGUIElement; X, Y: Integer; Button: TglrMouseButton;
@@ -181,11 +195,15 @@ procedure OnMouseOut(Sender: IglrGUIElement; X, Y: Integer; Button: TglrMouseBut
 begin
   with mainMenu do
     if Sender = (FCbOnline as IglrGUIElement) then
-      Tweener.AddTweenPSingle(@FHintOnline.PPosition.y, tsExpoEaseIn,
+      Tweener.AddTweenInterface(FHintOnline, InterfacePositionYTween, tsExpoEaseIn,
         R.WindowHeight + HINT_ONLINE_OFFSET_Y, R.WindowHeight + 60,  1.0, 0.0)
+//      Tweener.AddTweenPSingle(@FHintOnline.PPosition.y, tsExpoEaseIn,
+//        R.WindowHeight + HINT_ONLINE_OFFSET_Y, R.WindowHeight + 60,  1.0, 0.0)
     else if Sender = (FCbControl as IglrGUIElement) then
-      Tweener.AddTweenPSingle(@FHintControl.PPosition.y, tsExpoEaseIn,
+      Tweener.AddTweenInterface(FHintControl, InterfacePositionYTween, tsExpoEaseIn,
         R.WindowHeight + HINT_CONTROL_OFFSET_Y, R.WindowHeight + 60,  1.0, 0.0)
+//      Tweener.AddTweenPSingle(@FHintControl.PPosition.y, tsExpoEaseIn,
+//        R.WindowHeight + HINT_CONTROL_OFFSET_Y, R.WindowHeight + 60,  1.0, 0.0)
 end;
 
 procedure OnVolumeChanged(Sender: IglrGUIElement; aNewValue: Integer);
@@ -208,9 +226,10 @@ end;
 
 procedure TweenSceneOrigin(aObject: TdfTweenObject; aValue: Single);
 begin
-  with aObject as TpdMainMenu do
-    FScene.Origin := dfVec2f(aValue, 0);
+  with (aObject as TpdMainMenu).FScene.RootNode do
+    PPosition.x := aValue;
 end;
+
 
 { TpdMainMenu }
 
@@ -227,20 +246,19 @@ begin
 
   //Бэкграунд для fade in/out
   FFakeBackground := Factory.NewHudSprite();
-  FFakeBackground.Position := dfVec2f(0, 0);
-  FFakeBackground.Z := 100;
+  FFakeBackground.Position := dfVec3f(0, 0, 100);
   FFakeBackground.Material.Diffuse := dfVec4f(1, 1, 1, 1);
   FFakeBackground.Material.Texture.BlendingMode := tbmTransparency;
   FFakeBackground.Width := R.WindowWidth;
   FFakeBackground.Height := R.WindowHeight;
-  FScene.RegisterElement(FFakeBackground);
+  FScene.RootNode.AddChild(FFakeBackground);
 
   FSettingsFile := TpdSettingsFile.Initialize(SETTINGS_FILE);
 end;
 
 destructor TpdMainMenu.Destroy;
 begin
-  FScene.UnregisterElements();
+  FScene.RootNode.RemoveAllChilds();
   UpdateSettings();
   FSettingsFile.SaveToFile(SETTINGS_FILE);
   FSettingsFile.Free();
@@ -293,7 +311,7 @@ begin
   FGUIManager.UnregisterElement(FCbOnline);
   FGUIManager.UnregisterElement(FCbControl);
   FGUIManager.UnregisterElement(FBtnBack);
-  Tweener.AddTweenSingle(Self, @TweenSceneOrigin, tsExpoEaseIn, FScene.Origin.x, 0, 2.0, 0.0);
+  Tweener.AddTweenSingle(Self, @TweenSceneOrigin, tsExpoEaseIn, FScene.RootNode.Position.x, 0, 2.0, 0.0);
   FSettingsShowed := False;
 end;
 
@@ -306,8 +324,7 @@ begin
   with FBtnNewGame do
   begin
     PivotPoint := ppCenter;
-    Position := dfVec2f(PLAY_X, PLAY_Y);
-    Z := Z_MAINMENU_BUTTONS;
+    Position := dfVec3f(PLAY_X, PLAY_Y, Z_MAINMENU_BUTTONS);
     TextureNormal := atlasMain.LoadTexture(PLAY_NORMAL_TEXTURE);
     TextureOver := atlasMain.LoadTexture(PLAY_OVER_TEXTURE);
     TextureClick := atlasMain.LoadTexture(PLAY_CLICK_TEXTURE);
@@ -319,8 +336,7 @@ begin
   with FBtnSettings do
   begin
     PivotPoint := ppCenter;
-    Position := dfVec2f(SETTINGS_X, SETTINGS_Y);
-    Z := Z_MAINMENU_BUTTONS;
+    Position := dfVec3f(SETTINGS_X, SETTINGS_Y, Z_MAINMENU_BUTTONS);
     TextureNormal := atlasMain.LoadTexture(SETTINGS_NORMAL_TEXTURE);
     TextureOver := atlasMain.LoadTexture(SETTINGS_OVER_TEXTURE);
     TextureClick := atlasMain.LoadTexture(SETTINGS_CLICK_TEXTURE);
@@ -332,8 +348,7 @@ begin
   with FBtnExit do
   begin
     PivotPoint := ppCenter;
-    Position := dfVec2f(EXIT_X, EXIT_Y);
-    Z := Z_MAINMENU_BUTTONS;
+    Position := dfVec3f(EXIT_X, EXIT_Y, Z_MAINMENU_BUTTONS);
     TextureNormal := atlasMain.LoadTexture(EXIT_NORMAL_TEXTURE);
     TextureOver := atlasMain.LoadTexture(EXIT_OVER_TEXTURE);
     TextureClick := atlasMain.LoadTexture(EXIT_CLICK_TEXTURE);
@@ -346,9 +361,9 @@ begin
   FBtnSettings.OnMouseClick := OnMouseClick;
   FBtnExit.OnMouseClick := OnMouseClick;
 
-  FScene.RegisterElement(FBtnNewGame);
-  FScene.RegisterElement(FBtnSettings);
-  FScene.RegisterElement(FBtnExit);
+  FScene.RootNode.AddChild(FBtnNewGame);
+  FScene.RootNode.AddChild(FBtnSettings);
+  FScene.RootNode.AddChild(FBtnExit);
 end;
 
 procedure TpdMainMenu.LoadSettingsMenu;
@@ -372,9 +387,8 @@ begin
   begin
     Font := fontCooper;
     Text := 'Музыка';
-    Z := Z_MAINMENU_BUTTONS;
     PivotPoint := ppTopLeft;
-    Position := dfVec2f(TEXT_MUSIC_X - R.WindowWidth, TEXT_MUSIC_Y);
+    Position := dfVec3f(TEXT_MUSIC_X - R.WindowWidth, TEXT_MUSIC_Y, Z_MAINMENU_BUTTONS);
     Material.Diffuse := dfVec4f(131 / 255, 217 / 255, 16 / 255, 1.0);
   end;
 
@@ -382,9 +396,8 @@ begin
   begin
     Font := fontCooper;
     Text := 'Звук';
-    Z := Z_MAINMENU_BUTTONS;
     PivotPoint := ppTopLeft;
-    Position := dfVec2f(TEXT_SOUND_X - R.WindowWidth, TEXT_SOUND_Y);
+    Position := dfVec3f(TEXT_SOUND_X - R.WindowWidth, TEXT_SOUND_Y, Z_MAINMENU_BUTTONS);
     Material.Diffuse := dfVec4f(131 / 255, 217 / 255, 16 / 255, 1.0);
   end;
 
@@ -393,8 +406,7 @@ begin
     Font := fontCooper;
     Text := 'Online-рекорды';
     PivotPoint := ppTopLeft;
-    Z := Z_MAINMENU_BUTTONS;
-    Position := dfVec2f(TEXT_ONLINE_X - R.WindowWidth, TEXT_ONLINE_Y);
+    Position := dfVec3f(TEXT_ONLINE_X - R.WindowWidth, TEXT_ONLINE_Y, Z_MAINMENU_BUTTONS);
     Material.Diffuse := dfVec4f(131 / 255, 217 / 255, 16 / 255, 1.0);
   end;
 
@@ -402,9 +414,8 @@ begin
   begin
     Font := fontCooper;
     Text := 'Управление мышью';
-    Z := Z_MAINMENU_BUTTONS;
     PivotPoint := ppTopLeft;
-    Position := dfVec2f(TEXT_CONTROL_X - R.WindowWidth, TEXT_CONTROL_Y);
+    Position := dfVec3f(TEXT_CONTROL_X - R.WindowWidth, TEXT_CONTROL_Y, Z_MAINMENU_BUTTONS);
     Material.Diffuse := dfVec4f(131 / 255, 217 / 255, 16 / 255, 1.0);
   end;
 
@@ -427,8 +438,7 @@ begin
       UpdateTexCoords();
       SetSizeToTextureSize();
     end;
-    Z := Z_MAINMENU_BUTTONS;
-    Position := dfVec2f(SLIDER_SOUND_X - R.WindowWidth, SLIDER_SOUND_Y);
+    Position := dfVec3f(SLIDER_SOUND_X - R.WindowWidth, SLIDER_SOUND_Y, Z_MAINMENU_BUTTONS);
     OnValueChanged := OnVolumeChanged;
   end;
 
@@ -450,16 +460,14 @@ begin
       UpdateTexCoords();
       SetSizeToTextureSize();
     end;
-    Z := Z_MAINMENU_BUTTONS;
-    Position := dfVec2f(SLIDER_MUSIC_X - R.WindowWidth, SLIDER_MUSIC_Y);
+    Position := dfVec3f(SLIDER_MUSIC_X - R.WindowWidth, SLIDER_MUSIC_Y, Z_MAINMENU_BUTTONS);
     OnValueChanged := OnVolumeChanged;
   end;
 
   with FCbOnline do
   begin
     PivotPoint := ppTopLeft;
-    Position := dfVec2f(CB_ONLINE_X - R.WindowWidth, CB_ONLINE_Y);
-    Z := Z_MAINMENU_BUTTONS;
+    Position := dfVec3f(CB_ONLINE_X - R.WindowWidth, CB_ONLINE_Y, Z_MAINMENU_BUTTONS);
     TextureOn := atlasMain.LoadTexture(CB_ON_TEXTURE);
     TextureOnOver := atlasMain.LoadTexture(CB_ON_OVER_TEXTURE);
     TextureOff := atlasMain.LoadTexture(CB_OFF_TEXTURE);
@@ -476,8 +484,7 @@ begin
   with FCbControl do
   begin
     PivotPoint := ppTopLeft;
-    Position := dfVec2f(CB_CONTROL_X - R.WindowWidth, CB_CONTROL_Y);
-    Z := Z_MAINMENU_BUTTONS;
+    Position := dfVec3f(CB_CONTROL_X - R.WindowWidth, CB_CONTROL_Y, Z_MAINMENU_BUTTONS);
     TextureOn := atlasMain.LoadTexture(CB_ON_TEXTURE);
     TextureOnOver := atlasMain.LoadTexture(CB_ON_OVER_TEXTURE);
     TextureOff := atlasMain.LoadTexture(CB_OFF_TEXTURE);
@@ -495,9 +502,8 @@ begin
   begin
     Font := fontCooper;
     Text := 'Позволяет получать рекорды с сервера и'#13#10'публиковать свои результаты';
-    Z := Z_MAINMENU_BUTTONS;
     PivotPoint := ppBottomLeft;
-    Position := dfVec2f(HINT_ONLINE_X - R.WindowWidth, R.WindowHeight + 60);
+    Position := dfVec3f(HINT_ONLINE_X - R.WindowWidth, R.WindowHeight + 60, Z_MAINMENU_BUTTONS);
     Material.Diffuse := dfVec4f(1, 1, 1, 1);
   end;
 
@@ -505,9 +511,8 @@ begin
   begin
     Font := fontCooper;
     Text := 'Переключает режимы управления:'#13#10'мышь или курсорные стрелки';
-    Z := Z_MAINMENU_BUTTONS;
     PivotPoint := ppBottomLeft;
-    Position := dfVec2f(HINT_CONTROL_X - R.WindowWidth, R.WindowHeight + 60);
+    Position := dfVec3f(HINT_CONTROL_X - R.WindowWidth, R.WindowHeight + 60, Z_MAINMENU_BUTTONS);
     Material.Diffuse := dfVec4f(1, 1, 1, 1);
   end;
 
@@ -515,8 +520,7 @@ begin
   with FBtnBack do
   begin
     PivotPoint := ppCenter;
-    Position := dfVec2f(BTN_BACK_X - R.WindowWidth, BTN_BACK_Y);
-    Z := Z_MAINMENU_BUTTONS;
+    Position := dfVec3f(BTN_BACK_X - R.WindowWidth, BTN_BACK_Y, Z_MAINMENU_BUTTONS);
     TextureNormal := atlasMain.LoadTexture(BACK_NORMAL_TEXTURE);
     TextureOver := atlasMain.LoadTexture(BACK_OVER_TEXTURE);
     TextureClick := atlasMain.LoadTexture(BACK_CLICK_TEXTURE);
@@ -526,18 +530,18 @@ begin
   end;
   FBtnBack.OnMouseClick := OnMouseClick;
 
-  FScene.RegisterElement(FMusicText);
-  FScene.RegisterElement(FSoundText);
-  FScene.RegisterElement(FOnlineText);
-  FScene.RegisterElement(FControlMouseText);
+  FScene.RootNode.AddChild(FMusicText);
+  FScene.RootNode.AddChild(FSoundText);
+  FScene.RootNode.AddChild(FOnlineText);
+  FScene.RootNode.AddChild(FControlMouseText);
 
-  FScene.RegisterElement(FSoundVol);
-  FScene.RegisterElement(FMusicVol);
-  FScene.RegisterElement(FCbOnline);
-  FScene.RegisterElement(FCbControl);
-  FScene.RegisterElement(FHintOnline);
-  FScene.RegisterElement(FHintControl);
-  FScene.RegisterElement(FBtnBack);
+  FScene.RootNode.AddChild(FSoundVol);
+  FScene.RootNode.AddChild(FMusicVol);
+  FScene.RootNode.AddChild(FCbOnline);
+  FScene.RootNode.AddChild(FCbControl);
+  FScene.RootNode.AddChild(FHintOnline);
+  FScene.RootNode.AddChild(FHintControl);
+  FScene.RootNode.AddChild(FBtnBack);
 end;
 
 procedure TpdMainMenu.Load;
@@ -574,11 +578,10 @@ begin
     Font := fontCooper;
     Text := 'Ragdoll Sports [Prototype]'#13#10'       by perfect.daemon';
     PivotPoint := ppBottomCenter;
-    Position := dfVec2f(R.WindowWidth div 2, R.WindowHeight + ABOUT_OFFSET_Y);
-    Z := Z_MAINMENU_BUTTONS;
+    Position := dfVec3f(R.WindowWidth div 2, R.WindowHeight + ABOUT_OFFSET_Y, Z_MAINMENU_BUTTONS);
   end;
 
-  FScene.RegisterElement(FAboutText);
+  FScene.RootNode.AddChild(FAboutText);
 end;
 
 procedure TpdMainMenu.SetGameScreenLinks(aGame: TpdGameScreen);
@@ -600,12 +603,15 @@ begin
       FFakeBackground.Visible := True;
       Ft := TIME_FADEIN;
 
-      Tweener.AddTweenPSingle(@FBtnNewGame.PPosition.y, tsExpoEaseIn, -70, PLAY_Y, TIME_NG, TIME_NG_PAUSE);
-      Tweener.AddTweenPSingle(@FBtnSettings.PPosition.x, tsExpoEaseIn, R.WindowWidth + 250, SETTINGS_X, TIME_SN, TIME_SN_PAUSE);
-      Tweener.AddTweenPSingle(@FBtnExit.PPosition.y, tsExpoEaseIn, R.WindowHeight + 70, EXIT_Y, TIME_EX, TIME_EX_PAUSE);
-
-      Tweener.AddTweenPSingle(@FAboutText.PPosition.y, tsExpoEaseIn,
-        R.WindowHeight + 70, R.WindowHeight + ABOUT_OFFSET_Y, TIME_ABOUTTEXT, TIME_ABOUTTEXT_PAUSE);
+      Tweener.AddTweenInterface(FBtnNewGame, InterfacePositionYTween, tsExpoEaseIn, -70, PLAY_Y, TIME_NG, TIME_NG_PAUSE);
+//      Tweener.AddTweenPSingle(@FBtnNewGame.PPosition.y, tsExpoEaseIn, -70, PLAY_Y, TIME_NG, TIME_NG_PAUSE);
+      Tweener.AddTweenInterface(FBtnSettings, InterfacePositionXTween, tsExpoEaseIn, R.WindowWidth + 250, SETTINGS_X, TIME_SN, TIME_SN_PAUSE);
+//      Tweener.AddTweenPSingle(@FBtnSettings.PPosition.x, tsExpoEaseIn, R.WindowWidth + 250, SETTINGS_X, TIME_SN, TIME_SN_PAUSE);
+      Tweener.AddTweenInterface(FBtnExit, InterfacePositionYTween, tsExpoEaseIn, R.WindowHeight + 70, EXIT_Y, TIME_EX, TIME_EX_PAUSE);
+//      Tweener.AddTweenPSingle(@FBtnExit.PPosition.y, tsExpoEaseIn, R.WindowHeight + 70, EXIT_Y, TIME_EX, TIME_EX_PAUSE);
+      Tweener.AddTweenInterface(FAboutText, InterfacePositionYTween, tsExpoEaseIn, R.WindowHeight + 70, R.WindowHeight + ABOUT_OFFSET_Y, TIME_ABOUTTEXT, TIME_ABOUTTEXT_PAUSE);
+//      Tweener.AddTweenPSingle(@FAboutText.PPosition.y, tsExpoEaseIn,
+//        R.WindowHeight + 70, R.WindowHeight + ABOUT_OFFSET_Y, TIME_ABOUTTEXT, TIME_ABOUTTEXT_PAUSE);
     end;
 
     gssFadeInComplete: FadeInComplete();
@@ -634,7 +640,7 @@ begin
   FGUIManager.RegisterElement(FCbOnline);
   FGUIManager.RegisterElement(FCbControl);
   FGUIManager.RegisterElement(FBtnBack);
-  Tweener.AddTweenSingle(Self, @TweenSceneOrigin, tsExpoEaseIn, FScene.Origin.x, R.WindowWidth, 2.0, 0.0);
+  Tweener.AddTweenSingle(Self, @TweenSceneOrigin, tsExpoEaseIn, FScene.RootNode.Position.x, R.WindowWidth, 2.0, 0.0);
 
   FSettingsShowed := True;
 end;

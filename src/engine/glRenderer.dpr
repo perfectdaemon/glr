@@ -13,6 +13,8 @@
  -  RenderChilds у 2DRenderable пока не используется
  +  Рерайт CheckHit в HudSprite
     Рерайт системы Scene - Renderable в целом. Уход от Scene в пользу пустых Renderable
+    RootNode перенести из Iglr3DScene -> IglrBaseScene. Iglr2DScene также будет
+      использовать RootNode
 
  ПОСЛЕ РЕРАЙТА Renderable-Node ПРОВЕРИТЬ КЛАССЫ:
   GUI

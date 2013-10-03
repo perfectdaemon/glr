@@ -48,9 +48,10 @@ begin
   inherited;
   text := Factory.NewText();
   text.Font := fontCooper;
-  text.Z := Z_HUD + internalZ;
+  with text.Position do
+    z := Z_HUD + internalZ;
   Inc(internalZ);
-  scene.RegisterElement(text);
+  scene.RootNode.AddChild(text);
 
   text.Visible := False;
   text.Text := '';
@@ -100,7 +101,7 @@ begin
         if timeRemain > 0 then
         begin
           timeRemain := timeRemain - dt;
-          text.Position := text.Position + dfVec2f(0, -20 * dt);
+          text.Position2D := text.Position2D + dfVec2f(0, -20 * dt);
           text.Material.PDiffuse.w := timeRemain / POPUP_SHOW_TIME;
         end
         else
@@ -113,7 +114,7 @@ begin
   with popups.GetItem().text do
   begin
     Text := aText;
-    Position := dfVec2f(X, Y);
+    Position2D := dfVec2f(X, Y);
   end;
 end;
 
@@ -122,7 +123,7 @@ begin
   with popups.GetItem() do
   begin
     text.Text := aText;
-    text.Position := dfVec2f(X, Y);
+    text.Position2D := dfVec2f(X, Y);
     text.Material.Diffuse := aColor;
   end;
 end;

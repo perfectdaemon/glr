@@ -81,7 +81,7 @@ end;
 
 procedure SyncObjects(b2Body: Tb2Body; renderObject: IglrSprite);
 begin
-  renderObject.Position := dfVec2f(b2Body.GetPosition.x, b2Body.GetPosition.y) * (1 / C_COEF);
+  renderObject.Position2D := dfVec2f(b2Body.GetPosition.x, b2Body.GetPosition.y) * (1 / C_COEF);
   renderObject.Rotation := b2Body.GetAngle * rad2deg;
 end;
 
@@ -109,7 +109,7 @@ begin
   with BodyDef do
   begin
     bodyType := b2_dynamicBody;
-    position := ConvertGLToB2(aSprite.Position * C_COEF);
+    position := ConvertGLToB2(aSprite.Position2D * C_COEF);
     angle := aSprite.Rotation * deg2rad;
   end;
 
@@ -227,12 +227,12 @@ end;
 
 function dfb2InitCircle(b2World: Tb2World; const aSprite: IglrSprite; d, f, r: Double; mask, category: UInt16; group: SmallInt): Tb2Body;
 begin
-  Result := dfb2InitCircle(b2World, aSprite.Width / 2, aSprite.Position, d, f, r, mask, Category, group);
+  Result := dfb2InitCircle(b2World, aSprite.Width / 2, aSprite.Position2D, d, f, r, mask, Category, group);
 end;
 
 function dfb2InitBoxStatic(b2World: Tb2World; const aSprite: IglrSprite; d, f, r: Double; mask, category: UInt16; group: SmallInt): Tb2Body; overload;
 begin
-  Result := dfb2InitBoxStatic(b2World, aSprite.Position, dfVec2f(aSprite.Width, aSprite.Height), aSprite.Rotation, d, f, r, mask, category, group);
+  Result := dfb2InitBoxStatic(b2World, aSprite.Position2D, dfVec2f(aSprite.Width, aSprite.Height), aSprite.Rotation, d, f, r, mask, category, group);
 end;
 
 function dfb2InitBoxStatic(b2World: Tb2World; aPos, aSize: TdfVec2f; aRot: Single; d, f, r: Double; mask, category: UInt16; group: SmallInt): Tb2Body; overload;

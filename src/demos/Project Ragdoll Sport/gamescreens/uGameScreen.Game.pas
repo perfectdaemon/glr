@@ -139,8 +139,8 @@ begin
 //  FreePhysics();
 //  FreePopups();
 
-  FMainScene.UnregisterElements();
-  FHudScene.UnregisterElements();
+//  FMainScene.UnregisterElements();
+//  FHudScene.UnregisterElements();
   FMainScene := nil;
   FHUDscene := nil;
   uGlobal.mainScene := nil;
@@ -202,7 +202,7 @@ begin
               sound.PlaySample(sGoal);
               gui.ShowText('Отличный удар!');
             end;
-            gui.AddScore(scoreAdd, aSprite.Position);
+            gui.AddScore(scoreAdd, aSprite.Position2D);
             drops.FreeItem(drops.Items[i])
           end;
         end;
@@ -313,9 +313,9 @@ begin
 
   gl.ClearColor(230/255, 255/255, 255/255, 1);
 
-  FMainScene.UnregisterElements();
-  FMainScene.Origin := dfVec2f(0, 0);
-  FHudScene.UnregisterElements();
+//  FMainScene.UnregisterElements();
+  FMainScene.RootNode.Position := dfVec3f(0, 0, 0);
+//  FHudScene.UnregisterElements();
 
   LoadHUD();
   LoadPhysics();
@@ -332,13 +332,12 @@ begin
 
 
   FFakeBackground := Factory.NewSprite();
-  FFakeBackground.Position := dfVec2f(0, 0);
-  FFakeBackground.Z := 100;
+  FFakeBackground.Position := dfVec3f(0, 0, 100);
   FFakeBackground.Material.Diffuse := dfVec4f(1, 1, 1, 1);
   FFakeBackground.Material.Texture.BlendingMode := tbmTransparency;
   FFakeBackground.Width := R.WindowWidth;
   FFakeBackground.Height := R.WindowHeight;
-  FHUDScene.RegisterElement(FFakeBackground);
+  FHUDScene.RootNode.AddChild(FFakeBackground);
 
   R.RegisterScene(FMainScene);
   R.RegisterScene(FHUDScene);
@@ -361,7 +360,7 @@ begin
   FFPSCounter.TextObject.Material.Diffuse := dfVec4f(0, 0, 0, 1);
   FFPSCounter.TextObject.Visible := False;
 
-  FDebug := TglrDebugInfo.Create(FHUDScene);
+  FDebug := TglrDebugInfo.Create(FHUDScene.RootNode);
   FDebug.FText.Material.Diffuse := dfVec4f(0, 0, 0, 1);
   FDebug.FText.Visible := False;
   FDebug.FText.PPosition.y := 20;
@@ -370,9 +369,8 @@ begin
   gui := TglrInGameGUI.Create(FHudScene);
 
   FTimerIcon := Factory.NewHudSprite();
-  FTimerIcon.Z := Z_HUD;
   FTimerIcon.PivotPoint := ppTopLeft;
-  FTimerIcon.Position := dfVec2f(10, 10);
+  FTimerIcon.Position := dfVec3f(10, 10, Z_HUD);
   FTimerIcon.Material.Texture := atlasMain.LoadTexture(TIMER_TEXTURE);
   FTimerIcon.UpdateTexCoords();
   FTimerIcon.SetSizeToTextureSize();
@@ -380,8 +378,7 @@ begin
 
   FTimeText := Factory.NewText();
   FTimeText.Font := fontCooper;
-  FTimeText.Z := Z_HUD;
-  FTimeText.Position := FTimerIcon.Position + dfVec2f(40, 5);
+  FTimeText.Position := FTimerIcon.Position + dfVec3f(40, 5, 0);
 //  FTimeText.Text := '02:00';
   FTimeText.Material.Diffuse := dfVec4f(0.2, 0.2, 0.2, 1);
 
@@ -389,16 +386,15 @@ begin
   with FPauseText do
   begin
     Font := fontCooper;
-    Z := Z_HUD;
-    Position := dfVec2f(R.WindowWidth div 2, 10);
+    Position := dfVec3f(R.WindowWidth div 2, 10, Z_HUD);
     PivotPoint := ppCenter;
     Text := 'П А У З А';
     Material.Diffuse := colorRed;
   end;
 
-  FHUDScene.RegisterElement(FTimerIcon);
-  FHUDScene.RegisterElement(FTimeText);
-  FHUDScene.RegisterElement(FPauseText);
+  FHUDScene.RootNode.AddChild(FTimerIcon);
+  FHUDScene.RootNode.AddChild(FTimeText);
+  FHUDScene.RootNode.AddChild(FPauseText);
 end;
 
 procedure TpdGame.LoadPhysics;
@@ -426,25 +422,23 @@ begin
   with FTopWall do
   begin
     PivotPoint := ppTopLeft;
-    Position := dfVec2f(0, 0);
+    Position := dfVec3f(0, 0, Z_DROPOBJECTS + 1);
     Material.Diffuse := colorGray2;
     Width := R.WindowWidth;
     Height := 5;
-    Z := Z_DROPOBJECTS + 1;
   end;
 
   with FBottomWall do
   begin
     PivotPoint := ppBottomLeft;
-    Position := dfVec2f(0, R.WindowHeight);
+    Position := dfVec3f(0, R.WindowHeight, Z_DROPOBJECTS + 1);
     Material.Diffuse := colorGray2;
     Width := R.WindowWidth;
     Height := 5;
-    Z := Z_DROPOBJECTS + 1;
   end;
 
-  FMainScene.RegisterElement(FTopWall);
-  FMainScene.RegisterElement(FBottomWall);
+  FMainScene.RootNode.AddChild(FTopWall);
+  FMainScene.RootNode.AddChild(FBottomWall);
 end;
 
 var

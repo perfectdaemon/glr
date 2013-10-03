@@ -46,8 +46,6 @@ type
     constructor Create(); override;
     destructor Destroy(); override;
 
-    procedure DoRender(); override;
-
     //Проверка на попадание по элементу
     function CheckHit(X, Y: Integer): Boolean; override;
   end;
@@ -77,10 +75,10 @@ begin
   inherited;
   FSliderBtn := GetObjectFactory().NewHudSprite();
   FSliderBtn.PivotPoint := ppCenter;
-  FSliderBtn.AbsolutePosition := False;
   FSliderOver := GetObjectFactory().NewHudSprite();
   FSliderOver.PivotPoint := ppTopLeft;
-  FSliderOver.AbsolutePosition := False;
+  Self.AddChild(FSliderOver);
+  Self.AddChild(FSliderBtn);
   FMinValue := 0;
   FMaxValue := 100;
   FValue := 50;
@@ -88,30 +86,7 @@ end;
 
 destructor TglrGUISlider.Destroy;
 begin
-
   inherited;
-end;
-
-procedure TglrGUISlider.DoRender;
-begin
-  inherited;
-  FSliderOver.Render();
-  FSliderBtn.Render();
-
-//  if FSliderOver.Visible then
-//    with FSliderOver do
-//    begin
-//      Material.Apply();
-//      DoRender();
-//      Material.Unapply();
-//    end;
-//  if FSliderBtn.Visible then
-//    with FSliderBtn do
-//    begin
-//      Material.Apply();
-//      DoRender();
-//      Material.Unapply();
-//    end;
 end;
 
 function TglrGUISlider.GetMaxValue: Integer;
@@ -167,10 +142,8 @@ begin
   inherited;
   UpdateSprites();
 
-  with FSliderOver.Position do
-    z := aPos.z + 1;
-  with FSliderBtn.Position do
-    z := aPos.z + 1;
+  FSliderOver.PPosition.z := aPos.z + 1;
+  FSliderBtn.PPosition.z := aPos.z + 5;
 end;
 
 procedure TglrGUISlider.SetSliderBtn(const Value: IglrSprite);
@@ -223,7 +196,7 @@ procedure TglrGUISlider._MouseDown(X, Y: Integer; MouseButton: TglrMouseButton;
 begin
   inherited;
   FMouseDownAtMe := True;
-  Value := Round((MaxValue - MinValue) * (X - Position.x) / Width);
+  Value := Round((MaxValue - MinValue) * (X - AbsoluteMatrix.Pos.x) / Width);
 end;
 
 procedure TglrGUISlider._MouseMove(X, Y: Integer; Shift: TglrMouseShiftState);
@@ -231,7 +204,7 @@ begin
   inherited;
   if (ssLeft in Shift) and FMouseDownAtMe then
   begin
-    Value := Round((MaxValue - MinValue) * (X - Position.x) / Width);
+    Value := Round((MaxValue - MinValue) * (X - AbsoluteMatrix.Pos.x) / Width);
   end;
 end;
 

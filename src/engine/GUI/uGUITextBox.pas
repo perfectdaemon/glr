@@ -39,8 +39,6 @@ type
 
     procedure _KeyDown(KeyCode: Word; KeyData: Integer); override;
 
-    procedure DoRender(); override;
-
     constructor Create(); override;
     destructor Destroy(); override;
   end;
@@ -57,43 +55,20 @@ constructor TglrGUITextBox.Create;
 begin
   inherited;
   FTextObj := GetObjectFactory().NewText();
-  FTextObj.AbsolutePosition := False;
-  with FTextObj.Position do
-    z := 1;
+  FCursor := GetObjectFactory().NewHudSprite();
+  Self.AddChild(FTextObj);
+  Self.AddChild(FCursor);
+  FTextObj.PPosition.z := 1;
+  FCursor.PPosition.z := 1;
   FTextOffset.Reset();
   FCursorOffset.Reset();
-  FCursor := GetObjectFactory().NewHudSprite();
-  FCursor.AbsolutePosition := False;
-  with FCursor.Position do
-    z := 1;
   FMaxTextLength := 100;
   _Unfocused();
 end;
 
 destructor TglrGUITextBox.Destroy;
 begin
-
   inherited;
-end;
-
-procedure TglrGUITextBox.DoRender;
-begin
-  inherited;
-  FTextObj.Render();
-  FCursor.Render();
-//  if FTextObj.Visible then
-//  begin
-//    FTextObj.Material.Apply();
-//    FTextObj.DoRender();
-//    FtextObj.Material.Unapply();
-//  end;
-//
-//  if FCursor.Visible then
-//  begin
-//    FCursor.Material.Apply();
-//    FCursor.DoRender();
-//    FCursor.Material.Unapply();
-//  end;
 end;
 
 function TglrGUITextBox.GetCurOffset: TdfVec2f;
@@ -144,10 +119,8 @@ begin
   //FTextObj.Position := FPos + FTextOffset;
   UpdateCursor();
 
-  with FTextObj.Position do
-    z := aPos.z + 1;
-  with FCursor.Position do
-    z := aPos.z + 1;
+  FTextObj.PPosition.z := aPos.z + 1;
+  FCursor.PPosition.z := aPos.z + 1;
 end;
 
 procedure TglrGUITextBox.SetTextObject(const aTextObject: IglrText);
@@ -183,6 +156,7 @@ procedure TglrGUITextBox._Focused;
 begin
   inherited;
   FCursor.Visible := True;
+  UpdateCursor();
 end;
 
 procedure TglrGUITextBox._KeyDown(KeyCode: Word; KeyData: Integer);
@@ -205,7 +179,7 @@ begin
     ToUnicodeEx(KeyCode,(KeyData and $FF0000), @kbState, @Buf, (KeyData and $FFFF),0, keybLayout);
     FTextObj.Text := FTextObj.Text + Buf;
   end;
-  UpdateCursor;
+  UpdateCursor();
 end;
 
 procedure TglrGUITextBox._Unfocused;

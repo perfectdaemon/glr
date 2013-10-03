@@ -20,6 +20,7 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
+			<DCC_UsePackage>vclx;vcl;rtl;DbxCommonDriver;DbxClientDriver;DBXInterBaseDriver;DBXMySQLDriver</DCC_UsePackage>
 			<DCC_DcuOutput>..\..\dcu\</DCC_DcuOutput>
 			<DCC_ExeOutput>..\..\bin\</DCC_ExeOutput>
 			<DCC_ImageBase>00400000</DCC_ImageBase>
@@ -106,7 +107,7 @@
 						<Parameters Name="UseLauncher">False</Parameters>
 						<Parameters Name="LoadAllSymbols">True</Parameters>
 						<Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
-						<Parameters Name="HostApplication">..\..\bin\Checker1.exe</Parameters>
+						<Parameters Name="HostApplication">..\..\bin\Checker5_GUI.exe</Parameters>
 					</Parameters>
 					<VersionInfo>
 						<VersionInfo Name="IncludeVerInfo">True</VersionInfo>
@@ -114,7 +115,7 @@
 						<VersionInfo Name="MajorVer">0</VersionInfo>
 						<VersionInfo Name="MinorVer">3</VersionInfo>
 						<VersionInfo Name="Release">0</VersionInfo>
-						<VersionInfo Name="Build">12</VersionInfo>
+						<VersionInfo Name="Build">13</VersionInfo>
 						<VersionInfo Name="Debug">False</VersionInfo>
 						<VersionInfo Name="PreRelease">False</VersionInfo>
 						<VersionInfo Name="Special">False</VersionInfo>
@@ -126,7 +127,7 @@
 					<VersionInfoKeys>
 						<VersionInfoKeys Name="CompanyName"/>
 						<VersionInfoKeys Name="FileDescription"/>
-						<VersionInfoKeys Name="FileVersion">0.3.0.12</VersionInfoKeys>
+						<VersionInfoKeys Name="FileVersion">0.3.0.13</VersionInfoKeys>
 						<VersionInfoKeys Name="InternalName"/>
 						<VersionInfoKeys Name="LegalCopyright"/>
 						<VersionInfoKeys Name="LegalTrademarks"/>
@@ -135,6 +136,38 @@
 						<VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
 						<VersionInfoKeys Name="Comments"/>
 					</VersionInfoKeys>
+					<Excluded_Packages>
+						<Excluded_Packages Name="$(BDS)\RaveReports\Lib\dclRave.bpl">Rave Reports 7.6 BE Package</Excluded_Packages>
+						<Excluded_Packages Name="$(BDS)\bin\applet120.bpl">CodeGear Control Panel Applet Package</Excluded_Packages>
+						<Excluded_Packages Name="$(BDS)\bin\dclact120.bpl">CodeGear ActionBar Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDS)\bin\dclbde120.bpl">CodeGear BDE DB Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDS)\bin\dcldb120.bpl">CodeGear Database Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDS)\bin\dclemacsedit120.bpl">CodeGear Editor Emacs Enhancements</Excluded_Packages>
+						<Excluded_Packages Name="$(BDS)\bin\dclmlwiz120.bpl">CodeGear Markup Language Wizards</Excluded_Packages>
+						<Excluded_Packages Name="$(BDS)\bin\dclsmpedit120.bpl">CodeGear Editor Script Enhancements</Excluded_Packages>
+						<Excluded_Packages Name="$(BDS)\bin\dclmcn120.bpl">CodeGear DataSnap Connection Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDS)\bin\dclmid120.bpl">CodeGear MyBase DataAccess Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDS)\bin\dcltee8120.bpl">TeeChart Standard 8 Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDS)\Bin\dclib120.bpl">CodeGear InterBase Express Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDS)\bin\dclado120.bpl">CodeGear ADO DB Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDS)\Bin\dclIndyCore120.bpl">Indy 10 Core Design Time</Excluded_Packages>
+						<Excluded_Packages Name="$(BDS)\Bin\dclIndyProtocols120.bpl">Indy 10 Protocols Design Time</Excluded_Packages>
+						<Excluded_Packages Name="$(BDS)\bin\dclsmp120.bpl">CodeGear Sample Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDS)\bin\dclie120.bpl">Internet Explorer Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDS)\bin\dclwebsnap120.bpl">CodeGear WebSnap Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDS)\bin\dclwbm120.bpl">CodeGear InternetExpress Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDS)\bin\dclnet120.bpl">CodeGear Internet Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDS)\bin\dclsoap120.bpl">CodeGear SOAP Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDS)\bin\dclribbon120.bpl">CodeGear Ribbon Controls</Excluded_Packages>
+						<Excluded_Packages Name="$(BDS)\bin\dclDataSnapIndy10ServerTransport120.bpl">CodeGear DBExpress DataSnap Server Transport Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDS)\bin\dclDataSnapProviderClient120.bpl">CodeGear DBExpress DataSnap Provider Client Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDS)\bin\dclDataSnapServer120.bpl">CodeGear DBExpress DataSnap Server Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDS)\bin\dcldbx120.bpl">CodeGear dbExpress Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDS)\bin\dclDBXDriversEnt120.bpl">CodeGear Enterprise Driver Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDS)\bin\dcldbxcds120.bpl">CodeGear SimpleDataset Component (DBX)</Excluded_Packages>
+						<Excluded_Packages Name="$(BDS)\bin\dcloffice2k120.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDS)\bin\dclofficexp120.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+					</Excluded_Packages>
 				</Delphi.Personality>
 			</BorlandProject>
 			<ProjectFileVersion>12</ProjectFileVersion>

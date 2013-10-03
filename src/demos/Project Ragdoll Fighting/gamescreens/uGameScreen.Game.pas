@@ -145,8 +145,8 @@ destructor TpdGame.Destroy;
 begin
   Unload();
 
-  FMainScene.UnregisterElements();
-  FHudScene.UnregisterElements();
+//  FMainScene.UnregisterElements();
+//  FHudScene.UnregisterElements();
   FMainScene := nil;
   FHUDscene := nil;
   uGlobal.mainScene := nil;
@@ -275,9 +275,9 @@ begin
   FCountToGameOver := False;
 
   gl.ClearColor(119/255, 208/255, 214/255, 1);
-  FMainScene.UnregisterElements();
-  FMainScene.Origin := dfVec2f(0, 0);
-  FHudScene.UnregisterElements();
+  FMainScene.RootNode.RemoveAllChilds();
+  FMainScene.RootNode.Position := dfVec3f(0, 0, 0);
+  FHudScene.RootNode.RemoveAllChilds();
 
   charInternalZ := 0;
   particlesInternalZ := 0;
@@ -293,14 +293,13 @@ begin
   FFakeBackground := Factory.NewHudSprite();
   with FFakeBackground do
   begin
-    Position := dfVec2f(0, 0);
-    Z := 100;
+    Position := dfVec3f(0, 0, 100);
     Material.Diffuse := dfVec4f(1, 1, 1, 1);
     Material.Texture.BlendingMode := tbmTransparency;
     Width := R.WindowWidth;
     Height := R.WindowHeight;
   end;
-  FHUDScene.RegisterElement(FFakeBackground);
+  FHUDScene.RootNode.AddChild(FFakeBackground);
 
   R.RegisterScene(FMainScene);
   R.RegisterScene(FHUDScene);

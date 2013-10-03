@@ -289,6 +289,8 @@ type
     {$REGION '[private]'}
     function GetPos(): TdfVec3f;
     procedure SetPos(const aPos: TdfVec3f);
+    function GetPPos(): PdfVec3f;
+    procedure SetPPos(const aPos: PdfVec3f);
     function GetUp(): TdfVec3f;
     procedure SetUp(const aUp: TdfVec3f);
     function GetDir(): TdfVec3f;
@@ -304,29 +306,28 @@ type
     function GetParent(): IglrNode;
     procedure SetParent(aParent: IglrNode);
     function GetChildsCount(): Integer;
+
+    function GetAbsMatrix(): TdfMat4f;
+    procedure SetAbsMatrix(const aMat: TdfMat4f);
     {$ENDREGION}
 
     property Position: TdfVec3f read GetPos write SetPos;
+    property PPosition: PdfVec3f read GetPPos write SetPPos;
     property Up: TdfVec3f read GetUp write SetUp;
     property Direction: TdfVec3f read GetDir write SetDir;
     property Right: TdfVec3f read GetRight write SetRight;
     property ModelMatrix: TdfMat4f read GetModel write SetModel;
     property Parent: IglrNode read GetParent write SetParent;
     property Visible: Boolean read GetVis write SetVis;
+    property AbsoluteMatrix: TdfMat4f read GetAbsMatrix write SetAbsMatrix;
 
     property Childs[Index: Integer]: IglrNode read GetChild write SetChild;
     property ChildsCount: Integer read GetChildsCount;
 
-    //Добавить уже существующий рендер-узел себе в потомки
     function AddChild(aChild: IglrNode): Integer;
-    //Добавить нового потомка
-    function AddNewChild(): IglrNode;
-    //Удалить потомка из списка по индексу. Физически объект остается в памяти.
     procedure RemoveChild(Index: Integer); overload;
-    //Удалить потомка из списка по указателю. Физически объект остается в памяти.
     procedure RemoveChild(aChild: IglrNode); overload;
-    //Удалить потомка из списка по индексу. Физически объект уничтожается.
-    procedure FreeChild(Index: Integer);
+    procedure RemoveAllChilds();
 
     procedure Render();
   end;
@@ -349,22 +350,29 @@ type
 
   IglrBaseScene = interface
     ['{5285C5A6-11A1-4F53-8327-71CBBD20E010}']
+    {$REGION '[private]'}
+    function GetRoot: IglrNode;
+    procedure SetRoot(aRoot: IglrNode);
     function GetUpdateProc(): TglrOnUpdateProc;
     procedure SetUpdateProc(aProc: TglrOnUpdateProc);
+    {$ENDREGION}
+    property RootNode: IglrNode read GetRoot write SetRoot;
     property OnUpdate: TglrOnUpdateProc read GetUpdateProc write SetUpdateProc;
     procedure Render();
     procedure Update(const deltaTime: Double);
   end;
 
-  { Idf3DScene - идентифицирует игровую сцену, иерархию рендер-узлов с привязанными
+{ Idf2DScene - класс, организующий все Idf2DRenderable-сущности}
+  Iglr2DScene = interface (IglrBaseScene)
+    ['{3D0DB66F-077A-406B-88A4-882972D8077A}']
+    procedure SortFarthestFirst();
+  end;
+
+  { Iglr3DScene - идентифицирует игровую сцену, иерархию рендер-узлов с привязанными
     к ним графическими объектами }
-  Idf3DScene = interface(IglrBaseScene)
+  Iglr3DScene = interface(IglrBaseScene)
     ['{5E52434E-3A00-478E-AE73-BA45C77BD2AC}']
-    {$REGION '[private]'}
-    function GetRoot: IglrNode;
-    procedure SetRoot(const aRoot: IglrNode);
-    {$ENDREGION}
-    property RootNode: IglrNode read GetRoot write SetRoot;
+
   end;
 
   {$ENDREGION}
@@ -457,8 +465,6 @@ type
 
   {$REGION ' 2D-рендер '}
 
-  Iglr2DScene = interface;
-
   {Точка отсчета для рендера 2Д вещей}
   Tglr2DPivotPoint = (ppTopLeft, ppTopRight, ppBottomLeft, ppBottomRight,
     ppCenter, ppTopCenter, ppBottomCenter, ppCustom);
@@ -485,16 +491,14 @@ type
     procedure SetCoord(aIndex: Integer; aCoord: TdfVec2f);
     function GetTexCoord(aIndex: Integer): TdfVec2f;
     procedure SetTexCoord(aIndex: Integer; aCoord: TdfVec2f);
-    function GetAbsPosition(): Boolean;
-    procedure SetAbsPosition(const Value: Boolean);
+//    function GetAbsPosition(): Boolean;
+//    procedure SetAbsPosition(const Value: Boolean);
 
     function GetBB: TdfBB;
 
-    function GetParentScene(): Iglr2DScene;
-    procedure SetParentScene(const aScene: Iglr2DScene);
+//    function GetParentScene(): Iglr2DScene;
+//    procedure SetParentScene(const aScene: Iglr2DScene);
     {$ENDREGION}
-
-
     property Position2D: TdfVec2f read GetPos2D write SetPos2D;
     property Scale: TdfVec2f read GetScale write SetScale;
     procedure ScaleMult(const aScale: TdfVec2f); overload;
@@ -517,10 +521,7 @@ type
     //True - объект располагается независимо от вхождения в Scene2D или RenderNode
     //Рекомендуется использовать True при использовании RenderNode.Renderable
     //и False при Scene2D-рендере (устанавливается автоматически)
-    property AbsolutePosition: Boolean read GetAbsPosition write SetAbsPosition;
-
-    //Родитель-сцена. Нужно для вычисления GetAbsolutePosition
-    property ParentScene: Iglr2DScene read GetParentScene write SetParentScene;
+//    property AbsolutePosition: Boolean read GetAbsPosition write SetAbsPosition;
 
     procedure SetSizeToTextureSize();
 
@@ -545,13 +546,6 @@ type
     function GetFontStyle(): TFontStyles;
     procedure SetFontStyle(aStyle: TFontStyles);
     {$ENDREGION}
-    {
-     Порядок действий:
-     1. Добавить диапазоны
-     2. Установить параметры (размер, начертание и пр.
-      3. Сгенерировать шрифт из файла ttf
-      3. Сгенерировать шрифт из системного шрифта
-    }
     procedure AddRange(aStart, aStop: Word); overload;
     procedure AddRange(aStart, aStop: WideChar); overload;
     procedure AddSymbols(aText: WideString);
@@ -588,28 +582,6 @@ type
 
     property Font: IglrFont read GetFont write SetFont;
     property Text: WideString read GetText write SetText;
-  end;
-
-  { Idf2DScene - класс, организующий все Idf2DRenderable-сущности}
-  Iglr2DScene = interface (IglrBaseScene)
-    ['{3D0DB66F-077A-406B-88A4-882972D8077A}']
-    {$REGION '[private]'}
-    function GetElement(aIndex: Integer): Iglr2DRenderable;
-    procedure SetElement(aIndex: Integer; const aElement: Iglr2DRenderable);
-
-    function GetOrigin(): TdfVec2f;
-    procedure SetOrigin(const aVec: TdfVec2f);
-    {$ENDREGION}
-
-    function RegisterElement(const aElement: Iglr2DRenderable): Integer;
-    procedure UnregisterElement(const aElement: Iglr2DRenderable);
-    procedure UnregisterElements();
-    function IsElementRegistered(const aElement: Iglr2DRenderable): Boolean;
-    procedure SortFarthestFirst();
-
-    property Elements[Index: Integer]: Iglr2DRenderable read GetElement write SetElement;
-
-    property Origin: TdfVec2f read GetOrigin write SetOrigin;
   end;
 
   {$ENDREGION}
@@ -966,6 +938,7 @@ type
     function NewGUITextBox(): IglrGUITextBox;
     function NewGUISlider(): IglrGUISlider;
     function New2DScene(): Iglr2DScene;
+    function New3DScene(): Iglr3DScene;
   end;
 
   procedure LoadRendererLib();

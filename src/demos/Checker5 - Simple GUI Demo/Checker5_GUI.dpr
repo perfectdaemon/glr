@@ -34,7 +34,6 @@ var
     if R.Input.IsKeyDown(VK_ESCAPE) then
       R.Stop();
     fpsCounter.Update(dt);
-//    R.WindowCaption := PChar(IntToStr(R.TextureSwitches));
   end;
 
   procedure OnMouseClick(Sender: IglrGUIElement; X, Y: Integer; mb: TglrMouseButton; shift: TglrMouseShiftState);
@@ -99,21 +98,20 @@ var
       TextureOffOver := t_off_over;
       Width := 40;
       Height := 40;
-      Position := dfVec2f(220, 180);
+      Position := dfVec3f(220, 180, 0);
       UpdateTexCoords();
     end;
 
-    scene1.RegisterElement(checkbox1);
+    scene1.RootNode.AddChild(checkbox1);
     R.GUIManager.RegisterElement(checkbox1);
   end;
 
   procedure InitTextBox();
   begin
     textbox1 := Factory.NewGuiTextBox();
-    textbox1.Position := dfVec2f(220, 300);
+    textbox1.Position := dfVec3f(220, 300, 5);
     textbox1.TextObject.Font := font1;
     textbox1.TextOffset := dfVec2f(8, 4);
-    textbox1.Z := 5;
     textbox1.Material.Diffuse := dfVec4f(0, 0, 0, 1);
     textbox1.TextObject.Material.Diffuse := dfVec4f(1, 1, 1, 1);
     textbox1.CursorObject.Material.Diffuse := dfVec4f(0.2, 0.2, 0.9, 1.0);
@@ -121,7 +119,7 @@ var
     textbox1.Width := 300;
     textbox1.Height := 30;
 
-    scene1.RegisterElement(textbox1);
+    scene1.RootNode.AddChild(textbox1);
     R.GUIManager.RegisterElement(textbox1);
     R.GUIManager.Focused := textbox1;
   end;
@@ -130,23 +128,24 @@ var
   begin
     text2 := Factory.NewText();
     text2.Font := font1;
-    text2.Position := dfVec2f(R.WindowWidth div 2, R.WindowHeight div 2 + 100);
+    text2.Position := dfVec3f(R.WindowWidth div 2, R.WindowHeight div 2 + 100, 0);
     text2.Text := 'Это многострочный'#13#10'текст, у которого есть длинные строки (и не только)'#13#10'А вообще-то он'#13#10'многострочный';
     text2.PivotPoint := ppTopCenter;
-    scene1.RegisterElement(text2);
+    scene1.RootNode.AddChild(text2);
 
     text2PivotPoint := Factory.NewHudSprite();
     with text2PivotPoint do
     begin
       Width := 5;
       Height := 5;
-      Z := 5;
       Position := text2.Position;
+      with Position do
+        z := 5;
       PivotPoint := ppCenter;
       Material.Diffuse := dfVec4f(1, 0, 0, 0.5);
     end;
 
-    scene1.RegisterElement(text2PivotPoint);
+    scene1.RootNode.AddChild(text2PivotPoint);
   end;
 
 begin
@@ -154,11 +153,7 @@ begin
 
   R := glrGetRenderer();
   Factory := glrGetObjectFactory();
-
   R.Init('settings.txt');
-
-  fpsCounter := TglrFPSCounter.Create(scene1, 'FPS:', 1, nil);
-
   R.OnUpdate := OnUpdate;
 
   //Text & font
@@ -168,11 +163,9 @@ begin
   font1.GenerateFromTTF('data\fonts\Journal.ttf');
 //  font1.GenerateFromTTF('data\fonts\BalticaCTT Regular.ttf', 'BalticaCTT');
 
-
-
   text1 := Factory.NewText();
   text1.Font := font1;
-  text1.Position := dfVec2f(50, 20);
+  text1.Position := dfVec3f(50, 20, 0);
   text1.Text := 'bla-bla';
 
   //GUI
@@ -217,20 +210,21 @@ begin
   Button1.OnMouseClick := OnMouseClick;
   Button1.Width := 256;//130;
   Button1.Height := 45;//43;
-  Button1.Position := dfVec2f(220, 20);
+  Button1.Position := dfVec3f(220, 20, 5);
 
   Button2.OnMouseOver := OnMouseOver;
   Button2.OnMouseOut := OnMouseOut;
   Button2.OnMouseClick := OnMouseClick;
   Button2.Width := 256;//130;
   Button2.Height := 45;//43;
-  Button2.Position := dfVec2f(220, 70);
+  Button2.Position := dfVec3f(220, 70, 5);
 
   scene1 := Factory.New2DScene();
-  scene1.RegisterElement(text1);
-  scene1.RegisterElement(Button1);
-  scene1.RegisterElement(Button2);
+  scene1.RootNode.AddChild(text1);
+  scene1.RootNode.AddChild(Button1);
+  scene1.RootNode.AddChild(Button2);
   R.RegisterScene(scene1);
+  fpsCounter := TglrFPSCounter.Create(scene1, 'FPS:', 1, nil);
 
   R.GUIManager.RegisterElement(Button1);
   R.GUIManager.RegisterElement(Button2);
@@ -241,7 +235,8 @@ begin
 
   R.Start();
   R.DeInit();
-  scene1.UnregisterElements();
+
+  fpsCounter.Free;
   R := nil;
   scene1 := nil;
   Button1 := nil;
@@ -258,8 +253,6 @@ begin
   text1 := nil;
   text2 := nil;
   text2PivotPoint := nil;
-
-  fpsCounter.Free;
 
   UnLoadRendererLib();
 end.

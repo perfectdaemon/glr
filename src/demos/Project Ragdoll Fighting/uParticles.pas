@@ -54,9 +54,9 @@ begin
   spr.PivotPoint := ppCenter;
   spr.UpdateTexCoords();
   spr.SetSizeToTextureSize();
-  spr.Z := Z_HUD + particlesInternalZ;
+  spr.PPosition.z := Z_HUD + particlesInternalZ;
   Inc(particlesInternalZ);
-  scene.RegisterElement(spr);
+  scene.RootNode.AddChild(spr);
 
   OnFree();
 end;

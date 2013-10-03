@@ -19,9 +19,12 @@ type
 
     FDir, FRight, FUp, FPos: TdfVec3f;
     FModelMatrix: TdfMat4f;
+    FAbsMatrix: TdfMat4f;
 
     function GetPos(): TdfVec3f;
     procedure SetPos(const aPos: TdfVec3f); virtual;
+    function GetPPos(): PdfVec3f;
+    procedure SetPPos(const aPos: PdfVec3f); virtual;
     function GetUp(): TdfVec3f;
     procedure SetUp(const aUp: TdfVec3f);
     function GetDir(): TdfVec3f;
@@ -37,8 +40,11 @@ type
     function GetParent(): IglrNode;
     procedure SetParent(aParent: IglrNode);
     function GetChildsCount: Integer;
+    function GetAbsMatrix(): TdfMat4f;
+    procedure SetAbsMatrix(const aMat: TdfMat4f); virtual;
 
     procedure UpdateDirUpRight(NewDir, NewUp, NewRight: TdfVec3f); virtual;
+    procedure UpdateAbsoluteMatrix(); virtual;
 
     procedure RenderChilds(); virtual;
   public
@@ -51,21 +57,16 @@ type
     property Direction: TdfVec3f read GetDir write SetDir;
     property Right: TdfVec3f read GetRight write SetRight;
     property ModelMatrix: TdfMat4f read GetModel write SetModel;
+    property AbsoluteMatrix: TdfMat4f read GetAbsMatrix write SetAbsMatrix;
 
     property Visible: Boolean read GetVis write SetVis;
     property Parent: IglrNode read GetParent write SetParent;
     property Childs[Index: Integer]: IglrNode read GetChild write SetChild;
     property ChildsCount: Integer read GetChildsCount;
-    //Добавить уже существующий рендер-узел себе в потомки
     function AddChild(aChild: IglrNode): Integer;
-    //Добавить нового потомка
-    function AddNewChild(): IglrNode;
-    //Удалить потомка из списка по индексу. Физически объект остается в памяти.
     procedure RemoveChild(Index: Integer); overload;
-    //Удалить потомка из списка по указателю. Физически объект остается в памяти.
     procedure RemoveChild(aChild: IglrNode); overload;
-    //Удалить потомка из списка по индексу. Физически объект уничтожается.
-    procedure FreeChild(Index: Integer);
+    procedure RemoveAllChilds();
 
     procedure Render(); virtual;
   end;
@@ -91,19 +92,12 @@ begin
   end;
 end;
 
-function TglrNode.AddNewChild: IglrNode;
-begin
-  Result := TglrNode.Create;
-  Result.Parent := Self;
-  Self._Release();
-  FChilds.Add(Result);
-end;
-
 constructor TglrNode.Create;
 begin
   inherited;
   FChilds := TInterfaceList.Create;
   FModelMatrix.Identity;
+  FAbsMatrix.Identity;
   SetModel(FModelMatrix);
   FVisible := True;
 end;
@@ -119,16 +113,10 @@ begin
   inherited;
 end;
 
-procedure TglrNode.FreeChild(Index: Integer);
+function TglrNode.GetAbsMatrix: TdfMat4f;
 begin
-  if (Index >= 0) and (Index < FChilds.Count) then
-    if Assigned(FChilds[Index]) then
-    begin
-//      RemoveChild(Index);
-      //Это зануляет ссылку в листе. Значит, объект должен освободиться,
-      //если на него нет других ссылок
-      FChilds.Delete(Index);
-    end;
+  UpdateAbsoluteMatrix();
+  Result := FAbsMatrix;
 end;
 
 function TglrNode.GetChild(Index: Integer): IglrNode;
@@ -178,6 +166,11 @@ begin
   Result := FPos;
 end;
 
+function TglrNode.GetPPos: PdfVec3f;
+begin
+  Result := @FPos;
+end;
+
 function TglrNode.GetUp: TdfVec3f;
 begin
   Result := FUp;
@@ -197,10 +190,16 @@ begin
       FChilds.Delete(Index);
 end;
 
+procedure TglrNode.RemoveAllChilds;
+begin
+  FChilds.Clear();
+end;
+
 procedure TglrNode.RemoveChild(AChild: IglrNode);
 begin
   //Не проверяем, так как внутри TInterfaceList есть проверка
   FChilds.Remove(aChild);
+  aChild.Parent := nil;
 end;
 
 procedure TglrNode.Render();
@@ -208,6 +207,7 @@ begin
   if not FVisible then
     Exit();
   gl.PushMatrix();
+    FModelMatrix.Pos := FPos;
     gl.MultMatrixf(FModelMatrix);
     RenderChilds();
   gl.PopMatrix();
@@ -219,6 +219,16 @@ var
 begin
   for i := 0 to FChilds.Count - 1 do
     IglrNode(FChilds[i]).Render;
+end;
+
+procedure TglrNode.SetAbsMatrix(const aMat: TdfMat4f);
+var
+  i: Integer;
+begin
+  FAbsMatrix := aMat;
+  for i := 0 to FChilds.Count - 1 do
+    with IglrNode(FChilds[i]) do
+      AbsoluteMatrix := FModelMatrix * Self.FModelMatrix;
 end;
 
 procedure TglrNode.SetChild(Index: Integer; aChild: IglrNode);
@@ -258,19 +268,26 @@ begin
     FUp   := dfVec3f(e10, e11, e12);
     FDir  := dfVec3f(e20, e21, e22);
   end;
+
+  UpdateAbsoluteMatrix();
 end;
 
 procedure TglrNode.SetParent(aParent: IglrNode);
 begin
-  if Assigned(Parent) and (Parent <> aParent) then
-    FParent.RemoveChild(Self);
   FParent := aParent;
+  UpdateAbsoluteMatrix();
 end;
 
 procedure TglrNode.SetPos(const aPos: TdfVec3f);
 begin
   FPos := aPos;
   FModelMatrix.Pos := FPos;
+  UpdateAbsoluteMatrix();
+end;
+
+procedure TglrNode.SetPPos(const aPos: PdfVec3f);
+begin
+  SetPos(aPos^);
 end;
 
 procedure TglrNode.SetUp(const aUp: TdfVec3f);
@@ -290,6 +307,14 @@ begin
   FVisible := aVis;
 end;
 
+procedure TglrNode.UpdateAbsoluteMatrix;
+begin
+  if not Assigned(FParent) then
+    AbsoluteMatrix := FModelMatrix
+  else
+    AbsoluteMatrix := FModelMatrix * FParent.AbsoluteMatrix;
+end;
+
 procedure TglrNode.UpdateDirUpRight(NewDir, NewUp, NewRight: TdfVec3f);
 begin
   with FModelMatrix do
@@ -302,6 +327,8 @@ begin
   FRight := NewRight;
   FUp   := NewUp;
   FDir  := NewDir;
+
+  UpdateAbsoluteMatrix();
 end;
 
 end.

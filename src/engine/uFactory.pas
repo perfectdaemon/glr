@@ -8,14 +8,7 @@ uses
 
 type
   TglrObjectFactory = class (TglrInterfacedObject, IglrObjectFactory)
-  protected
-//    FObjectList: TObjectList;
-//
-//    procedure FreeAllObjects();
   public
-    constructor Create(); virtual;
-    destructor Destroy(); override;
-
     function NewNode(): IglrNode;
     function NewUserRender(): IglrUserRenderable;
     function NewHudSprite(): IglrSprite;
@@ -30,6 +23,7 @@ type
     function NewGUITextBox(): IglrGUITextBox;
     function NewGUISlider(): IglrGUISlider;
     function New2DScene(): Iglr2DScene;
+    function New3DScene(): Iglr3DScene;
   end;
 
 var
@@ -48,7 +42,6 @@ var
   obj: TglrInterfacedObject;
 begin
   obj := TglrUserRenderable.Create();
-//  FObjectList.Add(obj);
   Result := obj as IglrUserRenderable;
 end;
 
@@ -57,7 +50,6 @@ var
   obj: TglrInterfacedObject;
 begin
   obj := TglrHUDSprite.Create();
-//  FObjectList.Add(obj);
   Result := obj as IglrSprite;
 end;
 
@@ -66,7 +58,6 @@ var
   obj: TglrInterfacedObject;
 begin
   obj := TglrHUDSprite.Create();
-//  FObjectList.Add(obj);
   Result := obj as IglrSprite;
 end;
 
@@ -75,7 +66,6 @@ var
   obj: TglrInterfacedObject;
 begin
   obj := TglrMaterial.Create();
-//  FObjectList.Add(obj);
   Result := obj as IglrMaterial;
 end;
 
@@ -84,7 +74,6 @@ var
   obj: TglrInterfacedObject;
 begin
   obj := TglrNode.Create();
-//  FObjectList.Add(obj);
   Result := obj as IglrNode;
 end;
 
@@ -93,8 +82,12 @@ var
   obj: TglrInterfacedObject;
 begin
   obj := TglrTexture.Create();
-//  FObjectList.Add(obj);
   Result := obj as IglrTexture;
+end;
+
+function TglrObjectFactory.New3DScene: Iglr3DScene;
+begin
+  Result := Tglr3DScene.Create();
 end;
 
 function TglrObjectFactory.NewFont(): IglrFont;
@@ -102,7 +95,6 @@ var
   obj: TglrInterfacedObject;
 begin
   obj := TglrFont.Create();
-//  FObjectList.Add(obj);
   Result:= obj as IglrFont;
 end;
 
@@ -111,7 +103,6 @@ var
   obj: TglrInterfacedObject;
 begin
   obj := TglrText.Create();
-//  FObjectList.Add(obj);
   Result := obj as IglrText;
 end;
 
@@ -120,7 +111,6 @@ var
   obj: TglrInterfacedObject;
 begin
   obj := TglrGUIButton.Create();
-//  FObjectList.Add(obj);
   Result := obj as IglrGUIButton;
 end;
 
@@ -129,7 +119,6 @@ var
   obj: TglrInterfacedObject;
 begin
   obj := TglrGUITextButton.Create();
-//  FObjectList.Add(obj);
   Result := obj as IglrGUITextButton;
 end;
 
@@ -138,7 +127,6 @@ var
   obj: TglrInterfacedObject;
 begin
   obj := TglrGUICheckBox.Create();
-//  FObjectList.Add(obj);
   Result := obj as IglrGUICheckBox;
 end;
 
@@ -147,7 +135,6 @@ var
   obj: TglrInterfacedObject;
 begin
   obj := TglrGUITextBox.Create();
-//  FObjectList.Add(obj);
   Result := obj as IglrGUITextBox;
 end;
 
@@ -156,7 +143,6 @@ var
   obj: TglrInterfacedObject;
 begin
   obj := TglrGUISlider.Create();
-//  FObjectList.Add(obj);
   Result := obj as IglrGUISlider;
 end;
 
@@ -165,32 +151,8 @@ var
   obj: TglrInterfacedObject;
 begin
   obj := Tglr2DScene.Create();
-//  FObjectList.Add(obj);
   Result := obj as Iglr2DScene;
 end;
-
-
-constructor TglrObjectFactory.Create;
-begin
-  inherited;
-//  FObjectList := TObjectList.Create(False);
-end;
-
-destructor TglrObjectFactory.Destroy;
-begin
-//  FreeAllObjects();
-//  FObjectList.Free();
-  inherited;
-end;
-
-//procedure TglrObjectFactory.FreeAllObjects;
-//var
-//  i: Integer;
-//begin
-//  for i := 0 to FObjectList.Count - 1 do
-//    if Assigned(FObjectList[i]) then
-//      FObjectList[i].Free();
-//end;
 
 initialization
   MainFactory := TglrObjectFactory.Create();

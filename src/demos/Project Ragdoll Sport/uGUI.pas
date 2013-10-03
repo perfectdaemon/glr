@@ -59,15 +59,14 @@ begin
   FPoints := 0;
 
   FPointsText := Factory.NewText();
-  FPointsText.Position := dfVec2f(12, 60);
+  FPointsText.Position := dfVec3f(12, 60, Z_HUD);
   FPointsText.PivotPoint := ppTopLeft;
   FPointsText.Font := fontCooper;
   FPointsText.Material.Diffuse := dfVec4f(0.2, 0.2, 0.2, 1.0);
   FPointsText.Text := 'ќчки: ';
-  FPointsText.Z := Z_HUD;
 
   FCenterText := Factory.NewText();
-  FCenterText.Position := dfVec2f(R.WindowWidth div 2, 40);
+  FCenterText.Position := dfVec3f(R.WindowWidth div 2, 40, Z_HUD);
   FCenterText.PivotPoint := ppTopCenter;
   FCenterText.Font := fontCooper;
   FCenterText.Material.Diffuse := dfVec4f(0.2, 0.2, 0.2, 1.0);
@@ -75,18 +74,16 @@ begin
     + #13#10'»спользуй ноги или голову, за руки Ч штраф!'
     + #13#10'—трелки Ч двигатьс€'
     + #13#10'Space Ч пауза вкл/выкл';
-  FCenterText.Z := Z_HUD;
 
   FShowText := Factory.NewText();
-  FShowText.Position := dfVec2f(R.WindowWidth div 2, R.WindowHeight div 2);
+  FShowText.Position := dfVec3f(R.WindowWidth div 2, R.WindowHeight div 2, Z_HUD);
   FShowText.PivotPoint := ppCenter;
   FShowText.Font := fontCooper;
   FShowText.Material.Diffuse := dfVec4f(0.2, 0.2, 0.2, 1.0);
-  FShowText.Z := Z_HUD;
 
-  aScene.RegisterElement(FCenterText);
-  aScene.RegisterElement(FShowText);
-  aScene.RegisterElement(FPointsText);
+  aScene.RootNode.AddChild(FCenterText);
+  aScene.RootNode.AddChild(FShowText);
+  aScene.RootNode.AddChild(FPointsText);
 end;
 
 destructor TglrInGameGUI.Destroy;

@@ -73,19 +73,21 @@ begin
   aSprite.Width := 40;
   aSprite.Height := 40;
   aSprite.Material.Diffuse := dfVec4f(0.2, 0.2, 0.2, 1);
-  aSprite.Position := dfVec2f(140, 140);
-  aSprite.Z := Z_DROPOBJECTS;
+  aSprite.Position2D := dfVec2f(140, 140);
+  with aSprite.Position do
+    z := Z_DROPOBJECTS;
 
   aText.Font := fontCooper;
   aText.PivotPoint := ppCenter;
-  aText.Position := aSprite.Position + dfVec2f(TEXT_OFFSET_X, TEXT_OFFSET_Y);
-  aText.Z := Z_DROPOBJECTS + 1;
+  aText.Position2D := aSprite.Position2D + dfVec2f(TEXT_OFFSET_X, TEXT_OFFSET_Y);
+  with aText.Position do
+    z := Z_DROPOBJECTS + 1;
   aText.Material.Diffuse := dfVec4f(1, 1, 1, 1);
 
-  mainScene.RegisterElement(aSprite);
-  mainScene.RegisterElement(aText);
+  mainScene.RootNode.AddChild(aSprite);
+  mainScene.RootNode.AddChild(aText);
 
-  aBody := dfb2InitCircle(b2world, aSprite.Width / 2, aSprite.Position,
+  aBody := dfb2InitCircle(b2world, aSprite.Width / 2, aSprite.Position2D,
     0.2, 0.4, 0.7,
     $FFFF, $F000, 0);
 
@@ -131,7 +133,7 @@ end;
 procedure TpdDropObject.Update(const dt: Double);
 begin
   SyncObjects(aBody, aSprite);
-  aText.Position := aSprite.Position + dfVec2f(TEXT_OFFSET_X, TEXT_OFFSET_Y);;
+  aText.Position2D := aSprite.Position2D + dfVec2f(TEXT_OFFSET_X, TEXT_OFFSET_Y);;
   aTimeRemain := aTimeRemain - dt;
   aText.Text := IntToStr(Trunc(aTimeRemain));
 end;

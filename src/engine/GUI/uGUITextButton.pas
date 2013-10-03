@@ -38,7 +38,7 @@ constructor TglrGUITextButton.Create;
 begin
   inherited;
   FText := GetObjectFactory().NewText();
-  FText.AbsolutePosition := False;
+//  FText.AbsolutePosition := False;
 end;
 
 destructor TglrGUITextButton.Destroy;

@@ -17,7 +17,6 @@ type
   private
     FFrames: Integer;
     FNode: IglrNode;
-    FScene: Iglr2DScene;
     FTime, FFreq: Double;
     FText: String;
 
@@ -26,8 +25,7 @@ type
   public
     TextObject: IglrText;
     FontObject: IglrFont;
-//    constructor Create(aRootNode: IglrNode; aText: String; aFreq: Double; aFont: IglrFont = nil); overload; virtual;
-//    constructor Create(aRoot: IglrRenderable; aText: String; aFreq: Double; aFont: IglrFont = nil); overload; virtual;
+    constructor Create(aRootNode: IglrNode; aText: String; aFreq: Double; aFont: IglrFont = nil); overload; virtual;
     constructor Create(aScene: Iglr2DScene; aText: String; aFreq: Double; aFont: IglrFont = nil); overload; virtual;
     destructor Destroy; override;
 
@@ -72,7 +70,7 @@ type
 
   TglrDebugInfo = class
   private
-    FScene: Iglr2DScene;
+    FNode: IglrNode;
     FDebugs: array of TglrDebugRec;
     procedure ReconstructText();
   public
@@ -87,7 +85,7 @@ type
     procedure UpdateParam(aIndex: Integer; aParam: TdfVec2f); overload;
     procedure UpdateParam(aIndex: Integer; aParam: TdfVec3f); overload;
 
-    constructor Create(aScene: Iglr2DScene); virtual;
+    constructor Create(aNode: IglrNode); virtual;
     destructor Destroy; override;
   end;
 
@@ -116,35 +114,27 @@ end;
 
 { TdfFPSCounter }
 
-//constructor TglrFPSCounter.Create(aRootNode: IglrNode; aText: String; aFreq: Double; aFont: IglrFont);
-//begin
-//  _Create(aText, aFreq, aFont);
-//
-//  FNode := aRootNode.AddNewChild();
-//  FNode.Renderable := TextObject;
-//
-//  FScene := nil;
-//end;
+constructor TglrFPSCounter.Create(aRootNode: IglrNode; aText: String; aFreq: Double; aFont: IglrFont);
+begin
+  _Create(aText, aFreq, aFont);
+  FNode := aRootNode;
+  FNode.AddChild(TextObject);
+end;
 
 constructor TglrFPSCounter.Create(aScene: Iglr2DScene; aText: String;
   aFreq: Double; aFont: IglrFont);
 begin
   _Create(aText, aFreq, aFont);
-
-  FScene := aScene;
-  FScene.RegisterElement(TextObject);
-
-  FNode := nil;
+  FNode := aScene.RootNode;
+  FNode.AddChild(TextObject);
 end;
 
 destructor TglrFPSCounter.Destroy;
 begin
+  FNode.RemoveChild(TextObject);
   FontObject := nil;
   TextObject := nil;
   FNode := nil;
-  if Assigned(FScene) then
-    FScene.UnregisterElement(TextObject);
-  FScene := nil;
   inherited;
 end;
 
@@ -178,7 +168,7 @@ begin
 
   TextObject := glrGetObjectFactory().NewText;
   TextObject.Font := FontObject;
-  TextObject.Position := dfVec2f(1, 1);
+  TextObject.Position2D := dfVec2f(1, 1);
 end;
 
 constructor TglrAtlas.Create;
@@ -295,23 +285,22 @@ begin
   Result := i;
 end;
 
-constructor TglrDebugInfo.Create(aScene: Iglr2DScene);
+constructor TglrDebugInfo.Create(aNode: IglrNode);
 begin
   inherited Create();
   SetLength(FDebugs, 0);
   FText := glrGetObjectFactory().NewText();
   FText.Font := glrNewFilledFont('Courier New', 12);
-  FText.Z := 100;
-  FText.Position := dfVec2f(0, 0);
-  FScene := aScene;
-  FScene.RegisterElement(FText);
+  FText.Position := dfVec3f(0, 0, 100);
+  FNode := aNode;
+  FNode.AddChild(FText);
 end;
 
 destructor TglrDebugInfo.Destroy;
 begin
-  FScene.UnregisterElement(FText);
-  FScene := nil;
+  FNode.RemoveChild(FText);
   FText := nil;
+  FNode := nil;
 
   SetLength(FDebugs, 0);
   inherited;

@@ -159,13 +159,13 @@ procedure TopBlockTween(aObject: TdfTweenObject; aValue: Single);
 begin
   with aObject as TpdGameOver do
   begin
-    FScores.PPosition.y := aValue;
-    FMaxPower.PPosition.y := aValue + MAXPOWER_OFFSET_Y;
-    FFoulsCount.PPosition.y := aValue + FOULS_OFFSET_Y;
+    with FScores.Position do y := aValue;
+    with FMaxPower.Position do y := aValue + MAXPOWER_OFFSET_Y;
+    with FFoulsCount.Position do y := aValue + FOULS_OFFSET_Y;
 
-    FSubmitScore.PPosition.y := aValue;
-    FPlayerName.PPosition.y := aValue + TEXTBOX_PLAYERNAME_OFFSET_Y;
-    FBtnSubmit.PPosition.y := FPlayerName.Position.y + BTN_SUBMIT_OFFSET_Y;
+    with FSubmitScore.Position do y := aValue;
+    with FPlayerName.Position do y := aValue + TEXTBOX_PLAYERNAME_OFFSET_Y;
+    with FBtnSubmit.Position do y := FPlayerName.Position.y + BTN_SUBMIT_OFFSET_Y;
   end;
 end;
 
@@ -173,9 +173,9 @@ procedure SubmitBlockTween(aObject: TdfTweenObject; aValue: Single);
 begin
   with aObject as TpdGameOver do
   begin
-    FSubmitScore.PPosition.y := aValue;
-    FPlayerName.PPosition.y := aValue + TEXTBOX_PLAYERNAME_OFFSET_Y;
-    FBtnSubmit.PPosition.y := FPlayerName.Position.y + BTN_SUBMIT_OFFSET_Y;
+    with FSubmitScore.Position do y := aValue;
+    with FPlayerName.Position do y := aValue + TEXTBOX_PLAYERNAME_OFFSET_Y;
+    with FBtnSubmit.Position do y := FPlayerName.Position.y + BTN_SUBMIT_OFFSET_Y;
   end;
 end;
 
@@ -186,10 +186,16 @@ begin
   with (aObject as TpdGameOver) do
     for i := 0 to High(FTable) do
     begin
-      FTable[i].tPlayerName.PPosition.x := aValue;
-      FTable[i].tScore.PPosition.x := aValue + TABLE_COL_SCORE_OFFSET_X;
-      FTable[i].tMaxPower.PPosition.x := aValue + TABLE_COL_MAXPOWER_OFFSET_X;
+      with FTable[i].tPlayerName.Position do x := aValue;
+      with FTable[i].tScore.Position do x := aValue + TABLE_COL_SCORE_OFFSET_X;
+      with FTable[i].tMaxPower.Position do x := aValue + TABLE_COL_MAXPOWER_OFFSET_X;
     end;
+end;
+
+procedure InterfacePositionXTween(aInt: IInterface; aValue: Single);
+begin
+  with (aInt as IglrRenderable).Position do
+    x := aValue;
 end;
 
 { TpdPauseMenu }
@@ -212,7 +218,7 @@ var
   i: Integer;
 begin
   FSync.Free();
-  FScene.UnregisterElements();
+//  FScene.UnregisterElements();
   for i := 0 to High(FTable) do
     with FTable[i] do
     begin
@@ -282,15 +288,14 @@ begin
   begin
     Material.Diffuse := dfVec4f(0.0, 0, 0, 0.0);
     Material.Texture.BlendingMode := tbmTransparency;
-    Z := Z_INGAMEMENU;
     PivotPoint := ppTopLeft;
     Width := R.WindowWidth;
     Height := R.WindowHeight;
-    Position := dfVec2f(0, 0);
+    Position := dfVec3f(0, 0, Z_INGAMEMENU);
   end;
 
 //  FScene.RegisterElement(FFakeBackground);
-  FScene.RegisterElement(FBackground);
+  FScene.RootNode.AddChild(FBackground);
 end;
 
 procedure TpdGameOver.LoadButtons();
@@ -304,8 +309,9 @@ begin
   with FBtnReplay do
   begin
     PivotPoint := ppCenter;
-    Position := dfVec2f(R.WindowWidth div 2 + BTN_RETRY_OFFSET_X, R.WindowHeight +  BTN_RETRY_OFFSET_Y);
-    Z := Z_INGAMEMENU + 2;
+    Position := dfVec3f(R.WindowWidth div 2 + BTN_RETRY_OFFSET_X,
+      R.WindowHeight +  BTN_RETRY_OFFSET_Y,
+      Z_INGAMEMENU + 2);
     TextureNormal := atlasMain.LoadTexture(REPLAY_NORMAL_TEXTURE);
     TextureOver := atlasMain.LoadTexture(REPLAY_OVER_TEXTURE);
     TextureClick := atlasMain.LoadTexture(REPLAY_CLICK_TEXTURE);
@@ -317,8 +323,9 @@ begin
   with FBtnMenu do
   begin
     PivotPoint := ppCenter;
-    Position := dfVec2f(R.WindowWidth div 2 + BTN_MENU_OFFSET_X, R.WindowHeight + BTN_MENU_OFFSET_Y);
-    Z := Z_INGAMEMENU + 2;
+    Position := dfVec3f(R.WindowWidth div 2 + BTN_MENU_OFFSET_X,
+      R.WindowHeight + BTN_MENU_OFFSET_Y,
+      Z_INGAMEMENU + 2);
     TextureNormal := atlasMain.LoadTexture(MENU_NORMAL_TEXTURE);
     TextureOver := atlasMain.LoadTexture(MENU_OVER_TEXTURE);
     TextureClick := atlasMain.LoadTexture(MENU_CLICK_TEXTURE);
@@ -339,15 +346,15 @@ begin
     Material.Texture := atlasMain.LoadTexture(TEXTBOX_TEXTURE);
     UpdateTexCoords();
     SetSizeToTextureSize();
-    Position := FSubmitScore.Position + dfVec2f(TEXTBOX_PLAYERNAME_OFFSET_X, TEXTBOX_PLAYERNAME_OFFSET_Y);
-    Z := Z_INGAMEMENU + 2;
+    Position2D := FSubmitScore.Position2D + dfVec2f(TEXTBOX_PLAYERNAME_OFFSET_X, TEXTBOX_PLAYERNAME_OFFSET_Y);
+    with Position do z := Z_INGAMEMENU + 2;
   end;
 
   with FBtnSubmit do
   begin
     PivotPoint := ppCenter;
-    Position := FPlayerName.Position + dfVec2f(FPlayerName.Width + BTN_SUBMIT_OFFSET_X, BTN_SUBMIT_OFFSET_Y);
-    Z := Z_INGAMEMENU + 2;
+    Position2D := FPlayerName.Position2D + dfVec2f(FPlayerName.Width + BTN_SUBMIT_OFFSET_X, BTN_SUBMIT_OFFSET_Y);
+    with Position do z := Z_INGAMEMENU + 2;
     TextureNormal := atlasMain.LoadTexture(SUBMIT_NORMAL_TEXTURE);
     TextureOver := atlasMain.LoadTexture(SUBMIT_OVER_TEXTURE);
     TextureClick := atlasMain.LoadTexture(SUBMIT_CLICK_TEXTURE);
@@ -363,10 +370,10 @@ begin
   FBtnMenu.OnMouseClick := OnMouseClick;
   FBtnSubmit.OnMouseClick := OnMouseClick;
 
-  FScene.RegisterElement(FBtnReplay);
-  FScene.RegisterElement(FBtnMenu);
-  FScene.RegisterElement(FBtnSubmit);
-  FScene.RegisterElement(FPlayerName);
+  FScene.RootNode.AddChild(FBtnReplay);
+  FScene.RootNode.AddChild(FBtnMenu);
+  FScene.RootNode.AddChild(FBtnSubmit);
+  FScene.RootNode.AddChild(FPlayerName);
 end;
 
 procedure TpdGameOver.LoadRecords;
@@ -375,11 +382,10 @@ procedure TpdGameOver.LoadRecords;
   begin
     Result := Factory.NewText();
     Result.Font := fontCooper;
-    Result.Z := Z_INGAMEMENU + 2;
     Result.Text := aText;
-    Result.Position := aPos;
+    Result.Position := dfVec3f(aPos, Z_INGAMEMENU + 2);
     Result.Material.Diffuse := aColor;
-    FScene.RegisterElement(Result);
+    FScene.RootNode.AddChild(Result);
   end;
 
 var
@@ -389,11 +395,11 @@ begin
   for i := 0 to High(FTable) do
   with FTable[i] do
   begin
-    FScene.UnregisterElement(tPlayerName);
+    FScene.RootNode.RemoveChild(tPlayerName);
     tPlayerName := nil;
-    FScene.UnregisterElement(tScore);
+    FScene.RootNode.RemoveChild(tScore);
     tScore := nil;
-    FScene.UnregisterElement(tMaxPower);
+    FScene.RootNode.RemoveChild(tMaxPower);
     tMaxPower := nil;
   end;
 
@@ -412,32 +418,32 @@ begin
 
     //Шапка
     FTable[0].tPlayerName := InitText('Игрок',
-      FOnlineTableText.Position
+      FOnlineTableText.Position2D
       + dfVec2f(TABLE_COL_PLAYER_OFFSET_X, TABLE_COL_PLAYER_OFFSET_Y),
       dfVec4f(1, 0, 0, 1));
     FTable[0].tScore := InitText('Очки',
-      FOnlineTableText.Position
+      FOnlineTableText.Position2D
       + dfVec2f(TABLE_COL_SCORE_OFFSET_X, TABLE_COL_SCORE_OFFSET_Y),
       dfVec4f(1, 0, 0, 1));
     FTable[0].tMaxPower := InitText('Лучший удар',
-      FOnlineTableText.Position
+      FOnlineTableText.Position2D
       + dfVec2f(TABLE_COL_MAXPOWER_OFFSET_X, TABLE_COL_MAXPOWER_OFFSET_Y),
       dfVec4f(1, 0, 0, 1));
 
     for i := 1 to High(FTable) do
     begin
       FTable[i].tPlayerName := InitText(rawData[i - 1].playerName,
-        FOnlineTableText.Position
+        FOnlineTableText.Position2D
         + dfVec2f(TABLE_COL_PLAYER_OFFSET_X, TABLE_COL_PLAYER_OFFSET_Y)
         + dfVec2f(0, TABLE_ROW_HEIGHT * i),
         dfVec4f(1, 1, 1, 1));
       FTable[i].tScore := InitText(IntToStr(rawData[i - 1].score),
-        FOnlineTableText.Position
+        FOnlineTableText.Position2D
         + dfVec2f(TABLE_COL_SCORE_OFFSET_X, TABLE_COL_SCORE_OFFSET_Y)
         + dfVec2f(0, TABLE_ROW_HEIGHT * i),
         dfVec4f(1, 1, 1, 1));
       FTable[i].tMaxPower := InitText(IntToStr(rawData[i - 1].maxPower),
-        FOnlineTableText.Position
+        FOnlineTableText.Position2D
         + dfVec2f(TABLE_COL_MAXPOWER_OFFSET_X, TABLE_COL_MAXPOWER_OFFSET_Y)
         + dfVec2f(0, TABLE_ROW_HEIGHT * i),
         dfVec4f(1, 1, 1, 1));
@@ -458,36 +464,32 @@ begin
   begin
     Font := fontCooper;
     Material.Diffuse := colorWhite;
-    Z := Z_INGAMEMENU + 2;
     PivotPoint := ppTopLeft;
-    Position := dfVec2f(SCORES_OFFSET_X, SCORES_OFFSET_Y);
+    Position := dfVec3f(SCORES_OFFSET_X, SCORES_OFFSET_Y, Z_INGAMEMENU + 2);
   end;
 
   with FMaxPower do
   begin
     Font := fontCooper;
     Material.Diffuse := colorWhite;
-    Z := Z_INGAMEMENU + 2;
     PivotPoint := ppTopLeft;
-    Position := FScores.Position + dfVec2f(MAXPOWER_OFFSET_X, MAXPOWER_OFFSET_Y);
+    Position := FScores.Position + dfVec3f(MAXPOWER_OFFSET_X, MAXPOWER_OFFSET_Y, 0);
   end;
 
   with FFoulsCount do
   begin
     Font := fontCooper;
     Material.Diffuse := colorWhite;
-    Z := Z_INGAMEMENU + 2;
     PivotPoint := ppTopLeft;
-    Position := FScores.Position +  dfVec2f(FOULS_OFFSET_X, FOULS_OFFSET_Y);
+    Position := FScores.Position +  dfVec3f(FOULS_OFFSET_X, FOULS_OFFSET_Y, 0);
   end;
 
   with FSubmitScore do
   begin
     Font := fontCooper;
     Material.Diffuse := colorWhite;
-    Z := Z_INGAMEMENU + 2;
     PivotPoint := ppTopLeft;
-    Position := dfVec2f(R.WindowWidth div 2 + SUBMIT_OFFSET_X, SUBMIT_OFFSET_Y);
+    Position := dfVec3f(R.WindowWidth div 2 + SUBMIT_OFFSET_X, SUBMIT_OFFSET_Y, Z_INGAMEMENU + 2);
     Text := 'Загрузить результат на сервер';
   end;
 
@@ -495,16 +497,15 @@ begin
   begin
     Font := fontCooper;
     Material.Diffuse := colorWhite;
-    Z := Z_INGAMEMENU + 2;
     PivotPoint := ppTopLeft;
-    Position := dfVec2f(TEXT_TABLE_OFFSET_X, TEXT_TABLE_OFFSET_Y);
+    Position := dfVec3f(TEXT_TABLE_OFFSET_X, TEXT_TABLE_OFFSET_Y, Z_INGAMEMENU + 2);
   end;
 
-  FScene.RegisterElement(FScores);
-  FScene.RegisterElement(FMaxPower);
-  FScene.RegisterElement(FFoulsCount);
-  FScene.RegisterElement(FSubmitScore);
-  FScene.RegisterElement(FOnlineTableText);
+  FScene.RootNode.AddChild(FScores);
+  FScene.RootNode.AddChild(FMaxPower);
+  FScene.RootNode.AddChild(FFoulsCount);
+  FScene.RootNode.AddChild(FSubmitScore);
+  FScene.RootNode.AddChild(FOnlineTableText);
 end;
 
 procedure TpdGameOver.Load;
@@ -553,10 +554,14 @@ begin
       FGUIManager.Focused := FPlayerName;
       FBtnSubmit.Enabled := True;
 
-      Tweener.AddTweenPSingle(@FBtnReplay.PPosition.x, tsExpoEaseIn,
-        -100, R.WindowWidth div 2 + BTN_RETRY_OFFSET_X, 1.5, 1.0);
-      Tweener.AddTweenPSingle(@FBtnMenu.PPosition.x, tsExpoEaseIn,
-        R.WindowWidth + 100, R.WindowWidth div 2 + BTN_MENU_OFFSET_X, 1.5, 1.0);
+      Tweener.AddTweenInterface(FBtnReplay, InterfacePositionXTween,
+        tsExpoEaseIn, -100, R.WindowWidth div 2 + BTN_RETRY_OFFSET_X, 1.5, 1.0);
+//      Tweener.AddTweenPSingle(@FBtnReplay.PPosition.x, tsExpoEaseIn,
+//        -100, R.WindowWidth div 2 + BTN_RETRY_OFFSET_X, 1.5, 1.0);
+      Tweener.AddTweenInterface(FBtnMenu, InterfacePositionXTween,
+        tsExpoEaseIn, R.WindowWidth + 100, R.WindowWidth div 2 + BTN_MENU_OFFSET_X, 1.5, 1.0);
+//      Tweener.AddTweenPSingle(@FBtnMenu.PPosition.x, tsExpoEaseIn,
+//        R.WindowWidth + 100, R.WindowWidth div 2 + BTN_MENU_OFFSET_X, 1.5, 1.0);
 
       Tweener.AddTweenSingle(Self, @TopBlockTween, tsExpoEaseIn, -95, SCORES_OFFSET_Y, 1.5, 1.0);
     end;
@@ -571,10 +576,15 @@ begin
       FGUIManager.UnregisterElement(FBtnSubmit);
       FGuiManager.UnregisterElement(FPlayerName);
 
-      Tweener.AddTweenPSingle(@FBtnReplay.PPosition.x, tsExpoEaseIn,
-        R.WindowWidth div 2 + BTN_RETRY_OFFSET_X, -100, 1.5, 0.0);
-      Tweener.AddTweenPSingle(@FBtnMenu.PPosition.x, tsExpoEaseIn,
-        R.WindowWidth div 2 + BTN_MENU_OFFSET_X, R.WindowWidth + 100, 1.5, 0.0);
+      Tweener.AddTweenInterface(FBtnReplay, InterfacePositionXTween,
+        tsExpoEaseIn, R.WindowWidth div 2 + BTN_RETRY_OFFSET_X, -100, 1.5, 0.0);
+
+//      Tweener.AddTweenPSingle(@FBtnReplay.PPosition.x, tsExpoEaseIn,
+//        R.WindowWidth div 2 + BTN_RETRY_OFFSET_X, -100, 1.5, 0.0);
+      Tweener.AddTweenInterface(FBtnReplay, InterfacePositionXTween,
+        tsExpoEaseIn, R.WindowWidth div 2 + BTN_MENU_OFFSET_X, R.WindowWidth + 100, 1.5, 0.0);
+//      Tweener.AddTweenPSingle(@FBtnMenu.PPosition.x, tsExpoEaseIn,
+//        R.WindowWidth div 2 + BTN_MENU_OFFSET_X, R.WindowWidth + 100, 1.5, 0.0);
 
       Tweener.AddTweenSingle(Self, TopBlockTween, tsExpoEaseIn, SCORES_OFFSET_Y, -95, 1.5, 0.0);
     end;

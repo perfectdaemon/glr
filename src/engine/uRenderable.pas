@@ -25,8 +25,8 @@ type
 
   Tglr2DRenderable = class(TglrRenderable, Iglr2DRenderable)
   protected
-    FParentScene: Iglr2DScene;
-    FAbsolutePosition: Boolean;
+    //FParentScene: Iglr2DScene;
+    //FAbsolutePosition: Boolean;
     FWidth, FHeight: Single;
     FScale: TdfVec2f;
     FRot: Single;
@@ -55,13 +55,14 @@ type
     procedure SetCoord(aIndex: Integer; aCoord: TdfVec2f); virtual;
     function GetTexCoord(aIndex: Integer): TdfVec2f; virtual;
     procedure SetTexCoord(aIndex: Integer; aCoord: TdfVec2f); virtual;
-    function GetAbsPosition: Boolean; virtual;
-    procedure SetAbsPosition(const Value: Boolean); virtual;
+//    function GetAbsPosition: Boolean; virtual;
+//    procedure SetAbsPosition(const Value: Boolean); virtual;
+    procedure SetAbsMatrix(const aMat: TdfMat4f); override;
 
     function GetBB: TdfBB;
 
-    function GetParentScene(): Iglr2DScene;
-    procedure SetParentScene(const aScene: Iglr2DScene);
+//    function GetParentScene(): Iglr2DScene;
+//    procedure SetParentScene(const aScene: Iglr2DScene);
   public
     constructor Create(); override;
     destructor Destroy(); override;
@@ -83,7 +84,7 @@ type
     //Debug. Необходимо вызывать, когда поменялась/загрузилась текстура
     procedure UpdateTexCoords();
 
-    property AbsolutePosition: Boolean read GetAbsPosition write SetAbsPosition;
+//    property AbsolutePosition: Boolean read GetAbsPosition write SetAbsPosition;
 
     procedure SetSizeToTextureSize();
 
@@ -152,43 +153,45 @@ begin
   FTexCoords[2] := dfVec2f(0, 0);
   FTexCoords[3] := dfVec2f(0, 1);
 
-  FAbsolutePosition := True;
+//  FAbsolutePosition := True;
 
   FCustomPivot := dfVec2f(0, 0);
 end;
 
 destructor Tglr2DRenderable.Destroy;
 begin
-  FParentScene := nil;
-  FParent := nil;
+//  FParentScene := nil;
+//  FParent := nil;
   inherited;
 end;
 
-function Tglr2DRenderable.GetAbsPosition: Boolean;
-begin
-  Result := FAbsolutePosition;
-end;
+//function Tglr2DRenderable.GetAbsPosition: Boolean;
+//begin
+//  Result := FAbsolutePosition;
+//end;
 
 function Tglr2DRenderable.GetBB: TdfBB;
 var
   i: Integer;
+  pos2: TdfVec2f;
 begin
+  pos2 := dfVec2f(AbsoluteMatrix.Pos);
   Result.Left := 1/0;
   for i := 0 to 3 do
-    if (FCoords[i].x + FPos.x) < Result.Left then
-      Result.Left := FPos.x + FCoords[i].x;
+    if (FCoords[i].x + pos2.x) < Result.Left then
+      Result.Left := pos2.x + FCoords[i].x;
   Result.Right := - 1/0;
   for i := 0 to 3 do
-    if (FCoords[i].x + FPos.x) > Result.Right then
-      Result.Right := FPos.x + FCoords[i].x;
+    if (FCoords[i].x + pos2.x) > Result.Right then
+      Result.Right := pos2.x + FCoords[i].x;
   Result.Top :=  1/0;
   for i := 0 to 3 do
-    if (FCoords[i].y + FPos.y) < Result.Top then
-      Result.Top := FPos.y + FCoords[i].y;
+    if (FCoords[i].y + pos2.y) < Result.Top then
+      Result.Top := pos2.y + FCoords[i].y;
   Result.Bottom := - 1/0;
   for i := 0 to 3 do
-    if (FCoords[i].y + FPos.y) > Result.Bottom then
-      Result.Bottom := FPos.y + FCoords[i].y;
+    if (FCoords[i].y + pos2.y) > Result.Bottom then
+      Result.Bottom := pos2.y + FCoords[i].y;
 end;
 
 function Tglr2DRenderable.GetCoord(aIndex: Integer): TdfVec2f;
@@ -203,10 +206,10 @@ begin
 end;
 
 
-function Tglr2DRenderable.GetParentScene: Iglr2DScene;
-begin
-  Result := FParentScene;
-end;
+//function Tglr2DRenderable.GetParentScene: Iglr2DScene;
+//begin
+//  Result := FParentScene;
+//end;
 
 function Tglr2DRenderable.GetPivot: Tglr2DPivotPoint;
 begin
@@ -313,25 +316,26 @@ procedure Tglr2DRenderable.Render();
 begin
   if not FVisible then
     Exit();
-  gl.MatrixMode(GL_PROJECTION);
-  gl.PushMatrix();
-    gl.LoadIdentity();
-    vp := TheRenderer.Camera.GetViewport();
-    with vp do
-      gl.Ortho(X, W, H, Y, ZNear, ZFar);
+//  gl.MatrixMode(GL_PROJECTION);
+//  gl.PushMatrix();
+//    gl.LoadIdentity();
+//    vp := TheRenderer.Camera.GetViewport();
+//    with vp do
+//      gl.Ortho(X, W, H, Y, ZNear, ZFar);
     gl.MatrixMode(GL_MODELVIEW);
     gl.PushMatrix();
-      if FAbsolutePosition then
-        gl.LoadIdentity();
+//      if FAbsolutePosition then
+//        gl.LoadIdentity();
+      FModelMatrix.Pos := FPos;
       gl.MultMatrixf(FModelMatrix);
       Material.Apply();
       DoRender();
       Material.Unapply();
       RenderChilds();
     gl.PopMatrix();
-  gl.MatrixMode(GL_PROJECTION);
-  gl.PopMatrix();
-  gl.MatrixMode(GL_MODELVIEW);
+//  gl.MatrixMode(GL_PROJECTION);
+//  gl.PopMatrix();
+//  gl.MatrixMode(GL_MODELVIEW);
 end;
 
 procedure Tglr2DRenderable.ScaleMult(const aScale: TdfVec2f);
@@ -346,9 +350,15 @@ begin
   RecalcCoords();
 end;
 
-procedure Tglr2DRenderable.SetAbsPosition(const Value: Boolean);
+//procedure Tglr2DRenderable.SetAbsPosition(const Value: Boolean);
+//begin
+//  FAbsolutePosition := Value;
+//end;
+
+procedure Tglr2DRenderable.SetAbsMatrix(const aMat: TdfMat4f);
 begin
-  FAbsolutePosition := Value;
+  inherited;
+  FAbsMatrix.e23 := FModelMatrix.e23; //Return usual z coordinate
 end;
 
 procedure Tglr2DRenderable.SetCoord(aIndex: Integer; aCoord: TdfVec2f);
@@ -369,10 +379,10 @@ begin
   RecalcCoords();
 end;
 
-procedure Tglr2DRenderable.SetParentScene(const aScene: Iglr2DScene);
-begin
-  FParentScene := aScene;
-end;
+//procedure Tglr2DRenderable.SetParentScene(const aScene: Iglr2DScene);
+//begin
+//  FParentScene := aScene;
+//end;
 
 procedure Tglr2DRenderable.SetPivot(const aPivot: Tglr2DPivotPoint);
 begin

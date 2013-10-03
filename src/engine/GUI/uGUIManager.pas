@@ -60,7 +60,8 @@ begin
   Result := -1;
   for i := 0 to FElements.Count - 1 do //для каждого элемента
     with IglrGUIElement(FElements[i]) do
-      if CheckHit(X - Trunc(ParentScene.Origin.x), Y - Trunc(ParentScene.Origin.y)) then //если есть попадание
+    begin
+      if CheckHit(X, Y) then //если есть попадание
         if Result <> -1 then // если до этого уже есть кандидат
         begin
           if Position.z < IglrGUIElement(FElements[Result]).Position.z then
@@ -68,6 +69,7 @@ begin
         end
         else
           Result := i;
+    end;
 end;
 
 function TglrGUIManager.GetFocused: IglrGUIElement;
@@ -90,8 +92,8 @@ begin
   if ind <> -1 then
   begin
     Focused := IglrGUIElement(FElements[ind]);
-    FFocused._MouseDown(X - Trunc(FFocused.ParentScene.Origin.x),
-      Y - Trunc(FFocused.ParentScene.Origin.y), MouseButton, Shift);
+    //Trunc(FFocused.AbsoluteMatrix.Pos.y) -- debug. If works - delete
+    FFocused._MouseDown(X, Y, MouseButton, Shift);
   end
   else
     Focused := nil;
@@ -109,7 +111,7 @@ procedure TglrGUIManager.MouseMove(X, Y: Integer; Shift: TglrMouseShiftState);
     for i := 0 to FElements.Count - 1 do
       with IglrGUIElement(FElements[i]) do
         if (MousePos = mpOver) and (i <> exceptIndex) then
-          _MouseOut(X - Trunc(ParentScene.Origin.x), Y - Trunc(ParentScene.Origin.y), Shift);
+          _MouseOut(X, Y, Shift);
   end;
 
 var
@@ -121,16 +123,16 @@ begin
   //Если мышь не отжата, то передем фокусному элементу сообщение
   if ((ssLeft in Shift) or (ssRight in Shift) or (ssMiddle in Shift) )
     and Assigned(FFocused) then
-    FFocused._MouseMove(X - Trunc(FFocused.ParentScene.Origin.x), Y - Trunc(FFocused.ParentScene.Origin.y), Shift);
+    FFocused._MouseMove(X, Y, Shift);
 
   if ind <> -1 then
     with IglrGUIElement(FElements[ind]) do
       //Если мыши ранее не было на элементе, то инициируем omMouseOver
       if MousePos = mpOut then
-        _MouseOver(X - Trunc(ParentScene.Origin.x), Y - Trunc(ParentScene.Origin.y), Shift)
+        _MouseOver(X, Y, Shift)
       //Иначе - просто движение мыши по элементу
       else
-        _MouseMove(X - Trunc(ParentScene.Origin.x), Y - Trunc(ParentScene.Origin.y), Shift);
+        _MouseMove(X, Y, Shift);
 end;
 
 procedure TglrGUIManager.MouseUp(X, Y: Integer; MouseButton: TglrMouseButton;
@@ -142,18 +144,18 @@ begin
 
   if Assigned(FFocused) and ( (ind = -1) or (FElements[ind] <> FFocused) ) then
     with FFocused do
-      _MouseUp(X - Trunc(ParentScene.Origin.x), Y - Trunc(ParentScene.Origin.y), MouseButton, Shift);
+      _MouseUp(X, Y, MouseButton, Shift);
 
   if ind <> -1 then
   begin
     with IglrGUIElement(FElements[ind]) do
       if MousePos  = mpOver then
       begin
-        _MouseClick(X - Trunc(ParentScene.Origin.x), Y - Trunc(ParentScene.Origin.y), MouseButton, Shift);
-        _MouseUp(X - Trunc(ParentScene.Origin.x), Y - Trunc(ParentScene.Origin.y), MouseButton, Shift);
+        _MouseClick(X, Y, MouseButton, Shift);
+        _MouseUp(X, Y, MouseButton, Shift);
       end
       else
-        _MouseUp(X - Trunc(ParentScene.Origin.x), Y - Trunc(ParentScene.Origin.y), MouseButton, Shift);
+        _MouseUp(X, Y, MouseButton, Shift);
   end;
 end;
 

@@ -18,8 +18,6 @@ type
     procedure SetFont(aFont: IglrFont);
     function GetText(): WideString;
     procedure SetText(aText: WideString);
-//    procedure SetWidth(const aWidth: Single); override;
-//    procedure SetHeight(const aHeight: Single); override;
   public
     constructor Create(); override;
     destructor Destroy; override;
@@ -70,31 +68,9 @@ end;
 
 procedure TglrText.DoRender;
 begin
-  inherited;
-  if not Assigned(FFont) then
-    Exit();
-//Пока вывод идет через 2DScene - это не нужно
-//  gl.MatrixMode(GL_PROJECTION);
-//  gl.PushMatrix();
-//  gl.LoadIdentity();
-//  vp := TheRenderer.Camera.GetViewport();
-//  gl.Ortho(vp.X, vp.W, vp.H, vp.Y, -1, 1);
-  gl.MatrixMode(GL_MODELVIEW);
-  if FAbsolutePosition then
-    gl.LoadIdentity();
-  gl.Translatef(FPos.x, FPos.y, 0);
-  gl.Rotatef(FRot, 0, 0, 1);
-  //gl.Disable(GL_DEPTH_TEST);
   gl.Disable(GL_LIGHTING);
-
   FFont.PrintText(Self);
-
   gl.Enable(GL_LIGHTING);
-  //gl.Enable(GL_DEPTH_TEST);
-//Пока вывод идет через 2DScene - это не нужно
-//  gl.MatrixMode(GL_PROJECTION);
-//  gl.PopMatrix();
-  gl.MatrixMode(GL_MODELVIEW);
 end;
 
 function TglrText.GetFont: IglrFont;
@@ -112,11 +88,6 @@ begin
   FFont := aFont;
 end;
 
-//procedure TdfText.SetHeight(const aHeight: Single);
-//begin
-//  inherited;
-//end;
-
 procedure TglrText.SetText(aText: WideString);
 begin
   FText := Clean(aText);
@@ -128,9 +99,5 @@ begin
 //  RecalcCoords();
 end;
 
-//procedure TdfText.SetWidth(const aWidth: Single);
-//begin
-//  inherited;
-//end;
 
 end.

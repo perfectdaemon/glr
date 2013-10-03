@@ -146,7 +146,7 @@ end;
 
 function TpdCharacter.GetHeadPosition: TdfVec2f;
 begin
-  Result := FGLHead.Position;
+  Result := FGLHead.Position2D;
 end;
 
 procedure TpdCharacter.ApplyCorrection;
@@ -195,15 +195,14 @@ class function TpdCharacter.Init(b2w: Tglrb2World; scene2d: Iglr2DScene; {input:
   begin
     aSprite := Factory.NewSprite();
     aSprite.PivotPoint := ppCenter;
-    aSprite.Position := aPos;
+    aSprite.Position := dfVec3f(aPos, Z_PLAYER + internalZ);
     aSprite.Width := aSize.x;
     aSprite.Height := aSize.y;
     aSprite.Rotation := aRot;
-    aSprite.Z := Z_PLAYER + internalZ;
     Inc(internalZ);
 
     aSprite.Material.Diffuse := color;
-    Result.FScene2D.RegisterElement(aSprite);
+    Result.FScene2D.RootNode.AddChild(aSprite);
 
     if density = -1 then
       density := CHAR_DENSITY;
@@ -270,32 +269,32 @@ begin
         dfVec2f(CHAR_BODY_SIZE_X, CHAR_BODY_SIZE_Y), 0, colorBody, bpBody);
 
     //arms
-      QuickInit(FGLLeftArm[0], FLeftArm[0], FGLBody[0].Position + dfVec2f(- CHAR_BLOCK_OFFSET * 0 - (1) * CHAR_ARM_SIZE_Y, 0),
+      QuickInit(FGLLeftArm[0], FLeftArm[0], FGLBody[0].Position2D + dfVec2f(- CHAR_BLOCK_OFFSET * 0 - (1) * CHAR_ARM_SIZE_Y, 0),
         dfVec2f(CHAR_ARM_SIZE_X, CHAR_ARM_SIZE_Y), 90, colorLeftArm, bpArmStart);
-      QuickInit(FGLRightArm[0], FRightArm[0], FGLBody[0].Position + dfVec2f(CHAR_BLOCK_OFFSET * 0 + (1) * CHAR_ARM_SIZE_Y, 0),
+      QuickInit(FGLRightArm[0], FRightArm[0], FGLBody[0].Position2D + dfVec2f(CHAR_BLOCK_OFFSET * 0 + (1) * CHAR_ARM_SIZE_Y, 0),
         dfVec2f(CHAR_ARM_SIZE_X, CHAR_ARM_SIZE_Y), 90, colorRightArm, bpArmStart);
 
-      QuickInit(FGLLeftArm[1], FLeftArm[1], FGLBody[0].Position + dfVec2f(- CHAR_BLOCK_OFFSET * 1 - (2) * CHAR_ARM_SIZE_Y, 0),
+      QuickInit(FGLLeftArm[1], FLeftArm[1], FGLBody[0].Position2D + dfVec2f(- CHAR_BLOCK_OFFSET * 1 - (2) * CHAR_ARM_SIZE_Y, 0),
         dfVec2f(CHAR_ARM_SIZE_X, CHAR_ARM_SIZE_Y), 90, colorLeftArm, bpArmEnd);
-      QuickInit(FGLRightArm[1], FRightArm[1], FGLBody[0].Position + dfVec2f(CHAR_BLOCK_OFFSET * 1 + (2) * CHAR_ARM_SIZE_Y, 0),
+      QuickInit(FGLRightArm[1], FRightArm[1], FGLBody[0].Position2D + dfVec2f(CHAR_BLOCK_OFFSET * 1 + (2) * CHAR_ARM_SIZE_Y, 0),
         dfVec2f(CHAR_ARM_SIZE_X, CHAR_ARM_SIZE_Y), 90, colorRightArm, bpArmEnd);
 
     //legs
       QuickInit(FGLLeftLeg[0], FLeftLeg[0],
-        FGLBody[1].Position + dfVec2f(-1.5*CHAR_BODY_SIZE_X, 1.5*CHAR_BODY_SIZE_X) + dfVec2f( - (0) * (CHAR_LEG_SIZE_Y + CHAR_BLOCK_OFFSET) * cos(CHAR_LEG_ANGLE * deg2rad),
+        FGLBody[1].Position2D + dfVec2f(-1.5*CHAR_BODY_SIZE_X, 1.5*CHAR_BODY_SIZE_X) + dfVec2f( - (0) * (CHAR_LEG_SIZE_Y + CHAR_BLOCK_OFFSET) * cos(CHAR_LEG_ANGLE * deg2rad),
                                                                  (0) * (CHAR_LEG_SIZE_Y + CHAR_BLOCK_OFFSET) * sin(CHAR_LEG_ANGLE * deg2rad)),
         dfVec2f(CHAR_LEG_SIZE_X, CHAR_LEG_SIZE_Y), CHAR_LEG_ANGLE, colorLeftLeg, bpLegStart);
       QuickInit(FGLRightLeg[0], FRightLeg[0],
-        FGLBody[1].Position + dfVec2f(1.5*CHAR_BODY_SIZE_X, 1.5*CHAR_BODY_SIZE_X) + dfVec2f((0) * (CHAR_LEG_SIZE_Y + CHAR_BLOCK_OFFSET) * cos(CHAR_LEG_ANGLE * deg2rad),
+        FGLBody[1].Position2D + dfVec2f(1.5*CHAR_BODY_SIZE_X, 1.5*CHAR_BODY_SIZE_X) + dfVec2f((0) * (CHAR_LEG_SIZE_Y + CHAR_BLOCK_OFFSET) * cos(CHAR_LEG_ANGLE * deg2rad),
                                                               (0) * (CHAR_LEG_SIZE_Y + CHAR_BLOCK_OFFSET) * sin(CHAR_LEG_ANGLE * deg2rad)),
         dfVec2f(CHAR_LEG_SIZE_X, CHAR_LEG_SIZE_Y), -CHAR_LEG_ANGLE, colorRightLeg, bpLegStart);
 
       QuickInit(FGLLeftLeg[1], FLeftLeg[1],
-        FGLBody[1].Position + dfVec2f(-1.5*CHAR_BODY_SIZE_X, 1.5*CHAR_BODY_SIZE_X) + dfVec2f( - (1) * (CHAR_LEG_SIZE_Y + CHAR_BLOCK_OFFSET) * cos(CHAR_LEG_ANGLE * deg2rad),
+        FGLBody[1].Position2D + dfVec2f(-1.5*CHAR_BODY_SIZE_X, 1.5*CHAR_BODY_SIZE_X) + dfVec2f( - (1) * (CHAR_LEG_SIZE_Y + CHAR_BLOCK_OFFSET) * cos(CHAR_LEG_ANGLE * deg2rad),
                                                                  (1) * (CHAR_LEG_SIZE_Y + CHAR_BLOCK_OFFSET) * sin(CHAR_LEG_ANGLE * deg2rad)),
         dfVec2f(CHAR_LEG_SIZE_X, CHAR_LEG_SIZE_Y), CHAR_LEG_ANGLE, colorLeftLeg, bpLegEnd);
       QuickInit(FGLRightLeg[1], FRightLeg[1],
-        FGLBody[1].Position + dfVec2f(1.5*CHAR_BODY_SIZE_X, 1.5*CHAR_BODY_SIZE_X) + dfVec2f((1) * (CHAR_LEG_SIZE_Y + CHAR_BLOCK_OFFSET) * cos(CHAR_LEG_ANGLE * deg2rad),
+        FGLBody[1].Position2D + dfVec2f(1.5*CHAR_BODY_SIZE_X, 1.5*CHAR_BODY_SIZE_X) + dfVec2f((1) * (CHAR_LEG_SIZE_Y + CHAR_BLOCK_OFFSET) * cos(CHAR_LEG_ANGLE * deg2rad),
                                                               (1) * (CHAR_LEG_SIZE_Y + CHAR_BLOCK_OFFSET) * sin(CHAR_LEG_ANGLE * deg2rad)),
         dfVec2f(CHAR_LEG_SIZE_X, CHAR_LEG_SIZE_Y), -CHAR_LEG_ANGLE, colorRightLeg, bpLegEnd);
 
