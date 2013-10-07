@@ -143,7 +143,7 @@ begin
   UpdateSprites();
 
   FSliderOver.PPosition.z := aPos.z + 1;
-  FSliderBtn.PPosition.z := aPos.z + 5;
+  FSliderBtn.PPosition.z := aPos.z + 2;
 end;
 
 procedure TglrGUISlider.SetSliderBtn(const Value: IglrSprite);

@@ -159,13 +159,13 @@ procedure TopBlockTween(aObject: TdfTweenObject; aValue: Single);
 begin
   with aObject as TpdGameOver do
   begin
-    with FScores.Position do y := aValue;
-    with FMaxPower.Position do y := aValue + MAXPOWER_OFFSET_Y;
-    with FFoulsCount.Position do y := aValue + FOULS_OFFSET_Y;
+    FScores.PPosition.y := aValue;
+    FMaxPower.PPosition.y := aValue + MAXPOWER_OFFSET_Y;
+    FFoulsCount.PPosition.y := aValue + FOULS_OFFSET_Y;
 
-    with FSubmitScore.Position do y := aValue;
-    with FPlayerName.Position do y := aValue + TEXTBOX_PLAYERNAME_OFFSET_Y;
-    with FBtnSubmit.Position do y := FPlayerName.Position.y + BTN_SUBMIT_OFFSET_Y;
+    FSubmitScore.PPosition.y := aValue;
+    FPlayerName.PPosition.y := aValue + TEXTBOX_PLAYERNAME_OFFSET_Y;
+    FBtnSubmit.PPosition.y := FPlayerName.Position.y + BTN_SUBMIT_OFFSET_Y;
   end;
 end;
 
@@ -173,9 +173,9 @@ procedure SubmitBlockTween(aObject: TdfTweenObject; aValue: Single);
 begin
   with aObject as TpdGameOver do
   begin
-    with FSubmitScore.Position do y := aValue;
-    with FPlayerName.Position do y := aValue + TEXTBOX_PLAYERNAME_OFFSET_Y;
-    with FBtnSubmit.Position do y := FPlayerName.Position.y + BTN_SUBMIT_OFFSET_Y;
+    FSubmitScore.PPosition.y := aValue;
+    FPlayerName.PPosition.y := aValue + TEXTBOX_PLAYERNAME_OFFSET_Y;
+    FBtnSubmit.PPosition.y := FPlayerName.Position.y + BTN_SUBMIT_OFFSET_Y;
   end;
 end;
 
@@ -186,16 +186,15 @@ begin
   with (aObject as TpdGameOver) do
     for i := 0 to High(FTable) do
     begin
-      with FTable[i].tPlayerName.Position do x := aValue;
-      with FTable[i].tScore.Position do x := aValue + TABLE_COL_SCORE_OFFSET_X;
-      with FTable[i].tMaxPower.Position do x := aValue + TABLE_COL_MAXPOWER_OFFSET_X;
+      FTable[i].tPlayerName.PPosition.x := aValue;
+      FTable[i].tScore.PPosition.x := aValue + TABLE_COL_SCORE_OFFSET_X;
+      FTable[i].tMaxPower.PPosition.x := aValue + TABLE_COL_MAXPOWER_OFFSET_X;
     end;
 end;
 
 procedure InterfacePositionXTween(aInt: IInterface; aValue: Single);
 begin
-  with (aInt as IglrRenderable).Position do
-    x := aValue;
+  (aInt as IglrRenderable).PPosition.x := aValue;
 end;
 
 { TpdPauseMenu }
@@ -270,19 +269,7 @@ end;
 
 procedure TpdGameOver.LoadBackground;
 begin
-//  FFakeBackground := dfCreateHUDSprite;
   FBackground := Factory.NewHudSprite();
-
-//  with FFakeBackground do
-//  begin
-//    Material.MaterialOptions.Diffuse := dfVec4f(0.0, 0, 0, 0.0);
-//    Material.Texture.BlendingMode := tbmTransparency;
-//    Z := Z_INGAMEMENU - 1;
-//    PivotPoint := ppTopLeft;
-//    Width := R.WindowWidth;
-//    Height := R.WindowHeight;
-//    Position := dfVec2f(0, 0);
-//  end;
 
   with FBackground do
   begin
@@ -294,7 +281,6 @@ begin
     Position := dfVec3f(0, 0, Z_INGAMEMENU);
   end;
 
-//  FScene.RegisterElement(FFakeBackground);
   FScene.RootNode.AddChild(FBackground);
 end;
 

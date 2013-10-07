@@ -73,15 +73,11 @@ begin
   aSprite.Width := 40;
   aSprite.Height := 40;
   aSprite.Material.Diffuse := dfVec4f(0.2, 0.2, 0.2, 1);
-  aSprite.Position2D := dfVec2f(140, 140);
-  with aSprite.Position do
-    z := Z_DROPOBJECTS;
+  aSprite.Position := dfVec3f(140, 140, Z_DROPOBJECTS);
 
   aText.Font := fontCooper;
   aText.PivotPoint := ppCenter;
-  aText.Position2D := aSprite.Position2D + dfVec2f(TEXT_OFFSET_X, TEXT_OFFSET_Y);
-  with aText.Position do
-    z := Z_DROPOBJECTS + 1;
+  aText.Position := aSprite.Position + dfVec3f(TEXT_OFFSET_X, TEXT_OFFSET_Y, 1);
   aText.Material.Diffuse := dfVec4f(1, 1, 1, 1);
 
   mainScene.RootNode.AddChild(aSprite);

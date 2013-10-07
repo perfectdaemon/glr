@@ -43,8 +43,7 @@ uses
 
 procedure UpdateSliderValue(aSlider: IdfTweenObject; aValue: Single);
 begin
-  with IglrGUISlider(aSlider) do
-    Value := Floor(aValue);
+  IglrGUISlider(aSlider).Value := Floor(aValue);
 end;
 
 { TglrInGameGUI }
@@ -56,11 +55,10 @@ begin
   FPlayerText := Factory.NewText();
   with FPlayerText do
   begin
-    Position := dfVec2f(HEALTHBAR_X, 10);
+    Position := dfVec3f(HEALTHBAR_X, 10, Z_HUD);
     PivotPoint := ppTopLeft;
     Font := fontCooper;
     Material.Diffuse := dfVec4f(0.2, 0.2, 0.2, 1.0);
-    Z := Z_HUD;
     case game.GameMode of
       gmSingle:         Text := 'Игрок';
       gmTwoPlayersVs:   Text := 'Игрок 1';
@@ -70,11 +68,10 @@ begin
   FPlayer2Text := Factory.NewText();
   with FPlayer2Text do
   begin
-    Position := dfVec2f(R.WindowWidth - HEALTHBAR_X, 10);
+    Position := dfVec3f(R.WindowWidth - HEALTHBAR_X, 10, Z_HUD);
     PivotPoint := ppTopRight;
     Font := fontCooper;
     Material.Diffuse := dfVec4f(0.2, 0.2, 0.2, 1.0);
-    Z := Z_HUD;
     case game.GameMode of
       gmSingle:       Text := 'Противник';
       gmTwoPlayersVs: Text := 'Игрок 2';
@@ -84,21 +81,19 @@ begin
   FShowText := Factory.NewText();
   with FShowText do
   begin
-    Position := dfVec2f(R.WindowWidth div 2, R.WindowHeight div 2);
+    Position := dfVec3f(R.WindowWidth div 2, R.WindowHeight div 2, Z_HUD);
     PivotPoint := ppCenter;
     Font := fontCooper;
     Material.Diffuse := dfVec4f(0.2, 0.2, 0.2, 1.0);
-    Z := Z_HUD;
   end;
 
   FCanUseAbility := Factory.NewText();
   with FCanUseAbility do
   begin
-    Position := dfVec2f(R.WindowWidth div 2, 70);
+    Position := dfVec3f(R.WindowWidth div 2, 70, Z_HUD);
     PivotPoint := ppCenter;
     Font := fontCooper;
     Material.Diffuse := dfVec4f(0.2, 0.2, 0.2, 1.0);
-    Z := Z_HUD;
   end;
 
   FPlayerHealthBar := Factory.NewGuiSlider();
@@ -114,8 +109,7 @@ begin
       SetSizeToTextureSize();
     end;
     SliderButton.Visible := False;
-    Z := Z_HUD;
-    Position := dfVec2f(HEALTHBAR_X , HEALTHBAR_Y);
+    Position := dfVec3f(HEALTHBAR_X , HEALTHBAR_Y, Z_HUD);
   end;
 
   FPlayer2HealthBar := Factory.NewGuiSlider();
@@ -131,8 +125,7 @@ begin
       SetSizeToTextureSize();
     end;
     SliderButton.Visible := False;
-    Z := Z_HUD;
-    Position := dfVec2f(R.WindowWidth - HEALTHBAR_X - Width, HEALTHBAR_Y);
+    Position := dfVec3f(R.WindowWidth - HEALTHBAR_X - Width, HEALTHBAR_Y, Z_HUD);
   end;
 
   FPlayerForceBar := Factory.NewGuiSlider();
@@ -150,8 +143,7 @@ begin
       SetSizeToTextureSize();
     end;
     SliderButton.Visible := False;
-    Z := Z_HUD;
-    Position := dfVec2f(FORCEBAR_X , FORCEBAR_Y);
+    Position := dfVec3f(FORCEBAR_X , FORCEBAR_Y, Z_HUD);
   end;
 
   FPlayer2ForceBar := Factory.NewGuiSlider();
@@ -169,18 +161,17 @@ begin
       SetSizeToTextureSize();
     end;
     SliderButton.Visible := False;
-    Z := Z_HUD;
-    Position := dfVec2f(R.WindowWidth - FORCEBAR_X - Width, FORCEBAR_Y);
+    Position := dfVec3f(R.WindowWidth - FORCEBAR_X - Width, FORCEBAR_Y, Z_HUD);
   end;
 
-  aScene.RegisterElement(FShowText);
-  aScene.RegisterElement(FPlayerText);
-  aScene.RegisterElement(FPlayerHealthBar);
-  aScene.RegisterElement(FPlayerForceBar);
-  aScene.RegisterElement(FPlayer2Text);
-  aScene.RegisterElement(FPlayer2HealthBar);
-  aScene.RegisterElement(FPlayer2ForceBar);
-  aScene.RegisterElement(FCanUseAbility)
+  aScene.RootNode.AddChild(FShowText);
+  aScene.RootNode.AddChild(FPlayerText);
+  aScene.RootNode.AddChild(FPlayerHealthBar);
+  aScene.RootNode.AddChild(FPlayerForceBar);
+  aScene.RootNode.AddChild(FPlayer2Text);
+  aScene.RootNode.AddChild(FPlayer2HealthBar);
+  aScene.RootNode.AddChild(FPlayer2ForceBar);
+  aScene.RootNode.AddChild(FCanUseAbility)
 end;
 
 destructor TglrInGameGUI.Destroy;

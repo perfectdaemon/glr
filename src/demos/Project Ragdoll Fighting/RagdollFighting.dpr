@@ -183,7 +183,6 @@ begin
   FinalizeGlobal();
 
   R.DeInit();
-  R._Release();
   R := nil;
   UnLoadRendererLib();
 end.

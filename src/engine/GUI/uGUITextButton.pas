@@ -21,8 +21,6 @@ type
     property TextObject: IglrText read GetText write SetText;
     property TextOffset: TdfVec2f read GetTextOffset write SetTextOffset;
 
-    procedure DoRender(); override;
-
     constructor Create(); override;
     destructor Destroy(); override;
   end;
@@ -38,19 +36,13 @@ constructor TglrGUITextButton.Create;
 begin
   inherited;
   FText := GetObjectFactory().NewText();
-//  FText.AbsolutePosition := False;
+  Self.AddChild(FText);
 end;
 
 destructor TglrGUITextButton.Destroy;
 begin
   FText := nil;
   inherited;
-end;
-
-procedure TglrGUITextButton.DoRender;
-begin
-  inherited;
-  FText.Render();
 end;
 
 function TglrGUITextButton.GetText: IglrText;
@@ -66,8 +58,7 @@ end;
 procedure TglrGUITextButton.SetPos(const aPos: TdfVec3f);
 begin
   inherited;
-  with FText.Position do
-    z := aPos.z + 1;
+  FText.PPosition.z := aPos.z + 1;
 end;
 
 procedure TglrGUITextButton.SetText(const aText: IglrText);

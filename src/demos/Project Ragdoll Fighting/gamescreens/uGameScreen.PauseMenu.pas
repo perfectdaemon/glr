@@ -107,7 +107,7 @@ destructor TpdPauseMenu.Destroy;
 begin
   Unload();
 
-  FScene.UnregisterElements();
+  FScene.RootNode.RemoveAllChilds();
   FScene := nil;
   inherited;
 end;
@@ -152,14 +152,13 @@ begin
   begin
     Material.Diffuse := dfVec4f(0, 0, 0, 0.0);
     Material.Texture.BlendingMode := tbmTransparency;
-    Z := Z_INGAMEMENU - 1;
     PivotPoint := ppTopLeft;
     Width := R.WindowWidth;
     Height := R.WindowHeight;
-    Position := dfVec2f(0, 0);
+    Position := dfVec3f(0, 0, Z_INGAMEMENU - 1);
   end;
 
-  FScene.RegisterElement(FFakeBackground);
+  FScene.RootNode.AddChild(FFakeBackground);
 end;
 
 procedure TpdPauseMenu.InitButtons();
@@ -170,8 +169,7 @@ begin
   with FBtnToGame do
   begin
     PivotPoint := ppCenter;
-    Position := dfVec2f(R.WindowWidth div 2, R.WindowHeight div 2 + BACK_OFFSET_Y);
-    Z := Z_INGAMEMENU + 2;
+    Position := dfVec3f(R.WindowWidth div 2, R.WindowHeight div 2 + BACK_OFFSET_Y, Z_INGAMEMENU + 2);
     TextureNormal := atlasMain.LoadTexture(BTN_NORMAL_TEXTURE);
     TextureOver := atlasMain.LoadTexture(BTN_OVER_TEXTURE);
     TextureClick := atlasMain.LoadTexture(BTN_CLICK_TEXTURE);
@@ -181,10 +179,9 @@ begin
       Font := fontCooper;
       Text := 'Продолжить';
       PivotPoint := ppTopLeft;
-      Position := dfVec2f(-150, -15);
+      Position2D := dfVec2f(-150, -15);
       Material.Diffuse := colorWhite;
     end;
-
 
     UpdateTexCoords();
     SetSizeToTextureSize();
@@ -193,8 +190,7 @@ begin
   with FBtnToMenu do
   begin
     PivotPoint := ppCenter;
-    Position := dfVec2f(R.WindowWidth div 2, R.WindowHeight div 2 + MENU_OFFSET_Y);
-    Z := Z_INGAMEMENU + 2;
+    Position := dfVec3f(R.WindowWidth div 2, R.WindowHeight div 2 + MENU_OFFSET_Y, Z_INGAMEMENU + 2);
     TextureNormal := atlasMain.LoadTexture(MENU_NORMAL_TEXTURE);
     TextureOver := atlasMain.LoadTexture(MENU_OVER_TEXTURE);
     TextureClick := atlasMain.LoadTexture(MENU_CLICK_TEXTURE);
@@ -204,7 +200,7 @@ begin
       Font := fontCooper;
       Text := 'В меню';
       PivotPoint := ppTopLeft;
-      Position := dfVec2f(-150, -15);
+      Position2D := dfVec2f(-150, -15);
       Material.Diffuse := colorWhite;
     end;
 
@@ -215,8 +211,8 @@ begin
   FBtnToMenu.OnMouseClick := OnMouseClick;
   FBtnToGame.OnMouseClick := OnMouseClick;
 
-  FScene.RegisterElement(FBtnToMenu);
-  FScene.RegisterElement(FBtnToGame);
+  FScene.RootNode.AddChild(FBtnToMenu);
+  FScene.RootNode.AddChild(FBtnToGame);
 end;
 
 procedure TpdPauseMenu.Load;
@@ -234,12 +230,11 @@ begin
     Text := 'Стрелки — управление персонажем'#13#10
       + 'WASD — управление вторым персонажем в игре друг против друга'#13#10
       + 'Enter — применение спец. способности в одиночной игре'#13#10'              Тратит 50% энергии';
-    Z := Z_INGAMEMENU + 1;
     PivotPoint := ppTopCenter;
-    Position := dfVec2f(R.WindowWidth div 2, 20);
+    Position := dfVec3f(R.WindowWidth div 2, 20, Z_INGAMEMENU + 1);
   end;
 
-  FScene.RegisterElement(FHelpText);
+  FScene.RootNode.AddChild(FHelpText);
 end;
 
 procedure TpdPauseMenu.SetGameScreenLinks(aToMainMenu, aToGame: TpdGameScreen);

@@ -17,7 +17,7 @@ const
   Z_DROPOBJECTS = -40;
   Z_MAINMENU_BUTTONS = 25;
   Z_HUD = 50;
-  Z_INGAMEMENU = 90;
+  Z_INGAMEMENU = 70;
 
 
   MUSIC_INGAME = RES_FOLDER + 'BoxCat Games - Battle.ogg';

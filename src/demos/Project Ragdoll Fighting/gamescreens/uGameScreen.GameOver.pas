@@ -118,7 +118,7 @@ destructor TpdGameOver.Destroy;
 begin
   Unload();
 
-  FScene.UnregisterElements();
+  FScene.RootNode.RemoveAllChilds();
   FScene := nil;
   inherited;
 end;
@@ -163,14 +163,13 @@ begin
   begin
     Material.Diffuse := dfVec4f(0.0, 0, 0, 0.0);
     Material.Texture.BlendingMode := tbmTransparency;
-    Z := Z_INGAMEMENU;
     PivotPoint := ppTopLeft;
     Width := R.WindowWidth;
     Height := R.WindowHeight;
-    Position := dfVec2f(0, 0);
+    Position := dfVec3f(0, 0, Z_INGAMEMENU);
   end;
 
-  FScene.RegisterElement(FBackground);
+  FScene.RootNode.AddChild(FBackground);
 end;
 
 procedure TpdGameOver.LoadButtons();
@@ -181,15 +180,15 @@ begin
   with FBtnReplay do
   begin
     PivotPoint := ppCenter;
-    Position := dfVec2f(R.WindowWidth div 2 + BTN_RETRY_OFFSET_X, R.WindowHeight div 2 +  BTN_RETRY_OFFSET_Y);
-    Z := Z_INGAMEMENU + 2;
-
+    Position := dfVec3f(R.WindowWidth div 2 + BTN_RETRY_OFFSET_X,
+                        R.WindowHeight div 2 +  BTN_RETRY_OFFSET_Y,
+                        Z_INGAMEMENU + 2);
     with TextObject do
     begin
       Font := fontCooper;
       Text := 'Еще разок!';
       PivotPoint := ppTopLeft;
-      Position := dfVec2f(-150, -15);
+      Position2D := dfVec2f(-150, -15);
       Material.Diffuse := colorWhite;
     end;
 
@@ -204,15 +203,15 @@ begin
   with FBtnMenu do
   begin
     PivotPoint := ppCenter;
-    Position := dfVec2f(R.WindowWidth div 2 + BTN_MENU_OFFSET_X, R.WindowHeight div 2 + BTN_MENU_OFFSET_Y);
-    Z := Z_INGAMEMENU + 2;
-
+    Position := dfVec3f(R.WindowWidth div 2 + BTN_MENU_OFFSET_X,
+                        R.WindowHeight div 2 + BTN_MENU_OFFSET_Y,
+                        Z_INGAMEMENU + 2);
     with TextObject do
     begin
       Font := fontCooper;
       Text := 'В меню...';
       PivotPoint := ppTopLeft;
-      Position := dfVec2f(-150, -15);
+      Position2D := dfVec2f(-150, -15);
       Material.Diffuse := colorWhite;
     end;
 
@@ -227,8 +226,8 @@ begin
   FBtnReplay.OnMouseClick := OnMouseClick;
   FBtnMenu.OnMouseClick := OnMouseClick;
 
-  FScene.RegisterElement(FBtnReplay);
-  FScene.RegisterElement(FBtnMenu);
+  FScene.RootNode.AddChild(FBtnReplay);
+  FScene.RootNode.AddChild(FBtnMenu);
 end;
 
 procedure TpdGameOver.LoadTexts;
@@ -239,11 +238,10 @@ begin
   begin
     Font := fontCooper;
     PivotPoint := ppCenter;
-    Z := Z_INGAMEMENU + 2;
-    Position := dfVec2f(R.WindowWidth div 2 + TEXT_OFFSET_X, R.WindowHeight div 2 + TEXT_OFFSET_Y);
+    Position := dfVec3f(R.WindowWidth div 2 + TEXT_OFFSET_X, R.WindowHeight div 2 + TEXT_OFFSET_Y, Z_INGAMEMENU + 2);
   end;
 
-  FScene.RegisterElement(FGameOverText);
+  FScene.RootNode.AddChild(FGameOverText);
 end;
 
 procedure TpdGameOver.Load;

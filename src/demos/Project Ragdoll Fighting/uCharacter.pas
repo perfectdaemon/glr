@@ -227,12 +227,12 @@ end;
 
 function TpdCharacter.GetBodyCenterPosition: TdfVec2f;
 begin
-  Result := FGLBody[1].Position;
+  Result := FGLBody[1].Position2D;
 end;
 
 function TpdCharacter.GetHeadPosition: TdfVec2f;
 begin
-  Result := FGLHead.Position;
+  Result := FGLHead.Position2D;
 end;
 
 procedure TpdCharacter.ApplyCorrection;
@@ -281,21 +281,20 @@ class function TpdCharacter.Init(b2w: Tglrb2World; scene2d: Iglr2DScene;
   begin
     aSprite := Factory.NewSprite();
     aSprite.PivotPoint := ppCenter;
-    aSprite.Position := aPos;
-    aSprite.Width := aSize._x;
+    aSprite.Position := dfVec3f(aPos, Z_PLAYER + charInternalZ);
+    aSprite.Width := aSize.x;
     aSprite.Height := aSize.y;
     aSprite.Rotation := aRot;
-    aSprite.Z := Z_PLAYER + charInternalZ;
     Inc(charInternalZ);
 
     aSprite.Material.Diffuse := color;
-    Result.FScene2D.RegisterElement(aSprite);
+    Result.FScene2D.RootNode.AddChild(aSprite);
 
     if density = -1 then
       density := CHAR_DENSITY;
     if bodyPart = bpHead then
     begin
-      aBody := dfb2InitCircle(b2w, aSize._x / 2, aPos,
+      aBody := dfb2InitCircle(b2w, aSize.x / 2, aPos,
         CHAR_DENSITY, CHAR_FRICTION, CHAR_RESTITUTION,
         $FFFF, $0000 + params.charGroup, -params.charGroup);
       aSprite.Material.Texture := texHead;
@@ -330,7 +329,7 @@ class function TpdCharacter.Init(b2w: Tglrb2World; scene2d: Iglr2DScene;
     aPos := b1p + (b2p - b1p) * 0.5;
     def := Tb2RevoluteJointDef.Create;
     def.Initialize(b1, b2, ConvertGLToB2(aPos));
-    def.lowerAngle := limits._x;
+    def.lowerAngle := limits.x;
     def.upperAngle := limits.y;
     def.enableLimit := True;
 //    def.enableMotor := True;
@@ -364,32 +363,32 @@ begin
         dfVec2f(CHAR_BODY_SIZE_X, CHAR_BODY_SIZE_Y), 0, colorBody, bpBody);
 
     //arms
-      QuickInit(FGLLeftArm[0], FLeftArm[0], FGLBody[0].Position + dfVec2f(- CHAR_BLOCK_OFFSET * 0 - (1) * CHAR_ARM_SIZE_Y, 0),
+      QuickInit(FGLLeftArm[0], FLeftArm[0], FGLBody[0].Position2D + dfVec2f(- CHAR_BLOCK_OFFSET * 0 - (1) * CHAR_ARM_SIZE_Y, 0),
         dfVec2f(CHAR_ARM_SIZE_X, CHAR_ARM_SIZE_Y), 90, colorLeftArm, bpArmStart);
-      QuickInit(FGLRightArm[0], FRightArm[0], FGLBody[0].Position + dfVec2f(CHAR_BLOCK_OFFSET * 0 + (1) * CHAR_ARM_SIZE_Y, 0),
+      QuickInit(FGLRightArm[0], FRightArm[0], FGLBody[0].Position2D + dfVec2f(CHAR_BLOCK_OFFSET * 0 + (1) * CHAR_ARM_SIZE_Y, 0),
         dfVec2f(CHAR_ARM_SIZE_X, CHAR_ARM_SIZE_Y), 90, colorRightArm, bpArmStart);
 
-      QuickInit(FGLLeftArm[1], FLeftArm[1], FGLBody[0].Position + dfVec2f(- CHAR_BLOCK_OFFSET * 1 - (2) * CHAR_ARM_SIZE_Y, 0),
+      QuickInit(FGLLeftArm[1], FLeftArm[1], FGLBody[0].Position2D + dfVec2f(- CHAR_BLOCK_OFFSET * 1 - (2) * CHAR_ARM_SIZE_Y, 0),
         dfVec2f(CHAR_ARM_SIZE_X, CHAR_ARM_SIZE_Y), 90, colorLeftArm, bpArmEnd);
-      QuickInit(FGLRightArm[1], FRightArm[1], FGLBody[0].Position + dfVec2f(CHAR_BLOCK_OFFSET * 1 + (2) * CHAR_ARM_SIZE_Y, 0),
+      QuickInit(FGLRightArm[1], FRightArm[1], FGLBody[0].Position2D + dfVec2f(CHAR_BLOCK_OFFSET * 1 + (2) * CHAR_ARM_SIZE_Y, 0),
         dfVec2f(CHAR_ARM_SIZE_X, CHAR_ARM_SIZE_Y), 90, colorRightArm, bpArmEnd);
 
     //legs
       QuickInit(FGLLeftLeg[0], FLeftLeg[0],
-        FGLBody[1].Position + dfVec2f(-1.5*CHAR_BODY_SIZE_X, 1.5*CHAR_BODY_SIZE_X) + dfVec2f( - (0) * (CHAR_LEG_SIZE_Y + CHAR_BLOCK_OFFSET) * cos(CHAR_LEG_ANGLE * deg2rad),
+        FGLBody[1].Position2D + dfVec2f(-1.5*CHAR_BODY_SIZE_X, 1.5*CHAR_BODY_SIZE_X) + dfVec2f( - (0) * (CHAR_LEG_SIZE_Y + CHAR_BLOCK_OFFSET) * cos(CHAR_LEG_ANGLE * deg2rad),
                                                                  (0) * (CHAR_LEG_SIZE_Y + CHAR_BLOCK_OFFSET) * sin(CHAR_LEG_ANGLE * deg2rad)),
         dfVec2f(CHAR_LEG_SIZE_X, CHAR_LEG_SIZE_Y), CHAR_LEG_ANGLE, colorLeftLeg, bpLegStart);
       QuickInit(FGLRightLeg[0], FRightLeg[0],
-        FGLBody[1].Position + dfVec2f(1.5*CHAR_BODY_SIZE_X, 1.5*CHAR_BODY_SIZE_X) + dfVec2f((0) * (CHAR_LEG_SIZE_Y + CHAR_BLOCK_OFFSET) * cos(CHAR_LEG_ANGLE * deg2rad),
+        FGLBody[1].Position2D + dfVec2f(1.5*CHAR_BODY_SIZE_X, 1.5*CHAR_BODY_SIZE_X) + dfVec2f((0) * (CHAR_LEG_SIZE_Y + CHAR_BLOCK_OFFSET) * cos(CHAR_LEG_ANGLE * deg2rad),
                                                               (0) * (CHAR_LEG_SIZE_Y + CHAR_BLOCK_OFFSET) * sin(CHAR_LEG_ANGLE * deg2rad)),
         dfVec2f(CHAR_LEG_SIZE_X, CHAR_LEG_SIZE_Y), -CHAR_LEG_ANGLE, colorRightLeg, bpLegStart);
 
       QuickInit(FGLLeftLeg[1], FLeftLeg[1],
-        FGLBody[1].Position + dfVec2f(-1.5*CHAR_BODY_SIZE_X, 1.5*CHAR_BODY_SIZE_X) + dfVec2f( - (1) * (CHAR_LEG_SIZE_Y + CHAR_BLOCK_OFFSET) * cos(CHAR_LEG_ANGLE * deg2rad),
+        FGLBody[1].Position2D + dfVec2f(-1.5*CHAR_BODY_SIZE_X, 1.5*CHAR_BODY_SIZE_X) + dfVec2f( - (1) * (CHAR_LEG_SIZE_Y + CHAR_BLOCK_OFFSET) * cos(CHAR_LEG_ANGLE * deg2rad),
                                                                  (1) * (CHAR_LEG_SIZE_Y + CHAR_BLOCK_OFFSET) * sin(CHAR_LEG_ANGLE * deg2rad)),
         dfVec2f(CHAR_LEG_SIZE_X, CHAR_LEG_SIZE_Y), CHAR_LEG_ANGLE, colorLeftLeg, bpLegEnd);
       QuickInit(FGLRightLeg[1], FRightLeg[1],
-        FGLBody[1].Position + dfVec2f(1.5*CHAR_BODY_SIZE_X, 1.5*CHAR_BODY_SIZE_X) + dfVec2f((1) * (CHAR_LEG_SIZE_Y + CHAR_BLOCK_OFFSET) * cos(CHAR_LEG_ANGLE * deg2rad),
+        FGLBody[1].Position2D + dfVec2f(1.5*CHAR_BODY_SIZE_X, 1.5*CHAR_BODY_SIZE_X) + dfVec2f((1) * (CHAR_LEG_SIZE_Y + CHAR_BLOCK_OFFSET) * cos(CHAR_LEG_ANGLE * deg2rad),
                                                               (1) * (CHAR_LEG_SIZE_Y + CHAR_BLOCK_OFFSET) * sin(CHAR_LEG_ANGLE * deg2rad)),
         dfVec2f(CHAR_LEG_SIZE_X, CHAR_LEG_SIZE_Y), -CHAR_LEG_ANGLE, colorRightLeg, bpLegEnd);
 
@@ -418,20 +417,18 @@ end;
 
 procedure TpdCharacter.MakeABadThing(aDuration: Single);
 
-procedure QuickInit(var aSprite: IglrSprite; var aBody: Tb2Body; aPos: TdfVec2f; density: Single);
+  procedure QuickInit(var aSprite: IglrSprite; var aBody: Tb2Body; aPos: TdfVec2f; density: Single);
   var
     userdata: ^TpdUserData;
   begin
     aSprite := Factory.NewSprite();
     aSprite.PivotPoint := ppCenter;
-    aSprite.Position := aPos;
+    aSprite.Position := dfVec3f(aPos, Z_PLAYER + charInternalZ + 1);
     aSprite.Material.Texture := atlasMain.LoadTexture(WEIGHT_TEXTURE);
     aSprite.UpdateTexCoords();
     aSprite.SetSizeToTextureSize();
     aSprite.Material.Diffuse := dfVec4f(1, 1, 1, 1.0);
-
-    aSprite.Z := Z_PLAYER + charInternalZ + 1;
-    FScene2D.RegisterElement(aSprite);
+    FScene2D.RootNode.AddChild(aSprite);
 
     aBody := dfb2InitBox(b2world, aSprite, density, 2.0, 0.1,
       $FFFF, $0008, 8);
@@ -457,7 +454,7 @@ procedure QuickInit(var aSprite: IglrSprite; var aBody: Tb2Body; aPos: TdfVec2f;
     aPos := b1p + (b2p - b1p) * 0.5;
     def := Tb2RevoluteJointDef.Create;
     def.Initialize(b1, b2, ConvertGLToB2(aPos));
-    def.lowerAngle := limits._x;
+    def.lowerAngle := limits.x;
     def.upperAngle := limits.y;
     def.enableLimit := True;
 //    def.enableMotor := True;
@@ -475,11 +472,11 @@ begin
     FBadThingCountDown := aDuration;
     HasBadThing := True;
 
-    vPos := FGLLeftLeg[1].Position + dfVec2f(0, 15);
+    vPos := FGLLeftLeg[1].Position2D + dfVec2f(0, 15);
     vPos.y := Clamp(vPos.y, 0, R.WindowHeight - 30);
     QuickInit(FGLBadBlocks[0], FBadBlocks[0], vPos, 15.0);
 
-    vPos := FGLRightLeg[1].Position + dfVec2f(0, 15);
+    vPos := FGLRightLeg[1].Position2D + dfVec2f(0, 15);
     vPos.y := Clamp(vPos.y, 0, R.WindowHeight - 30);
     QuickInit(FGLBadBlocks[1], FBadBlocks[1], vPos, 15.0);
 
@@ -496,8 +493,8 @@ begin
   Dispose(FBadBlocks[1].UserData);
   b2world.DestroyBody(FBadBlocks[0]);
   b2world.DestroyBody(FBadBlocks[1]);
-  FScene2D.UnregisterElement(FGLBadBlocks[0]);
-  FScene2D.UnregisterElement(FGLBadBlocks[1]);
+  FScene2D.RootNode.RemoveChild(FGLBadBlocks[0]);
+  FScene2D.RootNode.RemoveChild(FGLBadBlocks[1]);
   HasBadThing := False;
 end;
 

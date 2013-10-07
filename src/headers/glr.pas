@@ -365,7 +365,15 @@ type
 { Idf2DScene - класс, организующий все Idf2DRenderable-сущности}
   Iglr2DScene = interface (IglrBaseScene)
     ['{3D0DB66F-077A-406B-88A4-882972D8077A}']
+    {$REGION '[private]'}
+    function GetNear(): Single;
+    function GetFar(): Single;
+    procedure SetNear(const aNear: Single);
+    procedure SetFar(const aFar: Single);
+    {$ENDREGION}
     procedure SortFarthestFirst();
+    property ZNear: Single read GetNear write SetNear;
+    property ZFar: Single read GetFar write SetFar;
   end;
 
   { Iglr3DScene - идентифицирует игровую сцену, иерархию рендер-узлов с привязанными

@@ -30,9 +30,16 @@ type
   Tglr2DScene = class(TglrBaseScene, Iglr2DScene)
   protected
     vp: TglrViewportParams;
+    FNear, FFar: Single;
+    function GetNear(): Single;
+    function GetFar(): Single;
+    procedure SetNear(const aNear: Single);
+    procedure SetFar(const aFar: Single);
   public
     procedure SortFarthestFirst();
     procedure Render(); override;
+
+    constructor Create(); override;
   end;
 
   Tglr3DScene = class (TglrBaseScene, Iglr3DScene)
@@ -48,6 +55,23 @@ uses
 { Tdf2DScene }
 
 
+constructor Tglr2DScene.Create;
+begin
+  inherited;
+  FNear := -1000;
+  FFar := 1000;
+end;
+
+function Tglr2DScene.GetFar: Single;
+begin
+  Result := FFar;
+end;
+
+function Tglr2DScene.GetNear: Single;
+begin
+  Result := FNear;
+end;
+
 procedure Tglr2DScene.Render;
 var
   i: Integer;
@@ -57,7 +81,7 @@ begin
     gl.LoadIdentity();
     vp := TheRenderer.Camera.GetViewport();
     with vp do
-      gl.Ortho(X, W, H, Y, -100, 100);
+      gl.Ortho(X, W, H, Y, FNear, FFar);
     gl.MatrixMode(GL_MODELVIEW);
     gl.PushMatrix();
       gl.LoadIdentity();
@@ -68,10 +92,20 @@ begin
   gl.MatrixMode(GL_MODELVIEW);
 end;
 
+procedure Tglr2DScene.SetFar(const aFar: Single);
+begin
+  FFar := aFar;
+end;
+
+procedure Tglr2DScene.SetNear(const aNear: Single);
+begin
+  FNear := aNear;
+end;
+
 procedure Tglr2DScene.SortFarthestFirst;
-var
-  i, j, max: Integer;
-  tmp: IInterface;
+//var
+//  i, j, max: Integer;
+//  tmp: IInterface;
 begin
 //  for i := 0 to FElements.Count - 2 do
 //  begin

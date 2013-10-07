@@ -90,7 +90,7 @@ begin
   for i := 0 to count - 1 do
     with GetItem() do
     begin
-      spr.Position := aPos;
+      spr.Position2D := aPos;
       spr.Rotation := Random(360);
       spr.Width := spr.Width * (0.3 + Random());
       spr.Height := spr.Width;
@@ -110,7 +110,7 @@ begin
   for i := 0 to count - 1 do
     with GetItem() do
     begin
-      spr.Position := aPos;
+      spr.Position2D := aPos;
       spr.Rotation := Random(360);
       spr.Width := spr.Width * (0.3 + Random());
       spr.Height := spr.Width;
@@ -148,7 +148,7 @@ begin
         begin
           timeRemain := timeRemain - dt;
           spr.Material.PDiffuse.w := timeRemain / timeAll;
-          spr.Position := spr.Position + moveDir * speed * dt;
+          spr.Position2D := spr.Position2D + moveDir * speed * dt;
           moveDir := (moveDir + dfVec2f(0, 2.5 * dt));
         end
         else

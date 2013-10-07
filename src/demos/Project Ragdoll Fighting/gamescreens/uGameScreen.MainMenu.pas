@@ -196,7 +196,7 @@ end;
 procedure TweenSceneOrigin(aObject: TdfTweenObject; aValue: Single);
 begin
   with aObject as TpdMainMenu do
-    FScene.Origin := dfVec2f(aValue, 0);
+    FScene.RootNode.PPosition.x := aValue;
 end;
 
 { TpdMainMenu }
@@ -214,20 +214,19 @@ begin
 
   //Бэкграунд для fade in/out
   FFakeBackground := Factory.NewHudSprite();
-  FFakeBackground.Position := dfVec2f(0, 0);
-  FFakeBackground.Z := 100;
+  FFakeBackground.Position := dfVec3f(0, 0, 100);
   FFakeBackground.Material.Diffuse := dfVec4f(1, 1, 1, 1);
   FFakeBackground.Material.Texture.BlendingMode := tbmTransparency;
   FFakeBackground.Width := R.WindowWidth;
   FFakeBackground.Height := R.WindowHeight;
-  FScene.RegisterElement(FFakeBackground);
+  FScene.RootNode.AddChild(FFakeBackground);
 
   FSettingsFile := TpdSettingsFile.Initialize(SETTINGS_FILE);
 end;
 
 destructor TpdMainMenu.Destroy;
 begin
-  FScene.UnregisterElements();
+  FScene.RootNode.RemoveAllChilds();
   UpdateSettings();
   FSettingsFile.SaveToFile(SETTINGS_FILE);
   FSettingsFile.Free();
@@ -280,7 +279,7 @@ begin
   FGUIManager.UnregisterElement(FMusicVol);
   FGUIManager.UnregisterElement(FDifficulty);
   FGUIManager.UnregisterElement(FBtnBack);
-  Tweener.AddTweenSingle(Self, @TweenSceneOrigin, tsExpoEaseIn, FScene.Origin._x, 0, 2.0, 0.0);
+  Tweener.AddTweenSingle(Self, @TweenSceneOrigin, tsExpoEaseIn, FScene.RootNode.Position.x, 0, 2.0, 0.0);
   FSettingsShowed := False;
 end;
 
@@ -294,15 +293,14 @@ begin
   with FBtnNewGame do
   begin
     PivotPoint := ppCenter;
-    Position := dfVec2f(PLAY_X, PLAY_Y);
-    Z := Z_MAINMENU_BUTTONS;
+    Position := dfVec3f(PLAY_X, PLAY_Y, Z_MAINMENU_BUTTONS);
 
     with TextObject do
     begin
       Font := fontCooper;
       Text := 'Одиночная игра';
       PivotPoint := ppTopLeft;
-      Position := dfVec2f(-150, -15);
+      Position2D := dfVec2f(-150, -15);
       Material.Diffuse := colorWhite;
     end;
     TextureNormal := atlasMain.LoadTexture(PLAY_NORMAL_TEXTURE);
@@ -316,15 +314,14 @@ begin
   with FBtnCoopGame do
   begin
     PivotPoint := ppCenter;
-    Position := dfVec2f(COOP_X, COOP_Y);
-    Z := Z_MAINMENU_BUTTONS;
+    Position := dfVec3f(COOP_X, COOP_Y, Z_MAINMENU_BUTTONS);
 
     with TextObject do
     begin
       Font := fontCooper;
       Text := 'Играть вдвоем';
       PivotPoint := ppTopLeft;
-      Position := dfVec2f(-150, -15);
+      Position2D := dfVec2f(-150, -15);
       Material.Diffuse := colorWhite;
     end;
 
@@ -339,15 +336,14 @@ begin
   with FBtnSettings do
   begin
     PivotPoint := ppCenter;
-    Position := dfVec2f(SETTINGS_X, SETTINGS_Y);
-    Z := Z_MAINMENU_BUTTONS;
+    Position := dfVec3f(SETTINGS_X, SETTINGS_Y, Z_MAINMENU_BUTTONS);
 
     with TextObject do
     begin
       Font := fontCooper;
       Text := 'Настройки';
       PivotPoint := ppTopLeft;
-      Position := dfVec2f(-150, -15);
+      Position2D := dfVec2f(-150, -15);
       Material.Diffuse := colorWhite;
     end;
 
@@ -362,15 +358,14 @@ begin
   with FBtnExit do
   begin
     PivotPoint := ppCenter;
-    Position := dfVec2f(EXIT_X, EXIT_Y);
-    Z := Z_MAINMENU_BUTTONS;
+    Position := dfVec3f(EXIT_X, EXIT_Y, Z_MAINMENU_BUTTONS);
 
     with TextObject do
     begin
       Font := fontCooper;
       Text := 'Выйти';
       PivotPoint := ppTopLeft;
-      Position := dfVec2f(-150, -15);
+      Position2D := dfVec2f(-150, -15);
       Material.Diffuse := colorWhite;
     end;
 
@@ -387,10 +382,10 @@ begin
   FBtnSettings.OnMouseClick := MouseClick;
   FBtnExit.OnMouseClick := MouseClick;
 
-  FScene.RegisterElement(FBtnNewGame);
-  FScene.RegisterElement(FBtnCoopGame);
-  FScene.RegisterElement(FBtnSettings);
-  FScene.RegisterElement(FBtnExit);
+  FScene.RootNode.AddChild(FBtnNewGame);
+  FScene.RootNode.AddChild(FBtnCoopGame);
+  FScene.RootNode.AddChild(FBtnSettings);
+  FScene.RootNode.AddChild(FBtnExit);
 end;
 
 procedure TpdMainMenu.LoadSettingsMenu;
@@ -410,9 +405,8 @@ begin
   begin
     Font := fontCooper;
     Text := 'Музыка';
-    Z := Z_MAINMENU_BUTTONS;
     PivotPoint := ppTopLeft;
-    Position := dfVec2f(TEXT_MUSIC_X - R.WindowWidth, TEXT_MUSIC_Y);
+    Position := dfVec3f(TEXT_MUSIC_X - R.WindowWidth, TEXT_MUSIC_Y, Z_MAINMENU_BUTTONS);
     Material.Diffuse := colorWhite;
   end;
 
@@ -420,9 +414,8 @@ begin
   begin
     Font := fontCooper;
     Text := 'Звук';
-    Z := Z_MAINMENU_BUTTONS;
     PivotPoint := ppTopLeft;
-    Position := dfVec2f(TEXT_SOUND_X - R.WindowWidth, TEXT_SOUND_Y);
+    Position := dfVec3f(TEXT_SOUND_X - R.WindowWidth, TEXT_SOUND_Y, Z_MAINMENU_BUTTONS);
     Material.Diffuse := colorWhite;
   end;
 
@@ -430,9 +423,8 @@ begin
   begin
     Font := fontCooper;
     Text := 'Сложность';
-    Z := Z_MAINMENU_BUTTONS;
     PivotPoint := ppTopLeft;
-    Position := dfVec2f(TEXT_DIFF_X - R.WindowWidth, TEXT_DIFF_Y);
+    Position := dfVec3f(TEXT_DIFF_X - R.WindowWidth, TEXT_DIFF_Y, Z_MAINMENU_BUTTONS);
     Material.Diffuse := colorWhite;
   end;
 
@@ -440,9 +432,8 @@ begin
   begin
     Font := fontCooper;
     Text := '';
-    Z := Z_MAINMENU_BUTTONS;
     PivotPoint := ppCenter;
-    Position := dfVec2f(TEXT_DIFFDESC_X - R.WindowWidth, TEXT_DIFFDESC_Y);
+    Position := dfVec3f(TEXT_DIFFDESC_X - R.WindowWidth, TEXT_DIFFDESC_Y, Z_MAINMENU_BUTTONS);
     Material.Diffuse := colorWhite;
   end;
 
@@ -465,8 +456,7 @@ begin
       UpdateTexCoords();
       SetSizeToTextureSize();
     end;
-    Z := Z_MAINMENU_BUTTONS;
-    Position := dfVec2f(SLIDER_SOUND_X - R.WindowWidth, SLIDER_SOUND_Y);
+    Position := dfVec3f(SLIDER_SOUND_X - R.WindowWidth, SLIDER_SOUND_Y, Z_MAINMENU_BUTTONS);
     OnValueChanged := OnSliderValueChanged;
     OnMouseDown := MouseClick;
   end;
@@ -489,8 +479,7 @@ begin
       UpdateTexCoords();
       SetSizeToTextureSize();
     end;
-    Z := Z_MAINMENU_BUTTONS;
-    Position := dfVec2f(SLIDER_MUSIC_X - R.WindowWidth, SLIDER_MUSIC_Y);
+    Position := dfVec3f(SLIDER_MUSIC_X - R.WindowWidth, SLIDER_MUSIC_Y, Z_MAINMENU_BUTTONS);
     OnValueChanged := OnSliderValueChanged;
     OnMouseDown := MouseClick;
   end;
@@ -516,8 +505,7 @@ begin
       UpdateTexCoords();
       SetSizeToTextureSize();
     end;
-    Z := Z_MAINMENU_BUTTONS;
-    Position := dfVec2f(SLIDER_DIFF_X - R.WindowWidth, SLIDER_DIFF_Y);
+    Position := dfVec3f(SLIDER_DIFF_X - R.WindowWidth, SLIDER_DIFF_Y, Z_MAINMENU_BUTTONS);
     OnValueChanged := OnSliderValueChanged;
     OnMouseDown := MouseClick;
   end;
@@ -525,15 +513,14 @@ begin
   with FBtnBack do
   begin
     PivotPoint := ppCenter;
-    Position := dfVec2f(BTN_BACK_X - R.WindowWidth, BTN_BACK_Y);
-    Z := Z_MAINMENU_BUTTONS;
+    Position := dfVec3f(BTN_BACK_X - R.WindowWidth, BTN_BACK_Y, Z_MAINMENU_BUTTONS);
 
     with TextObject do
     begin
       Font := fontCooper;
       Text := 'Применить';
       PivotPoint := ppTopLeft;
-      Position := dfVec2f(-150, -15);
+      Position2D := dfVec2f(-150, -15);
       Material.Diffuse := colorWhite;
     end;
 
@@ -546,15 +533,15 @@ begin
   end;
   FBtnBack.OnMouseClick := MouseClick;
 
-  FScene.RegisterElement(FMusicText);
-  FScene.RegisterElement(FSoundText);
-  FScene.RegisterElement(FDifficultyText);
-  FScene.RegisterElement(FDificultyDescriptionText);
+  FScene.RootNode.AddChild(FMusicText);
+  FScene.RootNode.AddChild(FSoundText);
+  FScene.RootNode.AddChild(FDifficultyText);
+  FScene.RootNode.AddChild(FDificultyDescriptionText);
 
-  FScene.RegisterElement(FSoundVol);
-  FScene.RegisterElement(FMusicVol);
-  FScene.RegisterElement(FDifficulty);
-  FScene.RegisterElement(FBtnBack);
+  FScene.RootNode.AddChild(FSoundVol);
+  FScene.RootNode.AddChild(FMusicVol);
+  FScene.RootNode.AddChild(FDifficulty);
+  FScene.RootNode.AddChild(FBtnBack);
 end;
 
 procedure TpdMainMenu.Load;
@@ -594,8 +581,7 @@ begin
     Font := fontCooper;
     Text := 'автор — perfect.daemon'#13#10'Музыка — BoxCat Games, CC-BY';
     PivotPoint := ppBottomCenter;
-    Position := dfVec2f(R.WindowWidth div 2, R.WindowHeight + ABOUT_OFFSET_Y);
-    Z := Z_MAINMENU_BUTTONS;
+    Position := dfVec3f(R.WindowWidth div 2, R.WindowHeight + ABOUT_OFFSET_Y, Z_MAINMENU_BUTTONS);
   end;
 
   with FIGDCText do
@@ -603,13 +589,12 @@ begin
     Font := fontCooper;
     Text := 'Совершенно секретно'#13#10'Только для IGDC#97';
     PivotPoint := ppTopCenter;
-    Position := dfVec2f(R.WindowWidth div 2, IGDC_OFFSET_Y);
+    Position := dfVec3f(R.WindowWidth div 2, IGDC_OFFSET_Y, Z_MAINMENU_BUTTONS);
     Material.Diffuse := colorGray2;
-    Z := Z_MAINMENU_BUTTONS;
   end;
 
-  FScene.RegisterElement(FAboutText);
-  FScene.RegisterElement(FIGDCText);
+  FScene.RootNode.AddChild(FAboutText);
+  FScene.RootNode.AddChild(FIGDCText);
 end;
 
 procedure TpdMainMenu.SetGameScreenLinks(aGame: TpdGameScreen);
@@ -669,7 +654,7 @@ begin
   FGUIManager.RegisterElement(FMusicVol);
   FGUIManager.RegisterElement(FDifficulty);
   FGUIManager.RegisterElement(FBtnBack);
-  Tweener.AddTweenSingle(Self, @TweenSceneOrigin, tsExpoEaseIn, FScene.Origin._x, R.WindowWidth, 2.0, 0.0);
+  Tweener.AddTweenSingle(Self, @TweenSceneOrigin, tsExpoEaseIn, FScene.RootNode.Position.x, R.WindowWidth, 2.0, 0.0);
 
   FSettingsShowed := True;
 end;

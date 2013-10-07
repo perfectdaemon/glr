@@ -1,4 +1,4 @@
-78;		musicvol
+52;		musicvol
 58;		soundvol
 Daemon;		name
 1;		online

@@ -145,8 +145,8 @@ destructor TpdGame.Destroy;
 begin
   Unload();
 
-//  FMainScene.UnregisterElements();
-//  FHudScene.UnregisterElements();
+  FMainScene.RootNode.RemoveAllChilds();
+  FHudScene.RootNode.RemoveAllChilds();
   FMainScene := nil;
   FHUDscene := nil;
   uGlobal.mainScene := nil;
@@ -336,7 +336,7 @@ begin
   FFPSCounter.TextObject.Material.Diffuse := dfVec4f(0, 0, 0, 1);
   FFPSCounter.TextObject.Visible := False;
 
-  FDebug := TglrDebugInfo.Create(FHUDScene);
+  FDebug := TglrDebugInfo.Create(FHUDScene.RootNode);
   FDebug.FText.Material.Diffuse := dfVec4f(0, 0, 0, 1);
   FDebug.FText.Visible := False;
   FDebug.FText.PPosition.y := 20;
@@ -373,47 +373,43 @@ begin
   with FTopWall do
   begin
     PivotPoint := ppTopLeft;
-    Position := dfVec2f(0, 0);
+    Position := dfVec3f(0, 0, Z_DROPOBJECTS + 1);
     Material.Diffuse := colorGray2;
     Width := R.WindowWidth;
     Height := 5;
-    Z := Z_DROPOBJECTS + 1;
   end;
 
   with FBottomWall do
   begin
     PivotPoint := ppBottomLeft;
-    Position := dfVec2f(0, R.WindowHeight);
+    Position := dfVec3f(0, R.WindowHeight, Z_DROPOBJECTS + 1);
     Material.Diffuse := colorGray2;
     Width := R.WindowWidth;
     Height := 5;
-    Z := Z_DROPOBJECTS + 1;
   end;
 
   with FLeftWall do
   begin
     PivotPoint := ppTopLeft;
-    Position := dfVec2f(0, 0);
+    Position := dfVec3f(0, 0, Z_DROPOBJECTS + 1);
     Material.Diffuse := colorGray2;
     Width := 5;
     Height := R.WindowHeight;
-    Z := Z_DROPOBJECTS + 1;
   end;
 
   with FRightWall do
   begin
     PivotPoint := ppTopRight;
-    Position := dfVec2f(R.WindowWidth, 0);
+    Position := dfVec3f(R.WindowWidth, 0, Z_DROPOBJECTS + 1);
     Material.Diffuse := colorGray2;
     Width := 5;
     Height := R.WindowHeight;
-    Z := Z_DROPOBJECTS + 1;
   end;
 
-  FMainScene.RegisterElement(FTopWall);
-  FMainScene.RegisterElement(FBottomWall);
-  FMainScene.RegisterElement(FLeftWall);
-  FMainScene.RegisterElement(FRightWall);
+  FMainScene.RootNode.AddChild(FTopWall);
+  FMainScene.RootNode.AddChild(FBottomWall);
+  FMainScene.RootNode.AddChild(FLeftWall);
+  FMainScene.RootNode.AddChild(FRightWall);
 end;
 
 procedure TpdGame.LoadPlayer;
