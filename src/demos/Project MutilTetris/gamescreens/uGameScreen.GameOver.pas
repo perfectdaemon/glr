@@ -25,8 +25,6 @@ type
     FBackground: IglrSprite;
     Ft: Single; //Время для анимации fadein / fadeout
 
-    FEscapeDown: Boolean;
-
     procedure LoadButtons();
     procedure LoadBackground();
     procedure LoadTexts();

@@ -5,7 +5,7 @@ interface
 uses
   Contnrs,
   glr, glrUtils, glrMath,
-  uGameScreen,
+  uGameScreen, uField,
   uGlobal;
 
 const
@@ -31,8 +31,13 @@ type
     Ft: Single; //Время для расчета анимации fadein/fadeout
     FFakeBackground: IglrSprite;
 
+    FField: TpdField;
+
     procedure LoadHUD();
     procedure FreeHUD();
+
+    procedure LoadField();
+    procedure FreeField();
 
     procedure DoUpdate(const dt: Double);
   protected
@@ -107,6 +112,8 @@ begin
 
   if FPause then
     Exit();
+
+  FField.Update(dt);
 end;
 
 procedure TpdGame.FadeIn(deltaTime: Double);
@@ -143,6 +150,12 @@ begin
   Unload();
 end;
 
+procedure TpdGame.FreeField;
+begin
+  if Assigned(FField) then
+    FreeAndNil(FField);
+end;
+
 procedure TpdGame.FreeHUD;
 begin
   {$IFDEF DEBUG}
@@ -163,12 +176,14 @@ begin
 
   sound.PlayMusic(musicIngame);
 
-  gl.ClearColor(119/255, 208/255, 214/255, 1);
+  //gl.ClearColor(119/255, 208/255, 214/255, 1);
+  gl.ClearColor(0, 30 / 255, 60 / 250, 1.0);
   FMainScene.RootNode.RemoveAllChilds();
   FMainScene.RootNode.Position := dfVec3f(0, 0, 0);
   FHudScene.RootNode.RemoveAllChilds();
 
   LoadHUD();
+  LoadField();
 
   FFakeBackground := Factory.NewHudSprite();
   with FFakeBackground do
@@ -185,6 +200,13 @@ begin
   R.RegisterScene(FHUDScene);
 
   FLoaded := True;
+end;
+
+procedure TpdGame.LoadField;
+begin
+  if Assigned(FField) then
+    FreeAndNil(FField);
+  FField := TpdField.Create();
 end;
 
 procedure TpdGame.LoadHUD;
@@ -241,6 +263,7 @@ begin
     Exit();
 
   FreeHUD();
+  FreeField();
 
   R.UnregisterScene(FMainScene);
   R.UnregisterScene(FHUDScene);

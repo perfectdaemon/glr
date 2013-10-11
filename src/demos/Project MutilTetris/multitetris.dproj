@@ -58,6 +58,7 @@
 			<DCCReference Include="gamescreens\uGameScreen.MainMenu.pas"/>
 			<DCCReference Include="gamescreens\uGameScreen.pas"/>
 			<DCCReference Include="gamescreens\uGameScreenManager.pas"/>
+			<DCCReference Include="uField.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

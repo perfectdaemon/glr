@@ -81,32 +81,35 @@ uses
 
 const
   //New game
-  PLAY_X      = 512;
+  PLAY_X      = 350;
   PLAY_Y      = 250;
 
   //Settings
   SETTINGS_X  = PLAY_X;
-  SETTINGS_Y  = PLAY_Y + 80;
+  SETTINGS_Y  = PLAY_Y + 60;
 
   //Exit
   EXIT_X      = PLAY_X;
-  EXIT_Y      = SETTINGS_Y + 80;
+  EXIT_Y      = SETTINGS_Y + 60;
 
   //Settings offset
-  TEXT_MUSIC_X = 200;
+  TEXT_MUSIC_X = 100;
   TEXT_MUSIC_Y = 200;
 
   TEXT_SOUND_X = TEXT_MUSIC_X;
   TEXT_SOUND_Y = TEXT_MUSIC_Y + 50;
 
-  SLIDER_SOUND_X = 450;
+  SLIDER_SOUND_X = 250;
   SLIDER_SOUND_Y = TEXT_SOUND_Y + 10;
 
   SLIDER_MUSIC_X = SLIDER_SOUND_X;
   SLIDER_MUSIC_Y = TEXT_MUSIC_Y + 10;
 
-  BTN_BACK_X = 550;
-  BTN_BACK_Y = 550;
+  BTN_BACK_X = 350;
+  BTN_BACK_Y = 350;
+
+  BTN_TEXT_OFFSET_X = -100;
+  BTN_TEXT_OFFSET_Y = -15;
 
 procedure MouseClick(Sender: IglrGUIElement; X, Y: Integer; mb: TglrMouseButton;
   Shift: TglrMouseShiftState);
@@ -250,10 +253,10 @@ begin
 
     with TextObject do
     begin
-      Font := fontCooper;
-      Text := 'Одиночная игра';
+      Font := fontSouvenir;
+      Text := 'Игра';
       PivotPoint := ppTopLeft;
-      Position2D := dfVec2f(-150, -15);
+      Position2D := dfVec2f(BTN_TEXT_OFFSET_X, BTN_TEXT_OFFSET_Y);
       Material.Diffuse := colorWhite;
     end;
     TextureNormal := atlasMain.LoadTexture(BTN_NORMAL_TEXTURE);
@@ -271,10 +274,10 @@ begin
 
     with TextObject do
     begin
-      Font := fontCooper;
+      Font := fontSouvenir;
       Text := 'Настройки';
       PivotPoint := ppTopLeft;
-      Position2D := dfVec2f(-150, -15);
+      Position2D := dfVec2f(BTN_TEXT_OFFSET_X, BTN_TEXT_OFFSET_Y);
       Material.Diffuse := colorWhite;
     end;
 
@@ -293,10 +296,10 @@ begin
 
     with TextObject do
     begin
-      Font := fontCooper;
+      Font := fontSouvenir;
       Text := 'Выйти';
       PivotPoint := ppTopLeft;
-      Position2D := dfVec2f(-150, -15);
+      Position2D := dfVec2f(BTN_TEXT_OFFSET_X, BTN_TEXT_OFFSET_Y);
       Material.Diffuse := colorWhite;
     end;
 
@@ -329,7 +332,7 @@ begin
 
   with FMusicText do
   begin
-    Font := fontCooper;
+    Font := fontSouvenir;
     Text := 'Музыка';
     PivotPoint := ppTopLeft;
     Position := dfVec3f(TEXT_MUSIC_X - R.WindowWidth, TEXT_MUSIC_Y, Z_MAINMENU);
@@ -338,7 +341,7 @@ begin
 
   with FSoundText do
   begin
-    Font := fontCooper;
+    Font := fontSouvenir;
     Text := 'Звук';
     PivotPoint := ppTopLeft;
     Position := dfVec3f(TEXT_SOUND_X - R.WindowWidth, TEXT_SOUND_Y, Z_MAINMENU);
@@ -399,10 +402,10 @@ begin
 
     with TextObject do
     begin
-      Font := fontCooper;
+      Font := fontSouvenir;
       Text := 'Применить';
       PivotPoint := ppTopLeft;
-      Position2D := dfVec2f(-150, -15);
+      Position2D := dfVec2f(BTN_TEXT_OFFSET_X, BTN_TEXT_OFFSET_Y);
       Material.Diffuse := colorWhite;
     end;
 
@@ -424,12 +427,10 @@ begin
 end;
 
 procedure TpdMainMenu.Load;
-var
-  int, ecode: Integer;
 begin
   inherited;
   //Устанавливаем цвет фона при переключении окон
-  gl.ClearColor(54 / 255, 172 / 255, 179 / 255, 1.0);
+  gl.ClearColor(0, 30 / 255, 60 / 250, 1.0);
 
   FMusicVol.Value := 50;
   FSoundVol.Value := 50;
@@ -450,19 +451,18 @@ begin
 
   with FAboutText do
   begin
-    Font := fontCooper;
-    Text := 'автор — perfect.daemon'#13#10'Музыка — BoxCat Games, CC-BY';
+    Font := fontSouvenir;
+    Text := '— perfect.daemon —'#13#10'   октябрь 2013';
     PivotPoint := ppBottomCenter;
     Position := dfVec3f(R.WindowWidth div 2, R.WindowHeight + ABOUT_OFFSET_Y, Z_MAINMENU);
   end;
 
   with FIGDCText do
   begin
-    Font := fontCooper;
+    Font := fontSouvenir;
     Text := 'Только для igdc#100';
     PivotPoint := ppTopCenter;
     Position := dfVec3f(R.WindowWidth div 2, IGDC_OFFSET_Y, Z_MAINMENU);
-    Material.Diffuse := colorGray2;
   end;
 
   FScene.RootNode.AddChild(FAboutText);

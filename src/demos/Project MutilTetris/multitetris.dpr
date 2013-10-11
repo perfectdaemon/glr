@@ -14,7 +14,8 @@ uses
   uGameScreen.GameOver in 'gamescreens\uGameScreen.GameOver.pas',
   uGameScreen.MainMenu in 'gamescreens\uGameScreen.MainMenu.pas',
   uGameScreen in 'gamescreens\uGameScreen.pas',
-  uGameScreenManager in 'gamescreens\uGameScreenManager.pas';
+  uGameScreenManager in 'gamescreens\uGameScreenManager.pas',
+  uField in 'uField.pas';
 
 var
   gsManager: TpdGSManager;
@@ -84,11 +85,11 @@ begin
   gsManager.Add(mainMenu);
   gsManager.Add(game);
   gsManager.Add(gameOver);
-//  {$IFDEF DEBUG}
-//  gsManager.Notify(game, naSwitchTo);
-//  {$ELSE}
+  {$IFDEF DEBUG}
+  gsManager.Notify(game, naSwitchTo);
+  {$ELSE}
   gsManager.Notify(mainMenu, naSwitchTo);
-//  {$ENDIF}
+  {$ENDIF}
 
   R.Start();
 

@@ -1,7 +1,7 @@
 decimalseparator .
 //Окно
 rendermode window
-resolution 1024 700
+resolution 700 700
 windowPos 200 100
 backgroundColor 0.40 0.40 0.40
 caption ''

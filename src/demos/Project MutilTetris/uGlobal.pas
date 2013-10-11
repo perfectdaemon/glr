@@ -23,7 +23,7 @@ const
   SOUND_CLICK   = RES_FOLDER + 'click.ogg';
 
 
-  FILE_MAIN_TEXTURE_ATLAS = RES_FOLDER + 'main.atlas';
+  FILE_MAIN_TEXTURE_ATLAS = RES_FOLDER + 'atlas.atlas';
 
   BTN_NORMAL_TEXTURE  = 'btn_normal.png';
   BTN_OVER_TEXTURE    = 'btn_over.png';
@@ -40,13 +40,14 @@ const
 
   PARTICLE_TEXTURE  = 'particle.png';
   PARTICLE_TEXTURE2 = 'particle2.png';
-  PARTICLE_TEXTURE3 = 'star.png';
+
+  BLOCK_TEXTURE = 'block.png';
 
 var
   //Renderer and scenes
   R: IglrRenderer;
   Factory: IglrObjectFactory;
-  mainScene, hudScene, globalScene: Iglr2DScene;
+  mainScene, hudScene{, globalScene}: Iglr2DScene;
 
   //Game objects
 
@@ -60,7 +61,7 @@ var
 
   //Resources
   atlasMain: TglrAtlas;
-  fontCooper: IglrFont;
+  fontCooper, fontZelek, fontSouvenir: IglrFont;
 
   //Colors
   colorRed: TdfVec4f    = (x: 188/255; y: 71/255;  z: 0.0; w: 1.0);
@@ -70,6 +71,13 @@ var
   colorGray2: TdfVec4f  = (x: 0.2; y: 0.2;  z: 0.2; w: 1.0);
   colorGray4: TdfVec4f  = (x: 0.4; y: 0.4;  z: 0.4; w: 1.0);
   colorOrange: TdfVec4f   = (x: 255/255; y: 125/255;  z: 8/255; w: 1.0);
+
+  colorUnused: TdfVec4f = (x: 1.0; y: 1.0; z: 1.0; w: 0.3);
+  colorUsed: array[1..4] of TdfVec4f =
+  ((x: 255/255; y: 30/255;   z: 0.0;   w: 1.0), //red
+   (x: 55/255;  y: 160/255;  z: 0.0;   w: 1.0), //green
+   (x: 255/255; y: 125/255;  z: 8/255; w: 1.0), //orange
+   (x: 0.9;     y: 0.93;     z: 0.1;   w: 1.0)); //yellow
 
 procedure InitializeGlobal();
 procedure FinalizeGlobal();
@@ -87,6 +95,22 @@ begin
     AddSymbols(FONT_USUAL_CHARS);
     FontSize := 18;
     GenerateFromTTF(RES_FOLDER + 'CyrillicCooper.ttf');
+  end;
+
+  fontZelek := Factory.NewFont();
+  with fontZelek do
+  begin
+    AddSymbols(FONT_USUAL_CHARS);
+    FontSize := 18;
+    GenerateFromTTF(RES_FOLDER + 'New_Zelek Normal.ttf', 'New_Zelek');
+  end;
+
+  fontSouvenir := Factory.NewFont();
+  with fontSouvenir do
+  begin
+    AddSymbols(FONT_USUAL_CHARS);
+    FontSize := 18;
+    GenerateFromTTF(RES_FOLDER + 'Souvenir Regular.ttf', 'Souvenir');
   end;
 
   //--Sound

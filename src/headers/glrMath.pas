@@ -19,24 +19,28 @@ const
   twopi = 2 * pi;
 
 type
-  TdfBox2f = record
+  TglrBox2f = record
     x1, y1, x2, y2: Single;
   end;
 
-  TdfBox2i = record
+  TglrBox2i = record
     x1, y1, x2, y2: Integer;
   end;
 
-  TdfBox3f = record
+  TglrBox3f = record
     x1, y1, z1, x2, y2, z2: Single;
   end;
 
-  TdfBox3i = record
+  TglrBox3i = record
     x1, y1, z1, x2, y2, z2: Integer;
   end;
 
   TdfBB = record
     Left, Right, Top, Bottom: Single;
+  end;
+
+  TglrBBi = record
+    Left, Right, Top, Bottom: Integer;
   end;
 
 {$REGION ' Single Vectors '}
