@@ -6,12 +6,15 @@ uses
   glr, glrMath;
 
 const
-  FIELD_SIZE_X = 20; //Размеры поля в клетках
-  FIELD_SIZE_Y = 20;
+  FIELD_SIZE_X = 24; //Размеры поля в клетках
+  FIELD_SIZE_Y = 24;
 
   CELL_SIZE_X = 24; //Размер клетки в пикселях
   CELL_SIZE_Y = 24;
   CELL_SPACE  = 2;
+
+  BLOCK_CENTER_X = 1; //Центр фигуры в матрице в координатах 0..3
+  BLOCK_CENTER_Y = 1;
 
 type
   TpdBlockOrigin = (boRight, boLeft, boTop, boBottom);
@@ -171,7 +174,7 @@ class function TpdBlock.CreateRandomBlock: TpdBlock;
   end;
 
 var
-  ind, colorInd, i, j: Integer;
+  ind, colorInd: Integer;
 begin
   Result := TpdBlock.Create();
   ind := Random(7); //0..6
@@ -247,26 +250,26 @@ begin
     case Origin of
       boRight:
       begin
-        X := FIELD_SIZE_X - Bounds[RotateIndex].Right;
-        Y := FIELD_SIZE_Y div 2;
+        X := FIELD_SIZE_X - Bounds[RotateIndex].Right - 1;
+        Y := FIELD_SIZE_Y div 2 - BLOCK_CENTER_Y;
         MoveDirection := boLeft;
       end;
       boLeft:
       begin
         X := -Bounds[RotateIndex].Left;
-        Y := FIELD_SIZE_Y div 2;
+        Y := FIELD_SIZE_Y div 2 - BLOCK_CENTER_Y;
         MoveDirection := boRight;
       end;
       boTop:
       begin
-        X := FIELD_SIZE_X div 2;
-        Y := 0;//-Bounds[RotateIndex].Top;
+        X := FIELD_SIZE_X div 2  - BLOCK_CENTER_X;
+        Y := -Bounds[RotateIndex].Top;
         MoveDirection := boBottom;
       end;
       boBottom:
       begin
-        X := FIELD_SIZE_X div 2;
-        Y := FIELD_SIZE_Y - Bounds[RotateIndex].Bottom;
+        X := FIELD_SIZE_X div 2 - BLOCK_CENTER_X;
+        Y := FIELD_SIZE_Y - Bounds[RotateIndex].Bottom - 1;
         MoveDirection := boTop;
       end;
     end;
@@ -278,7 +281,6 @@ var
   origin: TdfVec3f;
 begin
   inherited Create();
-  Randomize();
 
   cross := Factory.NewUserRender();
   cross.OnRender := CrossRender;
@@ -311,7 +313,7 @@ destructor TpdField.Destroy();
 var
   i, j: Integer;
 begin
-  for i := 0 to FIELD_SIZE_X -1 do
+  for i := 0 to FIELD_SIZE_X - 1 do
     for j := 0 to FIELD_SIZE_Y - 1 do
       Sprites[i, j] := nil;
 
@@ -358,8 +360,6 @@ begin
         else
           Material.Diffuse := colorUsed[F[i, j]];
       end;
-
-  Sprites[2, 5].Material.Diffuse := colorWhite;
 end;
 
 end.

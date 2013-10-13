@@ -297,7 +297,7 @@ begin
     with TextObject do
     begin
       Font := fontSouvenir;
-      Text := 'Выйти';
+      Text := 'Выход';
       PivotPoint := ppTopLeft;
       Position2D := dfVec2f(BTN_TEXT_OFFSET_X, BTN_TEXT_OFFSET_Y);
       Material.Diffuse := colorWhite;
@@ -432,8 +432,8 @@ begin
   //Устанавливаем цвет фона при переключении окон
   gl.ClearColor(0, 30 / 255, 60 / 250, 1.0);
 
-  FMusicVol.Value := 50;
-  FSoundVol.Value := 50;
+  FMusicVol.Value := 51;
+  FSoundVol.Value := 51;
   sound.PlayMusic(musicMenu);
 
   R.RegisterScene(FScene);
@@ -460,7 +460,10 @@ begin
   with FIGDCText do
   begin
     Font := fontSouvenir;
-    Text := 'Только для igdc#100';
+    Text := 'MultiTetris — почти обычный тетрис,'
+        +#13#10'в котором фигуры появляются со'
+        +#13#10'всех 4-х сторон.'
+        +#13#10#13#10'Только для igdc#100';
     PivotPoint := ppTopCenter;
     Position := dfVec3f(R.WindowWidth div 2, IGDC_OFFSET_Y, Z_MAINMENU);
   end;
@@ -495,8 +498,8 @@ begin
       Tweener.AddTweenPSingle(@FAboutText.PPosition.y, tsExpoEaseIn,
         R.WindowHeight + 70, R.WindowHeight + ABOUT_OFFSET_Y, TIME_ABOUTTEXT, TIME_ABOUTTEXT_PAUSE);
 
-      Tweener.AddTweenPSingle(@FIGDCText.PPosition.y, tsBounce,
-        -70, IGDC_OFFSET_Y, TIME_ABOUTTEXT, TIME_ABOUTTEXT_PAUSE + 1.0);
+      Tweener.AddTweenPSingle(@FIGDCText.PPosition.Y, tsExpoEaseIn,
+        -150, IGDC_OFFSET_Y, TIME_ABOUTTEXT + 1, TIME_ABOUTTEXT_PAUSE + 1.0);
     end;
 
     gssFadeInComplete: FadeInComplete();
