@@ -16,7 +16,7 @@ const
   BLOCK_CENTER_X = 1; //Центр фигуры в матрице в координатах 0..3
   BLOCK_CENTER_Y = 1;
 
-  SPEED_START = 3; //1 cell per second
+  SPEED_START = 1; //1 cell per second
 
 type
   TpdBlockOrigin = (boRight, boLeft, boTop, boBottom);
@@ -39,6 +39,7 @@ type
   private
     timeToMove: Single;
     function IsInBounds(X, Y: Integer): Boolean;
+    function CouldBlockMove(Direction: TpdBlockOrigin): Boolean;
     procedure RedrawField(const dt: Double);
     procedure PlayerControl(const dt: Double);
     procedure MoveCurrentBlock(const dt: Double);
@@ -283,6 +284,85 @@ begin
   timeToMove := 1 / CurrentSpeed;
 end;
 
+function TpdField.CouldBlockMove(Direction: TpdBlockOrigin): Boolean;
+var
+  i, j: Integer;
+  stop: Boolean;
+begin
+  with CurrentBlock do
+    case Direction of
+      boRight:
+      begin
+        for i := 3 downto 0 do
+          for j := 0 to 3 do
+          begin
+            if Matrices[RotateIndex][j, i] = 0 then
+              continue;
+            stop := not IsInBounds(i + X + 1, j + Y);
+            stop := stop or (F[i + X + 1, j + Y] > 10);
+            if Direction = MoveDirection then
+              stop := stop or (i + X + 1 > FIELD_SIZE_X div 2 - 1)
+            else
+              stop := stop or (i + X + 1 > FIELD_SIZE_X - 1);
+            if stop then
+              Exit(False);
+          end;
+      end;
+      boLeft:
+      begin
+        for i := 0 to 3 do
+          for j := 0 to 3 do
+          begin
+            if Matrices[RotateIndex][j, i] = 0 then
+              continue;
+            stop := not IsInBounds(i + X - 1, j + Y);
+            stop := stop or (F[i + X - 1, j + Y] > 10);
+            if Direction = MoveDirection then
+              stop := stop or (i + X - 1 < FIELD_SIZE_X div 2 - 1)
+            else
+              stop := stop or (i + X - 1 < 0);
+            if stop then
+              Exit(False);
+          end;
+      end;
+      boTop:
+      begin
+        for j := 0 to 3 do
+          for i := 0 to 3 do
+          begin
+            if Matrices[RotateIndex][j, i] = 0 then
+              continue;
+            stop := not IsInBounds(i + X, j + Y - 1);
+            stop := stop or (F[i + X, j + Y - 1] > 10);
+            if Direction = MoveDirection then
+              stop := stop or (j + Y - 1 < FIELD_SIZE_Y div 2 - 1)
+            else
+              stop := stop or (j + Y - 1 < 0);
+            if stop then
+              Exit(False);
+          end;
+      end;
+      boBottom:
+      begin
+        for j := 3 downto 0 do
+          for i := 0 to 3 do
+          begin
+            if Matrices[RotateIndex][j, i] = 0 then
+              continue;
+            stop := not IsInBounds(i + X, j + Y + 1);
+            stop := stop or (F[i + X, j + Y + 1] > 10);
+            if Direction = MoveDirection then
+              stop := stop or (j + Y + 1 > FIELD_SIZE_Y div 2 - 1)
+            else
+              stop := stop or (j + Y + 1 > FIELD_SIZE_Y - 1);
+            if stop then
+              Exit(False);
+          end;
+      end;
+    end;
+  Exit(True);
+end;
+
 constructor TpdField.Create();
 var
   i, j: Integer;
@@ -359,37 +439,10 @@ procedure TpdField.MoveCurrentBlock(const dt: Double);
             F[X + i, Y + j] := Matrices[RotateIndex][j, i] + 10;
   end;
 
-  function CouldBlockMove(): Boolean;
-  var
-    i, j: Integer;
-    flag: Boolean;
-  begin
-    with CurrentBlock do
-      case MoveDirection of
-        boRight: ;
-        boLeft: ;
-        boTop: ;
-        boBottom:
-        begin
-          for j := 3 downto 0 do
-            for i := 0 to 3 do
-            begin
-              flag := not IsInBounds(i + X, j + Y + 1);
-              flag := flag or ((F[i + X, j + Y + 1] > 10) and (Matrices[RotateIndex][j, i] > 0));
-              flag := flag or (j + Y + 1 > FIELD_SIZE_Y div 2);
-              if flag then
-                Exit(False);
-            end;
-
-        end;
-      end;
-    Exit(True);
-  end;
-
 begin
   if Assigned(CurrentBlock) then
-    if CouldBlockMove() then
-      BlockMove
+    if CouldBlockMove(CurrentBlock.MoveDirection) then
+      BlockMove()
     else
     begin
       BlockSet();
@@ -407,23 +460,48 @@ begin
       if R.Input.IsKeyPressed(VK_SPACE) then
         CurrentBlock.Rotate();
       case MoveDirection of
-        boRight: ;
-        boLeft: ;
-        boTop: ;
+        boRight:
+        begin
+          if R.Input.IsKeyPressed(VK_UP) or R.Input.IsKeyPressed('w') then
+            if CouldBlockMove(boTop) then
+              Y := Y - 1;
+          if R.Input.IsKeyPressed(VK_DOWN) or R.Input.IsKeyPressed('s') then
+            if CouldBlockMove(boBottom) then
+              Y := Y + 1;
+        end;
+        boLeft:
+        begin
+          if R.Input.IsKeyPressed(VK_UP) or R.Input.IsKeyPressed('w') then
+            if CouldBlockMove(boTop) then
+              Y := Y - 1;
+          if R.Input.IsKeyPressed(VK_DOWN) or R.Input.IsKeyPressed('s') then
+            if CouldBlockMove(boBottom) then
+              Y := Y + 1;
+        end;
+        boTop:
+        begin
+          if R.Input.IsKeyPressed(VK_LEFT) or R.Input.IsKeyPressed('a') then
+            if CouldBlockMove(boLeft) then
+              X := X - 1;
+          if R.Input.IsKeyPressed(VK_RIGHT) or R.Input.IsKeyPressed('d') then
+            if CouldBlockMove(boRight) then
+              X := X + 1;
+        end;
         boBottom:
         begin
           if R.Input.IsKeyPressed(VK_LEFT) or R.Input.IsKeyPressed('a') then
-            //todo:check for ability
-            X := X - 1;
+            if CouldBlockMove(boLeft) then
+              X := X - 1;
           if R.Input.IsKeyPressed(VK_RIGHT) or R.Input.IsKeyPressed('d') then
-            //todo:check for ability
-            X := X + 1;
+            if CouldBlockMove(boRight) then
+              X := X + 1;
         end;
       end;
     end;
 
 
   //debug
+  {
   if R.Input.IsKeyPressed('1') then
     AddBlock(boTop);
   if R.Input.IsKeyPressed('2') then
@@ -432,6 +510,7 @@ begin
     AddBlock(boLeft);
   if R.Input.IsKeyPressed('4') then
     AddBlock(boRight);
+  }
 end;
 
 procedure TpdField.RedrawField(const dt: Double);
