@@ -333,14 +333,14 @@ begin
     UpdateTexCoords();
     SetSizeToTextureSize();
     Position2D := FSubmitScore.Position2D + dfVec2f(TEXTBOX_PLAYERNAME_OFFSET_X, TEXTBOX_PLAYERNAME_OFFSET_Y);
-    with Position do z := Z_INGAMEMENU + 2;
+    PPosition.z := Z_INGAMEMENU + 2;
   end;
 
   with FBtnSubmit do
   begin
     PivotPoint := ppCenter;
     Position2D := FPlayerName.Position2D + dfVec2f(FPlayerName.Width + BTN_SUBMIT_OFFSET_X, BTN_SUBMIT_OFFSET_Y);
-    with Position do z := Z_INGAMEMENU + 2;
+    PPosition.z := Z_INGAMEMENU + 2;
     TextureNormal := atlasMain.LoadTexture(SUBMIT_NORMAL_TEXTURE);
     TextureOver := atlasMain.LoadTexture(SUBMIT_OVER_TEXTURE);
     TextureClick := atlasMain.LoadTexture(SUBMIT_CLICK_TEXTURE);
