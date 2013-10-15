@@ -8,6 +8,8 @@ uses
 const
   FIELD_SIZE_X = 24; //–азмеры пол€ в клетках
   FIELD_SIZE_Y = 24;
+  FIELD_OFFSET_X = -130;
+  FIELD_OFFSET_Y = 0;
 
   CELL_SIZE_X = 24; //–азмер клетки в пиксел€х
   CELL_SIZE_Y = 24;
@@ -19,7 +21,7 @@ const
   SPEED_START = 1; //1 cell per second
 
 type
-  TpdBlockOrigin = (boRight, boLeft, boTop, boBottom);
+  TpdDirection = (boRight, boLeft, boTop, boBottom);
 
   TpdBlock = class
   private
@@ -29,17 +31,19 @@ type
     Color: TdfVec4f;
     X, Y: Integer;
     RotateIndex: Integer;
-    MoveDirection: TpdBlockOrigin;
+    MoveDirection: TpdDirection;
     Bounds: array of TglrBBi;
     class function CreateRandomBlock(): TpdBlock;
     procedure Rotate();
+    function GetNextRotation(): Integer;
   end;
 
   TpdField = class
   private
     timeToMove: Single;
     function IsInBounds(X, Y: Integer): Boolean;
-    function CouldBlockMove(Direction: TpdBlockOrigin): Boolean;
+    function CouldBlockMove(Direction: TpdDirection): Boolean;
+    function CouldBlockRotate(): Boolean;
     procedure RedrawField(const dt: Double);
     procedure PlayerControl(const dt: Double);
     procedure MoveCurrentBlock(const dt: Double);
@@ -53,7 +57,7 @@ type
     constructor Create(); virtual;
     destructor Destroy(); override;
 
-    procedure AddBlock(Origin: TpdBlockOrigin);
+    procedure AddBlock(Origin: TpdDirection);
     procedure Update(const dt: Double);
   end;
 
@@ -87,21 +91,26 @@ const
   cS2 = '0100'+'0110'+'0010'+'0000';
   cO1 = '0110'+'0110'+'0000'+'0000';
 
+var
+  alphaVertLine, alphaHorLine: Single;
+  horLine, vertLine: array[0..3] of TdfVec3f;
+
 procedure CrossRender(); stdcall;
 begin
   gl.Disable(TGLConst.GL_LIGHTING);
   gl.Enable(TGLConst.GL_BLEND);
   gl.Beginp(TGLConst.GL_QUADS);
-    gl.Color4f(0.8, 0.5, 0.5, 0.3);
-    gl.Vertex3f(R.WindowWidth div 2 - CROSS_LINE_WIDTH div 2 - 1, 0, Z_BLOCKS - 1);
-    gl.Vertex3f(R.WindowWidth div 2 - CROSS_LINE_WIDTH div 2 - 1, R.WindowHeight, Z_BLOCKS - 1);
-    gl.Vertex3f(R.WindowWidth div 2 + CROSS_LINE_WIDTH div 2 - 1, R.WindowHeight, Z_BLOCKS - 1);
-    gl.Vertex3f(R.WindowWidth div 2 + CROSS_LINE_WIDTH div 2 - 1, 0, Z_BLOCKS - 1);
+    gl.Color4f(0.8, 0.5, 0.5, alphaVertLine);
+    gl.Vertex3fv(vertLine[0]);
+    gl.Vertex3fv(vertLine[1]);
+    gl.Vertex3fv(vertLine[2]);
+    gl.Vertex3fv(vertLine[3]);
 
-    gl.Vertex3f(0,             R.WindowHeight div 2 - CROSS_LINE_WIDTH div 2 - 1, Z_BLOCKS - 1);
-    gl.Vertex3f(0,             R.WindowHeight div 2 + CROSS_LINE_WIDTH div 2 - 1, Z_BLOCKS - 1);
-    gl.Vertex3f(R.WindowWidth, R.WindowHeight div 2 + CROSS_LINE_WIDTH div 2 - 1, Z_BLOCKS - 1);
-    gl.Vertex3f(R.WindowWidth, R.WindowHeight div 2 - CROSS_LINE_WIDTH div 2 - 1, Z_BLOCKS - 1);
+    gl.Color4f(0.8, 0.5, 0.5, alphaHorLine);
+    gl.Vertex3fv(horLine[0]);
+    gl.Vertex3fv(horLine[1]);
+    gl.Vertex3fv(horLine[2]);
+    gl.Vertex3fv(horLine[3]);
   gl.Endp();
   gl.Enable(TGLConst.GL_LIGHTING);
 end;
@@ -241,17 +250,22 @@ begin
   Result.RotateIndex := Random(Length(Result.Matrices));
 end;
 
-procedure TpdBlock.Rotate;
+function TpdBlock.GetNextRotation: Integer;
 begin
   if RotateIndex = High(Matrices) then
-    RotateIndex := 0
+    Result := 0
   else
-    RotateIndex := RotateIndex + 1;
+    Result := RotateIndex + 1;
+end;
+
+procedure TpdBlock.Rotate;
+begin
+  RotateIndex := GetNextRotation();
 end;
 
 { TpdField }
 
-procedure TpdField.AddBlock(Origin: TpdBlockOrigin);
+procedure TpdField.AddBlock(Origin: TpdDirection);
 begin
   CurrentBlock := TpdBlock.CreateRandomBlock();
   with CurrentBlock do
@@ -261,30 +275,38 @@ begin
         X := FIELD_SIZE_X - Bounds[RotateIndex].Right - 1;
         Y := FIELD_SIZE_Y div 2 - BLOCK_CENTER_Y;
         MoveDirection := boLeft;
+        alphaHorLine := 0.3;
+        alphaVertLine := 1.0;
       end;
       boLeft:
       begin
         X := -Bounds[RotateIndex].Left;
         Y := FIELD_SIZE_Y div 2 - BLOCK_CENTER_Y;
         MoveDirection := boRight;
+        alphaHorLine := 0.3;
+        alphaVertLine := 1.0;
       end;
       boTop:
       begin
         X := FIELD_SIZE_X div 2  - BLOCK_CENTER_X;
         Y := -Bounds[RotateIndex].Top;
         MoveDirection := boBottom;
+        alphaHorLine := 1.0;
+        alphaVertLine := 0.3;
       end;
       boBottom:
       begin
         X := FIELD_SIZE_X div 2 - BLOCK_CENTER_X;
         Y := FIELD_SIZE_Y - Bounds[RotateIndex].Bottom - 1;
         MoveDirection := boTop;
+        alphaHorLine := 1.0;
+        alphaVertLine := 0.3;
       end;
     end;
   timeToMove := 1 / CurrentSpeed;
 end;
 
-function TpdField.CouldBlockMove(Direction: TpdBlockOrigin): Boolean;
+function TpdField.CouldBlockMove(Direction: TpdDirection): Boolean;
 var
   i, j: Integer;
   stop: Boolean;
@@ -298,7 +320,7 @@ begin
           begin
             if Matrices[RotateIndex][j, i] = 0 then
               continue;
-            stop := not IsInBounds(i + X + 1, j + Y);
+            stop := false; //not IsInBounds(i + X + 1, j + Y);
             stop := stop or (F[i + X + 1, j + Y] > 10);
             if Direction = MoveDirection then
               stop := stop or (i + X + 1 > FIELD_SIZE_X div 2 - 1)
@@ -315,10 +337,10 @@ begin
           begin
             if Matrices[RotateIndex][j, i] = 0 then
               continue;
-            stop := not IsInBounds(i + X - 1, j + Y);
+            stop := false; //not IsInBounds(i + X - 1, j + Y);
             stop := stop or (F[i + X - 1, j + Y] > 10);
             if Direction = MoveDirection then
-              stop := stop or (i + X - 1 < FIELD_SIZE_X div 2 - 1)
+              stop := stop or (i + X - 1 < FIELD_SIZE_X div 2)
             else
               stop := stop or (i + X - 1 < 0);
             if stop then
@@ -332,10 +354,10 @@ begin
           begin
             if Matrices[RotateIndex][j, i] = 0 then
               continue;
-            stop := not IsInBounds(i + X, j + Y - 1);
+            stop := false; //not IsInBounds(i + X, j + Y - 1);
             stop := stop or (F[i + X, j + Y - 1] > 10);
             if Direction = MoveDirection then
-              stop := stop or (j + Y - 1 < FIELD_SIZE_Y div 2 - 1)
+              stop := stop or (j + Y - 1 < FIELD_SIZE_Y div 2)
             else
               stop := stop or (j + Y - 1 < 0);
             if stop then
@@ -349,7 +371,7 @@ begin
           begin
             if Matrices[RotateIndex][j, i] = 0 then
               continue;
-            stop := not IsInBounds(i + X, j + Y + 1);
+            stop := false; //not IsInBounds(i + X, j + Y + 1);
             stop := stop or (F[i + X, j + Y + 1] > 10);
             if Direction = MoveDirection then
               stop := stop or (j + Y + 1 > FIELD_SIZE_Y div 2 - 1)
@@ -361,6 +383,22 @@ begin
       end;
     end;
   Exit(True);
+end;
+
+function TpdField.CouldBlockRotate(): Boolean;
+var
+  nextRotation, i, j: Integer;
+begin
+  if Assigned(CurrentBlock) then
+    with CurrentBlock do
+    begin
+      nextRotation := GetNextRotation();
+      for i := 0 to 3 do
+        for j := 0 to 3 do
+          if (Matrices[nextRotation][j, i] > 0) and (F[X + i, Y + j] > 10) then
+            Exit(False);
+      Exit(True);
+    end;
 end;
 
 constructor TpdField.Create();
@@ -377,7 +415,7 @@ begin
   CurrentBlock := nil;
   timeToMove := 0;
   CurrentSpeed := SPEED_START;
-  origin := dfVec3f(R.WindowWidth div 2, R.WindowHeight div 2, Z_BLOCKS)
+  origin := dfVec3f(R.WindowWidth div 2 + FIELD_OFFSET_X, R.WindowHeight div 2 + FIELD_OFFSET_Y, Z_BLOCKS)
     - dfVec3f((FIELD_SIZE_X div 2) * (CELL_SIZE_X + CELL_SPACE), (FIELD_SIZE_Y div 2) * (CELL_SIZE_Y + CELL_SPACE), 0);
   for i := 0 to FIELD_SIZE_X -1 do
     for j := 0 to FIELD_SIZE_Y - 1 do
@@ -395,6 +433,36 @@ begin
         PivotPoint := ppTopLeft;
       end;
     end;
+  //top left
+  vertLine[0] := dfVec3f(R.WindowWidth div 2 - CROSS_LINE_WIDTH div 2 - 1 + FIELD_OFFSET_X,
+    Sprites[0, 0].Position.y - CELL_SIZE_Y, Z_BLOCKS - 1);
+  //bottom left
+  vertLine[1] := dfVec3f(R.WindowWidth div 2 - CROSS_LINE_WIDTH div 2 - 1 + FIELD_OFFSET_X,
+    Sprites[0, FIELD_SIZE_Y - 1].Position.y + 2 * CELL_SIZE_Y, Z_BLOCKS - 1);
+  //bottom right
+  vertLine[2] := dfVec3f(R.WindowWidth div 2 + CROSS_LINE_WIDTH div 2 - 1 + FIELD_OFFSET_X,
+    Sprites[0, FIELD_SIZE_Y - 1].Position.y + 2 * CELL_SIZE_Y,  Z_BLOCKS - 1);
+  //top right
+  vertLine[3] := dfVec3f(R.WindowWidth div 2 + CROSS_LINE_WIDTH div 2 - 1 + FIELD_OFFSET_X,
+    Sprites[0, 0].Position.y - CELL_SIZE_Y, Z_BLOCKS - 1);
+
+  //top left
+  horLine[0] := dfVec3f(Sprites[0, 0].Position.x - CELL_SIZE_X,
+    R.WindowHeight div 2 - CROSS_LINE_WIDTH div 2 - 1 + FIELD_OFFSET_Y,
+    Z_BLOCKS - 1);
+  //bottom left
+  horLine[1] := dfVec3f(Sprites[0, 0].Position.x - CELL_SIZE_X,
+    R.WindowHeight div 2 + CROSS_LINE_WIDTH div 2 - 1 + FIELD_OFFSET_Y,
+    Z_BLOCKS - 1);
+  //bottom right
+  horLine[2] := dfVec3f(Sprites[FIELD_SIZE_X - 1, 0].Position.x + 2 * CELL_SIZE_X,
+    R.WindowHeight div 2 + CROSS_LINE_WIDTH div 2 - 1 + FIELD_OFFSET_Y,
+    Z_BLOCKS - 1);
+  //top right
+  horLine[3] := dfVec3f(Sprites[FIELD_SIZE_X - 1, 0].Position.x + 2 * CELL_SIZE_X,
+    R.WindowHeight div 2 - CROSS_LINE_WIDTH div 2 - 1 + FIELD_OFFSET_Y,
+    Z_BLOCKS - 1);
+
   //debug
   AddBlock(boTop);
 end;
@@ -447,8 +515,12 @@ begin
     begin
       BlockSet();
       CurrentBlock.Free();
-      //debug!!!
-      AddBlock(boTop);
+      case CurrentBlock.MoveDirection of
+        boRight: AddBlock(boBottom);
+        boLeft: AddBlock(boTop);
+        boTop: AddBlock(boRight);
+        boBottom: AddBlock(boLeft);
+      end;
     end;
 end;
 
@@ -457,8 +529,20 @@ begin
   if Assigned(CurrentBlock) then
     with CurrentBlock do
     begin
-      if R.Input.IsKeyPressed(VK_SPACE) then
-        CurrentBlock.Rotate();
+      if R.Input.IsKeyPressed(VK_SPACE) and CouldBlockRotate() then
+      begin
+        //todo: проверить возможность поворота
+        Rotate();
+        if (X + Bounds[RotateIndex].Right > FIELD_SIZE_X - 1) then
+          X := X - (X + Bounds[RotateIndex].Right - FIELD_SIZE_X + 1);
+        if (X + Bounds[RotateIndex].Left < 0) then
+          X := X + (X + Bounds[RotateIndex].Left);
+        if (Y + Bounds[RotateIndex].Top < 0) then
+          Y := Y + (Y + Bounds[RotateIndex].Top);
+        if (Y + Bounds[RotateIndex].Bottom > FIELD_SIZE_Y - 1) then
+          Y := Y - (Y + Bounds[RotateIndex].Bottom - FIELD_SIZE_Y + 1);
+      end;
+
       case MoveDirection of
         boRight:
         begin
@@ -468,6 +552,11 @@ begin
           if R.Input.IsKeyPressed(VK_DOWN) or R.Input.IsKeyPressed('s') then
             if CouldBlockMove(boBottom) then
               Y := Y + 1;
+          if R.Input.IsKeyPressed(VK_RIGHT) then
+          begin
+            MoveCurrentBlock(dt);
+            timeToMove := 1 / CurrentSpeed;
+          end;
         end;
         boLeft:
         begin
@@ -477,6 +566,11 @@ begin
           if R.Input.IsKeyPressed(VK_DOWN) or R.Input.IsKeyPressed('s') then
             if CouldBlockMove(boBottom) then
               Y := Y + 1;
+          if R.Input.IsKeyPressed(VK_LEFT) then
+          begin
+            MoveCurrentBlock(dt);
+            timeToMove := 1 / CurrentSpeed;
+          end;
         end;
         boTop:
         begin
@@ -486,6 +580,11 @@ begin
           if R.Input.IsKeyPressed(VK_RIGHT) or R.Input.IsKeyPressed('d') then
             if CouldBlockMove(boRight) then
               X := X + 1;
+          if R.Input.IsKeyPressed(VK_UP) then
+          begin
+            MoveCurrentBlock(dt);
+            timeToMove := 1 / CurrentSpeed;
+          end;
         end;
         boBottom:
         begin
@@ -495,22 +594,14 @@ begin
           if R.Input.IsKeyPressed(VK_RIGHT) or R.Input.IsKeyPressed('d') then
             if CouldBlockMove(boRight) then
               X := X + 1;
+          if R.Input.IsKeyPressed(VK_DOWN) then
+          begin
+            MoveCurrentBlock(dt);
+            timeToMove := 1 / CurrentSpeed;
+          end;
         end;
       end;
     end;
-
-
-  //debug
-  {
-  if R.Input.IsKeyPressed('1') then
-    AddBlock(boTop);
-  if R.Input.IsKeyPressed('2') then
-    AddBlock(boBottom);
-  if R.Input.IsKeyPressed('3') then
-    AddBlock(boLeft);
-  if R.Input.IsKeyPressed('4') then
-    AddBlock(boRight);
-  }
 end;
 
 procedure TpdField.RedrawField(const dt: Double);

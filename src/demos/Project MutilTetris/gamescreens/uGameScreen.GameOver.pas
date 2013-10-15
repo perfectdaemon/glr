@@ -184,8 +184,8 @@ begin
 
     with TextObject do
     begin
-      Font := fontCooper;
-      Text := 'Еще разок!';
+      Font := fontSouvenir;
+      Text := 'Играть снова!';
       PivotPoint := ppTopLeft;
       Position2D := dfVec2f(-150, -15);
       Material.Diffuse := colorWhite;
@@ -208,8 +208,8 @@ begin
 
     with TextObject do
     begin
-      Font := fontCooper;
-      Text := 'В меню...';
+      Font := fontSouvenir;
+      Text := 'Меню';
       PivotPoint := ppTopLeft;
       Position2D := dfVec2f(-150, -15);
       Material.Diffuse := colorWhite;
@@ -236,7 +236,7 @@ begin
 
   with FGameOverText do
   begin
-    Font := fontCooper;
+    Font := fontSouvenir;
     PivotPoint := ppCenter;
     Position := dfVec3f(R.WindowWidth div 2 + TEXT_OFFSET_X,
       R.WindowHeight div 2 + TEXT_OFFSET_Y,

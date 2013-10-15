@@ -3,7 +3,7 @@
 			<ProjectGuid>{F7298FEE-030B-40EC-BCB8-F80034AB292A}</ProjectGuid>
 			<ProjectVersion>12.0</ProjectVersion>
 			<MainSource>multitetris.dpr</MainSource>
-			<Config Condition="'$(Config)'==''">Release</Config>
+			<Config Condition="'$(Config)'==''">Debug</Config>
 			<DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">

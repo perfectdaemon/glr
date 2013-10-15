@@ -6,7 +6,7 @@ uses
   glr, glrMath, glrUtils, uSound;
 
 const
-  GAMEVERSION = '0.01';
+  GAMEVERSION = '0.02';
 
   RES_FOLDER = 'tetris-res\';
 
@@ -61,7 +61,7 @@ var
 
   //Resources
   atlasMain: TglrAtlas;
-  fontCooper, fontZelek, fontSouvenir: IglrFont;
+  fontSouvenir: IglrFont;
 
   //Colors
   colorRed: TdfVec4f    = (x: 188/255; y: 71/255;  z: 0.0; w: 1.0);
@@ -89,21 +89,6 @@ begin
   atlasMain := TglrAtlas.InitCheetahAtlas(FILE_MAIN_TEXTURE_ATLAS);
 
   //--Font
-  fontCooper := Factory.NewFont();
-  with fontCooper do
-  begin
-    AddSymbols(FONT_USUAL_CHARS);
-    FontSize := 18;
-    GenerateFromTTF(RES_FOLDER + 'CyrillicCooper.ttf');
-  end;
-
-  fontZelek := Factory.NewFont();
-  with fontZelek do
-  begin
-    AddSymbols(FONT_USUAL_CHARS);
-    FontSize := 18;
-    GenerateFromTTF(RES_FOLDER + 'New_Zelek Normal.ttf', 'New_Zelek');
-  end;
 
   fontSouvenir := Factory.NewFont();
   with fontSouvenir do
@@ -123,7 +108,6 @@ end;
 
 procedure FinalizeGlobal();
 begin
-  fontCooper := nil;
   sound.Free();
   atlasMain.Free();
 end;

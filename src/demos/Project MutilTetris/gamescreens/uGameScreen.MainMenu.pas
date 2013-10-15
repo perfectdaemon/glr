@@ -81,7 +81,7 @@ uses
 
 const
   //New game
-  PLAY_X      = 350;
+  PLAY_X      = 500;
   PLAY_Y      = 250;
 
   //Settings
@@ -93,19 +93,19 @@ const
   EXIT_Y      = SETTINGS_Y + 60;
 
   //Settings offset
-  TEXT_MUSIC_X = 100;
+  TEXT_MUSIC_X = 350;
   TEXT_MUSIC_Y = 200;
 
   TEXT_SOUND_X = TEXT_MUSIC_X;
   TEXT_SOUND_Y = TEXT_MUSIC_Y + 50;
 
-  SLIDER_SOUND_X = 250;
+  SLIDER_SOUND_X = TEXT_MUSIC_X + 100;
   SLIDER_SOUND_Y = TEXT_SOUND_Y + 10;
 
   SLIDER_MUSIC_X = SLIDER_SOUND_X;
   SLIDER_MUSIC_Y = TEXT_MUSIC_Y + 10;
 
-  BTN_BACK_X = 350;
+  BTN_BACK_X = PLAY_X;
   BTN_BACK_Y = 350;
 
   BTN_TEXT_OFFSET_X = -100;
