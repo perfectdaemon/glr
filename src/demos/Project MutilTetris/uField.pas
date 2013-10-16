@@ -21,6 +21,7 @@ const
   SPEED_START = 1; //1 cell per second
 
   CLEAN_PERIOD = 8;
+  CLEAN_BLOCK_THRESHOLD = 6;
 
 type
   TpdDirection = (boRight, boLeft, boTop, boBottom);
@@ -54,6 +55,7 @@ type
   public
     CurrentBlock: TpdBlock;
     CurrentSpeed: Single;
+    Scores: Integer;
     F: array[0..FIELD_SIZE_X - 1, 0..FIELD_SIZE_Y - 1] of Integer;
     Sprites: array[0..FIELD_SIZE_X - 1, 0..FIELD_SIZE_Y - 1] of IglrSprite;
     cross: IglrUserRenderable;
@@ -326,8 +328,88 @@ begin
 end;
 
 procedure TpdField.CleanBlocks;
+
+  function CheckCell(c, r: Integer; value: Integer): Integer;
+  begin
+    if IsInBounds(c, r) then
+      if F[c, r] = value then
+      begin
+        Result := 1;
+        F[c, r] := value + 100;
+        Inc(Result, CheckCell(c - 1, r, value));
+        Inc(Result, CheckCell(c + 1, r, value));
+        Inc(Result, CheckCell(c, r + 1, value));
+        Inc(Result, CheckCell(c, r - 1, value));
+        Exit();
+      end;
+    Exit(0);
+  end;
+
+  procedure MinusBlocksToClean(OnlyRevert: Boolean);
+  var
+    i, j: Integer;
+  begin
+    for i := 0 to FIELD_SIZE_X - 1 do
+      for j := 0 to FIELD_SIZE_Y - 1 do
+        if (F[i, j] > 100) then
+        begin
+          F[i, j] := F[i, j] - 100;
+          if not OnlyRevert then
+            F[i, j] := -F[i, j];
+        end;
+  end;
+
+var
+  i, j, Res, ResSum: Integer;
+  hasMove: Boolean;
 begin
-  //*
+  ResSum := 0;
+  for i := 0 to FIELD_SIZE_X - 1 do
+    for j := 0 to FIELD_SIZE_Y - 1 do
+      if (F[i, j] > 0) and (F[i, j] < 100) then
+      begin
+        Res := CheckCell(i, j, F[i, j]);
+        if Res >= CLEAN_BLOCK_THRESHOLD then
+        begin
+          MinusBlocksToClean(False);
+          ResSum := ResSum + Res;
+        end
+        else
+          MinusBlocksToClean(True);
+      end;
+  Scores := Scores + ResSum;
+
+  //TODO: Таймер на ожидание
+
+  //смещаем все сначало сверхну и снизу, потом слева и справа
+  hasMove := True;
+  while (hasMove) do
+  begin
+    hasMove := False;
+    for j := 1 to (FIELD_SIZE_Y div 2) - 1 do
+      for i := 0 to FIELD_SIZE_X - 1 do
+      begin
+        //Bottom
+        if (F[i, (FIELD_SIZE_Y div 2) + j] > 0) and
+           (F[i, (FIELD_SIZE_Y div 2) + j - 1] <= 0) then
+        begin
+          F[i, (FIELD_SIZE_Y div 2) + j - 1] := F[i, (FIELD_SIZE_Y div 2) + j];
+          F[i, (FIELD_SIZE_Y div 2) + j]     := 0;
+          hasMove := True;
+        end;
+
+        //Top
+        if (F[i, (FIELD_SIZE_Y div 2) - j] > 0) and
+           (F[i, (FIELD_SIZE_Y div 2) - j + 1] <= 0) then
+        begin
+          F[i, (FIELD_SIZE_Y div 2) - j + 1] := F[i, (FIELD_SIZE_Y div 2) - j];
+          F[i, (FIELD_SIZE_Y div 2) - j]     := 0;
+          hasMove := True;
+        end;
+      end;
+  end;
+      
+
 end;
 
 function TpdField.CouldBlockMove(Direction: TpdDirection): Boolean;
@@ -451,6 +533,7 @@ begin
   CurrentBlock := nil;
   timeToMove := 0;
   CurrentSpeed := SPEED_START;
+  Scores := 0;
   origin := dfVec3f(R.WindowWidth div 2 + FIELD_OFFSET_X, R.WindowHeight div 2 + FIELD_OFFSET_Y, Z_BLOCKS)
     - dfVec3f((FIELD_SIZE_X div 2) * (CELL_SIZE_X + CELL_SPACE), (FIELD_SIZE_Y div 2) * (CELL_SIZE_Y + CELL_SPACE), 0);
   for i := 0 to FIELD_SIZE_X -1 do
@@ -669,9 +752,15 @@ begin
       begin
         if F[i, j] = 0 then
           Material.Diffuse := colorUnused
-        else
+        else if F[i, j] < 100 then
           //1,2,3... - цвета дин. блоков, 11, 12, 13... - цвета стат. блоков
+          Material.Diffuse := colorUsed[F[i, j] mod 10]
+        //debug
+        else
+        begin
           Material.Diffuse := colorUsed[F[i, j] mod 10];
+          Material.PDiffuse.w := 0.5;
+        end;
       end;
 end;
 

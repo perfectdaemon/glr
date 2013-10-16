@@ -10,7 +10,7 @@ uses
 const
   FONT_USUAL_CHARS = 'ְֱֲֳִֵ¨ֶַָֹÊֻּֽ־ֿ׀ׁׂ׃װױײ׳״ÙÚÛÜÝÞßאבגדהו¸זחטיךכלםמןנסעףפץצקרשתûü‎‏ÿ'
                     +'QWERTYUIIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm'
-                    +'1234567890`~!@#$%^&*()"¹;%:?-+—«»[]{}'':<>.,\|/ ' + #10;
+                    +'1234567890`~!@#$%^&*()"¹;%:?-+=_—«»[]{}'':<>.,\|/ ' + #10;
 
 type
   TglrFPSCounter = class
@@ -105,7 +105,7 @@ begin
     AddSymbols('ְֱֲֳִֵ¨ֶַָֹÊֻּֽ־ֿ׀ׁׂ׃װױײ׳״ÙÚÛÜÝÞßאבגדהו¸זחטיךכלםמןנסעףפץצקרשתûü‎‏ÿ');
     AddSymbols('QWERTYUIIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm');
     AddSymbols('1234567890');
-    AddSymbols('`~!@#$%^&*()"¹;%:?-+—«»[]{}'':<>.,\|/ ' + #13+#10);
+    AddSymbols('`~!@#$%^&*()"¹;%:?-+=_—«»[]{}'':<>.,\|/ ' + #13+#10);
     FontSize := aFontSize;
     FontStyle := [];
     GenerateFromFont(aFontName);

@@ -449,7 +449,7 @@ begin
   with FAboutText do
   begin
     Font := fontSouvenir;
-    Text := 'Ч perfect.daemon Ч'#13#10'   окт€брь 2013';
+    Text := '   дл€ igdc#0x64'#13#10'Ч perfect.daemon Ч'#13#10'   окт€брь 2013';
     PivotPoint := ppBottomCenter;
     Position := dfVec3f(R.WindowWidth div 2, R.WindowHeight + ABOUT_OFFSET_Y, Z_MAINMENU);
   end;
@@ -457,10 +457,8 @@ begin
   with FIGDCText do
   begin
     Font := fontSouvenir;
-    Text := 'MultiTetris Ч почти обычный тетрис,'
-        +#13#10'в котором фигуры по€вл€ютс€ со'
-        +#13#10'всех 4-х сторон.'
-        +#13#10#13#10'“олько дл€ igdc#100';
+    Text := 'MultiTetris Ч тетрис, в котором фигуры'
+        +#13#10'по€вл€ютс€ со всех четырех сторон.';
     PivotPoint := ppTopCenter;
     Position := dfVec3f(R.WindowWidth div 2, IGDC_OFFSET_Y, Z_MAINMENU);
   end;

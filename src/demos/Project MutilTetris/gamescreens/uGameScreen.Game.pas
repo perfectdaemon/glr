@@ -15,18 +15,27 @@ const
   TIME_COUNT_GAMEOVER = 2.0;
 
   //top right
+  TEXT_SCORES_X = -300;
+  TEXT_SCORES_Y = 30;
+
+  TEXT_SPEED_X = TEXT_SCORES_X;
+  TEXT_SPEED_Y = TEXT_SCORES_Y + 30;
+
+  TEXT_CLEAN_X = TEXT_SCORES_X;
+  TEXT_CLEAN_Y = TEXT_SPEED_Y + 30;
+
+  //top right
   TEXT_HELP_X = -155;
-  TEXT_HELP_Y = 90;
+  TEXT_HELP_Y = TEXT_CLEAN_Y + 50;
 
   TEXT_PAUSE_X = -120;
   TEXT_PAUSE_Y = -200;
 
-  BTN_MENU_X = -140;
-  BTN_MENU_Y = -100;
+  BTN_CONTINUE_X = -140;
+  BTN_CONTINUE_Y = -140;
+  BTN_MENU_X = BTN_CONTINUE_X;
+  BTN_MENU_Y = BTN_CONTINUE_Y + 60;
 
-  //top right
-  TEXT_CLEAN_X = -25;
-  TEXT_CLEAN_Y = 30;
 type
   TpdGame = class (TpdGameScreen)
   private
@@ -40,7 +49,8 @@ type
     FDebug: TglrDebugInfo;
     {$ENDIF}
 
-    FHelpText, FPauseText, FCleanCounterText: IglrText;
+    FHelpText, FPauseText,
+    FCleanCounterText, FScoresText, FSpeedText: IglrText;
     FBtnMenu, FBtnContinue: IglrGUITextButton;
 
     Ft: Single; //Время для расчета анимации fadein/fadeout
@@ -99,7 +109,6 @@ begin
       OnNotify(FScrMenu, naSwitchTo)
     else if Sender = (FBtnContinue as IglrGUIElement) then
       PauseOrContinue();
-
 end;
 
 { TpdGame }
@@ -145,6 +154,8 @@ begin
 
   FField.Update(dt);
   FCleanCounterText.Text := 'Очистка через ' + IntToStr(FField.BeforeCleanCounter) + ' фигур';
+  FScoresText.Text := 'Очки: ' + IntToStr(FField.Scores);
+  FSpeedText.Text := 'Скорость: ' + FloatToStrF(FField.CurrentSpeed, ffGeneral, 1, 2);
 end;
 
 procedure TpdGame.FadeIn(deltaTime: Double);
@@ -280,7 +291,7 @@ begin
     Font := fontSouvenir;
     PivotPoint := ppBottomRight;
     Position := dfVec3f(R.WindowWidth + TEXT_PAUSE_X, R.WindowHeight + TEXT_PAUSE_Y, Z_HUD);
-    Material.Diffuse := colorRed;
+    Material.Diffuse := colorWhite;
     Text := 'Пауза';
     Visible := False;
   end;
@@ -312,13 +323,59 @@ begin
   end;
   FHUDScene.RootNode.AddChild(FBtnMenu);
 
+  FBtnContinue := Factory.NewGUITextButton();
+  with FBtnContinue do
+  begin
+    PivotPoint := ppCenter;
+    Position := dfVec3f(R.WindowWidth + BTN_CONTINUE_X, R.WindowHeight + BTN_CONTINUE_Y, Z_HUD);
+
+    with TextObject do
+    begin
+      Font := fontSouvenir;
+      Text := 'Продолжить';
+      PivotPoint := ppTopLeft;
+      Position2D := dfVec2f(BTN_TEXT_OFFSET_X, BTN_TEXT_OFFSET_Y);
+      Material.Diffuse := colorWhite;
+    end;
+    TextureNormal := atlasMain.LoadTexture(BTN_NORMAL_TEXTURE);
+    TextureOver := atlasMain.LoadTexture(BTN_OVER_TEXTURE);
+    TextureClick := atlasMain.LoadTexture(BTN_CLICK_TEXTURE);
+
+    UpdateTexCoords();
+    SetSizeToTextureSize();
+
+    Visible := False;
+    OnMouseClick := MouseClick;
+  end;
+  FHUDScene.RootNode.AddChild(FBtnContinue);
+
+  FScoresText := Factory.NewText();
+  with FScoresText do
+  begin
+    Font := fontSouvenir;
+    PivotPoint := ppTopLeft;
+    Position := dfVec3f(R.WindowWidth + TEXT_SCORES_X, TEXT_SCORES_Y, Z_HUD);
+    Text := 'Очки: 0';
+  end;
+  FHUDScene.RootNode.AddChild(FScoresText);
+
+  FSpeedText := Factory.NewText();
+  with FSpeedText do
+  begin
+    Font := fontSouvenir;
+    PivotPoint := ppTopLeft;
+    Position := dfVec3f(R.WindowWidth + TEXT_SPEED_X, TEXT_SPEED_Y, Z_HUD);
+    Text := 'Скорость: 1';
+  end;
+  FHUDScene.RootNode.AddChild(FSpeedText);
+
   FCleanCounterText := Factory.NewText();
   with FCleanCounterText do
   begin
     Font := fontSouvenir;
-    PivotPoint := ppTopRight;
+    PivotPoint := ppTopLeft;
     Position := dfVec3f(R.WindowWidth + TEXT_CLEAN_X, TEXT_CLEAN_Y, Z_HUD);
-//    Text := 'Очистка через 8 фигур';
+    Text := 'Очистка через _ фигур';
   end;
   FHUDScene.RootNode.AddChild(FCleanCounterText);
 end;
@@ -413,6 +470,7 @@ begin
   FPause := not FPause;
   FPauseText.Visible := FPause;
   FBtnMenu.Visible := FPause;
+  FBtnContinue.Visible := FPause;
   if FPause then
   begin
     R.GUIManager.RegisterElement(FBtnMenu);

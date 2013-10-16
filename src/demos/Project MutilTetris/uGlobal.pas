@@ -67,15 +67,15 @@ var
   fontSouvenir: IglrFont;
 
   //Colors
-  colorRed: TdfVec4f    = (x: 255/255; y: 30/255;   z: 0.0;   w: 1.0);//(x: 188/255; y: 71/255;  z: 0.0; w: 1.0);
-  colorGreen: TdfVec4f  = (x: 55/255; y: 160/255; z: 0.0; w: 1.0);
+//  colorRed: TdfVec4f    = (x: 255/255; y: 30/255;   z: 0.0;   w: 1.0);//(x: 188/255; y: 71/255;  z: 0.0; w: 1.0);
+//  colorGreen: TdfVec4f  = (x: 55/255; y: 160/255; z: 0.0; w: 1.0);
   colorWhite: TdfVec4f  = (x: 1.0; y: 1.0;  z: 1.0; w: 1.0);
-  colorYellow: TdfVec4f = (x: 0.9; y: 0.93; z: 0.1; w: 1.0);
-  colorGray2: TdfVec4f  = (x: 0.2; y: 0.2;  z: 0.2; w: 1.0);
-  colorGray4: TdfVec4f  = (x: 0.4; y: 0.4;  z: 0.4; w: 1.0);
-  colorOrange: TdfVec4f   = (x: 255/255; y: 125/255;  z: 8/255; w: 1.0);
+//  colorYellow: TdfVec4f = (x: 0.9; y: 0.93; z: 0.1; w: 1.0);
+//  colorGray2: TdfVec4f  = (x: 0.2; y: 0.2;  z: 0.2; w: 1.0);
+//  colorGray4: TdfVec4f  = (x: 0.4; y: 0.4;  z: 0.4; w: 1.0);
+//  colorOrange: TdfVec4f   = (x: 255/255; y: 125/255;  z: 8/255; w: 1.0);
 
-  colorUnused: TdfVec4f = (x: 1.0; y: 1.0; z: 1.0; w: 0.3);
+  colorUnused: TdfVec4f = (x: 1.0; y: 1.0; z: 1.0; w: 0.1);
   colorUsed: array[1..4] of TdfVec4f =
   ((x: 255/255; y: 30/255;   z: 0.0;   w: 1.0), //red
    (x: 55/255;  y: 160/255;  z: 0.0;   w: 1.0), //green
