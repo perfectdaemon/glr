@@ -13,13 +13,25 @@ const
   TIME_FADEOUT = 0.2;
 
   TIME_COUNT_GAMEOVER = 2.0;
-type
-  TpdGameMode = (gmSingle, gmTwoPlayersVs);
 
+  //top right
+  TEXT_HELP_X = -155;
+  TEXT_HELP_Y = 90;
+
+  TEXT_PAUSE_X = -120;
+  TEXT_PAUSE_Y = -200;
+
+  BTN_MENU_X = -140;
+  BTN_MENU_Y = -100;
+
+  //top right
+  TEXT_CLEAN_X = -25;
+  TEXT_CLEAN_Y = 30;
+type
   TpdGame = class (TpdGameScreen)
   private
     FMainScene, FHUDScene: Iglr2DScene;
-    FScrGameOver: TpdGameScreen;
+    FScrGameOver, FScrMenu: TpdGameScreen;
 
     FPause: Boolean;
 
@@ -27,6 +39,9 @@ type
     FFPSCounter: TglrFPSCounter;
     FDebug: TglrDebugInfo;
     {$ENDIF}
+
+    FHelpText, FPauseText, FCleanCounterText: IglrText;
+    FBtnMenu, FBtnContinue: IglrGUITextButton;
 
     Ft: Single; //Время для расчета анимации fadein/fadeout
     FFakeBackground: IglrSprite;
@@ -56,11 +71,13 @@ type
 
     procedure Update(deltaTime: Double); override;
 
-    procedure SetGameScreenLinks(aGameOver: TpdGameScreen);
+    procedure SetGameScreenLinks(aGameOver: TpdGameScreen; aMenu: TpdGameScreen);
 
     procedure OnMouseMove(X, Y: Integer; Shift: TglrMouseShiftState); override;
     procedure OnMouseDown(X, Y: Integer; MouseButton: TglrMouseButton; Shift: TglrMouseShiftState); override;
     procedure OnMouseUp(X, Y: Integer; MouseButton: TglrMouseButton; Shift: TglrMouseShiftState); override;
+    procedure OnGameOver();
+    procedure PauseOrContinue();
   end;
 
 var
@@ -71,6 +88,19 @@ implementation
 uses
   Windows, SysUtils,
   dfTweener, ogl;
+
+
+procedure MouseClick(Sender: IglrGUIElement; X, Y: Integer; mb: TglrMouseButton;
+  Shift: TglrMouseShiftState);
+begin
+  sound.PlaySample(sClick);
+  with game do
+    if Sender = (FBtnMenu as IglrGUIElement) then
+      OnNotify(FScrMenu, naSwitchTo)
+    else if Sender = (FBtnContinue as IglrGUIElement) then
+      PauseOrContinue();
+
+end;
 
 { TpdGame }
 
@@ -99,7 +129,7 @@ end;
 procedure TpdGame.DoUpdate(const dt: Double);
 begin
   {$IFDEF DEBUG}
-  if R.Input.IsKeyPressed(68) then
+  if R.Input.IsKeyPressed(VK_I) then
   begin
     FDebug.FText.Visible := not FDebug.FText.Visible;
     FFPSCounter.TextObject.Visible := not FFPSCounter.TextObject.Visible;
@@ -108,12 +138,13 @@ begin
   {$ENDIF}
 
   if R.Input.IsKeyPressed(VK_ESCAPE) then
-    FPause := not FPause;
+    PauseOrContinue();
 
   if FPause then
     Exit();
 
   FField.Update(dt);
+  FCleanCounterText.Text := 'Очистка через ' + IntToStr(FField.BeforeCleanCounter) + ' фигур';
 end;
 
 procedure TpdGame.FadeIn(deltaTime: Double);
@@ -176,7 +207,8 @@ begin
 
   sound.PlayMusic(musicIngame);
 
-  //gl.ClearColor(119/255, 208/255, 214/255, 1);
+  FPause := False;
+
   gl.ClearColor(0, 30 / 255, 60 / 250, 1.0);
   FMainScene.RootNode.RemoveAllChilds();
   FMainScene.RootNode.Position := dfVec3f(0, 0, 0);
@@ -207,6 +239,7 @@ begin
   if Assigned(FField) then
     FreeAndNil(FField);
   FField := TpdField.Create();
+  FField.onGameOver := OnGameOver;
 end;
 
 procedure TpdGame.LoadHUD;
@@ -222,12 +255,78 @@ begin
   FDebug.FText.PPosition.y := 20;
   {$ENDIF}
 
-  //*
+  FHelpText := Factory.NewText();
+  with FHelpText do
+  begin
+    Font := fontSouvenir;
+    PivotPoint := ppTopRight;
+    ScaleMult(0.7);
+    Position := dfVec3f(R.WindowWidth + TEXT_HELP_X, TEXT_HELP_Y, Z_HUD);
+    Text := 'Помощь'#13#10 +
+      'Стрелки/wsad — движение фигуры'#13#10 +
+      'Пробел — поворот фигуры'#13#10 +
+      'Escape — пауза'#13#10#13#10 +
+      'Текущее "дно" подсвечивается'#13#10 +
+      'красной линией'#13#10 +
+      'Каждые ' + IntToStr(CLEAN_PERIOD) + ' фигур'#13#10 +
+      'выполняется очистка одинаковых'#13#10+
+      'по цвету фигур';
+  end;
+  FHUDScene.RootNode.AddChild(FHelpText);
+
+  FPauseText := Factory.NewText();
+  with FPauseText do
+  begin
+    Font := fontSouvenir;
+    PivotPoint := ppBottomRight;
+    Position := dfVec3f(R.WindowWidth + TEXT_PAUSE_X, R.WindowHeight + TEXT_PAUSE_Y, Z_HUD);
+    Material.Diffuse := colorRed;
+    Text := 'Пауза';
+    Visible := False;
+  end;
+  FHUDScene.RootNode.AddChild(FPauseText);
+
+  FBtnMenu := Factory.NewGUITextButton();
+  with FBtnMenu do
+  begin
+    PivotPoint := ppCenter;
+    Position := dfVec3f(R.WindowWidth + BTN_MENU_X, R.WindowHeight + BTN_MENU_Y, Z_HUD);
+
+    with TextObject do
+    begin
+      Font := fontSouvenir;
+      Text := 'Меню';
+      PivotPoint := ppTopLeft;
+      Position2D := dfVec2f(BTN_TEXT_OFFSET_X, BTN_TEXT_OFFSET_Y);
+      Material.Diffuse := colorWhite;
+    end;
+    TextureNormal := atlasMain.LoadTexture(BTN_NORMAL_TEXTURE);
+    TextureOver := atlasMain.LoadTexture(BTN_OVER_TEXTURE);
+    TextureClick := atlasMain.LoadTexture(BTN_CLICK_TEXTURE);
+
+    UpdateTexCoords();
+    SetSizeToTextureSize();
+
+    Visible := False;
+    OnMouseClick := MouseClick;
+  end;
+  FHUDScene.RootNode.AddChild(FBtnMenu);
+
+  FCleanCounterText := Factory.NewText();
+  with FCleanCounterText do
+  begin
+    Font := fontSouvenir;
+    PivotPoint := ppTopRight;
+    Position := dfVec3f(R.WindowWidth + TEXT_CLEAN_X, TEXT_CLEAN_Y, Z_HUD);
+//    Text := 'Очистка через 8 фигур';
+  end;
+  FHUDScene.RootNode.AddChild(FCleanCounterText);
 end;
 
-procedure TpdGame.SetGameScreenLinks(aGameOver: TpdGameScreen);
+procedure TpdGame.SetGameScreenLinks(aGameOver: TpdGameScreen; aMenu: TpdGameScreen);
 begin
   FScrGameOver := aGameOver;
+  FScrMenu := aMenu;
 end;
 
 procedure TpdGame.SetStatus(const aStatus: TpdGameScreenStatus);
@@ -265,6 +364,8 @@ begin
   FreeHUD();
   FreeField();
 
+  R.GUIManager.UnregisterElement(FBtnMenu);
+
   R.UnregisterScene(FMainScene);
   R.UnregisterScene(FHUDScene);
 
@@ -287,6 +388,12 @@ begin
     Exit();
 end;
 
+procedure TpdGame.OnGameOver;
+begin
+  //todo - что-то посчитать
+  OnNotify(FScrGameOver, naShowModal);
+end;
+
 procedure TpdGame.OnMouseDown(X, Y: Integer; MouseButton: TglrMouseButton;
   Shift: TglrMouseShiftState);
 begin
@@ -299,6 +406,23 @@ procedure TpdGame.OnMouseUp(X, Y: Integer; MouseButton: TglrMouseButton;
 begin
   if status <> gssReady then
     Exit();
+end;
+
+procedure TpdGame.PauseOrContinue;
+begin
+  FPause := not FPause;
+  FPauseText.Visible := FPause;
+  FBtnMenu.Visible := FPause;
+  if FPause then
+  begin
+    R.GUIManager.RegisterElement(FBtnMenu);
+    R.GUIManager.RegisterElement(FBtnContinue);
+  end
+  else
+  begin
+    R.GUIManager.UnregisterElement(FBtnMenu);
+    R.GUIManager.UnregisterElement(FBtnContinue);
+  end;
 end;
 
 end.

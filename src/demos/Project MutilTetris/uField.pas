@@ -20,6 +20,8 @@ const
 
   SPEED_START = 1; //1 cell per second
 
+  CLEAN_PERIOD = 8;
+
 type
   TpdDirection = (boRight, boLeft, boTop, boBottom);
 
@@ -44,15 +46,21 @@ type
     function IsInBounds(X, Y: Integer): Boolean;
     function CouldBlockMove(Direction: TpdDirection): Boolean;
     function CouldBlockRotate(): Boolean;
+    function CouldBlockSet(): Boolean;
     procedure RedrawField(const dt: Double);
     procedure PlayerControl(const dt: Double);
     procedure MoveCurrentBlock(const dt: Double);
+    procedure CleanBlocks();
   public
     CurrentBlock: TpdBlock;
     CurrentSpeed: Single;
     F: array[0..FIELD_SIZE_X - 1, 0..FIELD_SIZE_Y - 1] of Integer;
     Sprites: array[0..FIELD_SIZE_X - 1, 0..FIELD_SIZE_Y - 1] of IglrSprite;
     cross: IglrUserRenderable;
+
+    BeforeCleanCounter: Integer;
+
+    onGameOver: procedure of object;
 
     constructor Create(); virtual;
     destructor Destroy(); override;
@@ -288,7 +296,7 @@ begin
       end;
       boTop:
       begin
-        X := FIELD_SIZE_X div 2  - BLOCK_CENTER_X;
+        X := FIELD_SIZE_X div 2 - 1 - BLOCK_CENTER_X;
         Y := -Bounds[RotateIndex].Top;
         MoveDirection := boBottom;
         alphaHorLine := 1.0;
@@ -303,7 +311,23 @@ begin
         alphaVertLine := 0.3;
       end;
     end;
-  timeToMove := 1 / CurrentSpeed;
+
+  BeforeCleanCounter := BeforeCleanCounter - 1;
+  if BeforeCleanCounter = 0 then
+  begin
+    CleanBlocks();
+    BeforeCleanCounter := CLEAN_PERIOD;
+  end;
+
+  if CouldBlockSet() then
+    timeToMove := 1 / CurrentSpeed
+  else
+    onGameOver();
+end;
+
+procedure TpdField.CleanBlocks;
+begin
+  //*
 end;
 
 function TpdField.CouldBlockMove(Direction: TpdDirection): Boolean;
@@ -401,6 +425,18 @@ begin
     end;
 end;
 
+function TpdField.CouldBlockSet: Boolean;
+var
+  i, j: Integer;
+begin
+  with CurrentBlock do
+    for i := 0 to 3 do
+      for j := 0 to 3 do
+        if (F[X + i, Y + j] > 10) and (Matrices[RotateIndex][j, i] > 0) then
+          Exit(False);
+  Exit(True);
+end;
+
 constructor TpdField.Create();
 var
   i, j: Integer;
@@ -463,8 +499,9 @@ begin
     R.WindowHeight div 2 - CROSS_LINE_WIDTH div 2 - 1 + FIELD_OFFSET_Y,
     Z_BLOCKS - 1);
 
-  //debug
+  //Start the game!
   AddBlock(boTop);
+  BeforeCleanCounter := CLEAN_PERIOD;
 end;
 
 destructor TpdField.Destroy();
@@ -546,13 +583,13 @@ begin
       case MoveDirection of
         boRight:
         begin
-          if R.Input.IsKeyPressed(VK_UP) or R.Input.IsKeyPressed('w') then
+          if R.Input.IsKeyPressed(VK_UP) or R.Input.IsKeyPressed(VK_W) then
             if CouldBlockMove(boTop) then
               Y := Y - 1;
-          if R.Input.IsKeyPressed(VK_DOWN) or R.Input.IsKeyPressed('s') then
+          if R.Input.IsKeyPressed(VK_DOWN) or R.Input.IsKeyPressed(VK_S) then
             if CouldBlockMove(boBottom) then
               Y := Y + 1;
-          if R.Input.IsKeyPressed(VK_RIGHT) then
+          if R.Input.IsKeyPressed(VK_RIGHT) or R.Input.IsKeyPressed(VK_D) then
           begin
             MoveCurrentBlock(dt);
             timeToMove := 1 / CurrentSpeed;
@@ -560,13 +597,13 @@ begin
         end;
         boLeft:
         begin
-          if R.Input.IsKeyPressed(VK_UP) or R.Input.IsKeyPressed('w') then
+          if R.Input.IsKeyPressed(VK_UP) or R.Input.IsKeyPressed(VK_W) then
             if CouldBlockMove(boTop) then
               Y := Y - 1;
-          if R.Input.IsKeyPressed(VK_DOWN) or R.Input.IsKeyPressed('s') then
+          if R.Input.IsKeyPressed(VK_DOWN) or R.Input.IsKeyPressed(VK_S) then
             if CouldBlockMove(boBottom) then
               Y := Y + 1;
-          if R.Input.IsKeyPressed(VK_LEFT) then
+          if R.Input.IsKeyPressed(VK_LEFT) or R.Input.IsKeyPressed(VK_A) then
           begin
             MoveCurrentBlock(dt);
             timeToMove := 1 / CurrentSpeed;
@@ -574,13 +611,13 @@ begin
         end;
         boTop:
         begin
-          if R.Input.IsKeyPressed(VK_LEFT) or R.Input.IsKeyPressed('a') then
+          if R.Input.IsKeyPressed(VK_LEFT) or R.Input.IsKeyPressed(VK_A) then
             if CouldBlockMove(boLeft) then
               X := X - 1;
-          if R.Input.IsKeyPressed(VK_RIGHT) or R.Input.IsKeyPressed('d') then
+          if R.Input.IsKeyPressed(VK_RIGHT) or R.Input.IsKeyPressed(VK_D) then
             if CouldBlockMove(boRight) then
               X := X + 1;
-          if R.Input.IsKeyPressed(VK_UP) then
+          if R.Input.IsKeyPressed(VK_UP) or R.Input.IsKeyPressed(VK_W) then
           begin
             MoveCurrentBlock(dt);
             timeToMove := 1 / CurrentSpeed;
@@ -588,13 +625,13 @@ begin
         end;
         boBottom:
         begin
-          if R.Input.IsKeyPressed(VK_LEFT) or R.Input.IsKeyPressed('a') then
+          if R.Input.IsKeyPressed(VK_LEFT) or R.Input.IsKeyPressed(VK_A) then
             if CouldBlockMove(boLeft) then
               X := X - 1;
-          if R.Input.IsKeyPressed(VK_RIGHT) or R.Input.IsKeyPressed('d') then
+          if R.Input.IsKeyPressed(VK_RIGHT) or R.Input.IsKeyPressed(VK_D) then
             if CouldBlockMove(boRight) then
               X := X + 1;
-          if R.Input.IsKeyPressed(VK_DOWN) then
+          if R.Input.IsKeyPressed(VK_DOWN) or R.Input.IsKeyPressed(VK_S) then
           begin
             MoveCurrentBlock(dt);
             timeToMove := 1 / CurrentSpeed;
@@ -614,15 +651,16 @@ begin
       if F[i, j] < 10 then //dynamic only
         F[i, j] := 0;
 
-  //"draw" current block
-  for i := 0 to 3 do
-    for j := 0 to 3 do
-      with CurrentBlock do
-        if IsInBounds(X + i, Y + j) and (Matrices[RotateIndex][j, i] > 0) then
-          //!!!! У Block-ов транспонированная матрица
-          //Поле - столбец, строка
-          //Блок - строка, столбец
-          F[X + i, Y + j] := Matrices[RotateIndex][j, i];
+  if Assigned(CurrentBlock) then
+    //"draw" current block
+    for i := 0 to 3 do
+      for j := 0 to 3 do
+        with CurrentBlock do
+          if IsInBounds(X + i, Y + j) and (Matrices[RotateIndex][j, i] > 0) then
+            //!!!! У Block-ов транспонированная матрица
+            //Поле - столбец, строка
+            //Блок - строка, столбец
+            F[X + i, Y + j] := Matrices[RotateIndex][j, i];
 
   //paint sprites
   for i := 0 to FIELD_SIZE_X - 1 do
@@ -641,11 +679,14 @@ procedure TpdField.Update(const dt: Double);
 begin
   PlayerControl(dt);
 
-  timeToMove := timeToMove - dt;
-  if timeToMove < 0 then
+  if Assigned(CurrentBlock) then
   begin
-    MoveCurrentBlock(dt);
-    timeToMove := 1 / CurrentSpeed;
+    timeToMove := timeToMove - dt;
+    if timeToMove < 0 then
+    begin
+      MoveCurrentBlock(dt);
+      timeToMove := 1 / CurrentSpeed;
+    end;
   end;
 
   RedrawField(dt);

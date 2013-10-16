@@ -5,10 +5,12 @@
   + Фиксация упавших фигур
 
   + Проверка на возможность поворота
-    Проверка на возможность добавления фигуры
-    Поправить линии
+  + Проверка на возможность добавления фигуры
+  + Поправить линии
 
     Сгорание фигур - как?
+
+  + GameOver
 
 }
 
@@ -93,7 +95,7 @@ begin
   gameOver := TpdGameOver.Create();
 
   mainMenu.SetGameScreenLinks(game);
-  game.SetGameScreenLinks(gameOver);
+  game.SetGameScreenLinks(gameOver, mainMenu);
   gameOver.SetGameScreenLinks(mainMenu, game);
 
   gsManager.Add(mainMenu);

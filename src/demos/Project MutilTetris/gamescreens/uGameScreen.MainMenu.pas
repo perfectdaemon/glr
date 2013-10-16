@@ -108,9 +108,6 @@ const
   BTN_BACK_X = PLAY_X;
   BTN_BACK_Y = 350;
 
-  BTN_TEXT_OFFSET_X = -100;
-  BTN_TEXT_OFFSET_Y = -15;
-
 procedure MouseClick(Sender: IglrGUIElement; X, Y: Integer; mb: TglrMouseButton;
   Shift: TglrMouseShiftState);
 begin
@@ -496,10 +493,10 @@ begin
       Tweener.AddTweenPSingle(@FBtnExit.PPosition.y, tsExpoEaseIn, R.WindowHeight + 70, EXIT_Y, TIME_EX, TIME_EX_PAUSE);
 
       Tweener.AddTweenPSingle(@FAboutText.PPosition.y, tsExpoEaseIn,
-        R.WindowHeight + 70, R.WindowHeight + ABOUT_OFFSET_Y, TIME_ABOUTTEXT, TIME_ABOUTTEXT_PAUSE);
+        R.WindowHeight + 70, R.WindowHeight + ABOUT_OFFSET_Y, TIME_ABOUTTEXT, TIME_ABOUTTEXT_PAUSE + 0.2);
 
       Tweener.AddTweenPSingle(@FIGDCText.PPosition.Y, tsExpoEaseIn,
-        -150, IGDC_OFFSET_Y, TIME_ABOUTTEXT + 1, TIME_ABOUTTEXT_PAUSE + 1.0);
+        -150, IGDC_OFFSET_Y, TIME_ABOUTTEXT + 1, TIME_ABOUTTEXT_PAUSE);
     end;
 
     gssFadeInComplete: FadeInComplete();

@@ -187,7 +187,7 @@ begin
       Font := fontSouvenir;
       Text := 'Играть снова!';
       PivotPoint := ppTopLeft;
-      Position2D := dfVec2f(-150, -15);
+      Position2D := dfVec2f(BTN_TEXT_OFFSET_X, BTN_TEXT_OFFSET_Y);
       Material.Diffuse := colorWhite;
     end;
 
@@ -211,7 +211,7 @@ begin
       Font := fontSouvenir;
       Text := 'Меню';
       PivotPoint := ppTopLeft;
-      Position2D := dfVec2f(-150, -15);
+      Position2D := dfVec2f(BTN_TEXT_OFFSET_X, BTN_TEXT_OFFSET_Y);
       Material.Diffuse := colorWhite;
     end;
 

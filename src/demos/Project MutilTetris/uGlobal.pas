@@ -43,6 +43,9 @@ const
 
   BLOCK_TEXTURE = 'block.png';
 
+  BTN_TEXT_OFFSET_X = -100;
+  BTN_TEXT_OFFSET_Y = -15;
+
 var
   //Renderer and scenes
   R: IglrRenderer;
@@ -64,7 +67,7 @@ var
   fontSouvenir: IglrFont;
 
   //Colors
-  colorRed: TdfVec4f    = (x: 188/255; y: 71/255;  z: 0.0; w: 1.0);
+  colorRed: TdfVec4f    = (x: 255/255; y: 30/255;   z: 0.0;   w: 1.0);//(x: 188/255; y: 71/255;  z: 0.0; w: 1.0);
   colorGreen: TdfVec4f  = (x: 55/255; y: 160/255; z: 0.0; w: 1.0);
   colorWhite: TdfVec4f  = (x: 1.0; y: 1.0;  z: 1.0; w: 1.0);
   colorYellow: TdfVec4f = (x: 0.9; y: 0.93; z: 0.1; w: 1.0);
