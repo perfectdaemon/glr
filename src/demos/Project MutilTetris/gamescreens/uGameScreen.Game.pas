@@ -96,6 +96,7 @@ var
 implementation
 
 uses
+  uGameScreen.GameOver,
   Windows, SysUtils,
   dfTweener, ogl;
 
@@ -448,6 +449,7 @@ end;
 procedure TpdGame.OnGameOver;
 begin
   //todo - что-то посчитать
+  (FScrGameOver as TpdGameOver).Scores := FField.Scores;
   OnNotify(FScrGameOver, naShowModal);
 end;
 

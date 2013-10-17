@@ -19,7 +19,9 @@ const
   BLOCK_CENTER_Y = 1;
 
   SPEED_START = 1; //1 cell per second
+  SPEED_INC   = 0.5;
 
+  CLEAN_WAIT_TIME = 2;
   CLEAN_PERIOD = 8;
   CLEAN_BLOCK_THRESHOLD = 6;
 
@@ -43,7 +45,8 @@ type
 
   TpdField = class
   private
-    timeToMove: Single;
+    timeToMove, timeToClean: Single;
+    procedure AddBlock(Origin: TpdDirection);
     function IsInBounds(X, Y: Integer): Boolean;
     function CouldBlockMove(Direction: TpdDirection): Boolean;
     function CouldBlockRotate(): Boolean;
@@ -51,10 +54,12 @@ type
     procedure RedrawField(const dt: Double);
     procedure PlayerControl(const dt: Double);
     procedure MoveCurrentBlock(const dt: Double);
+    procedure FindBlocksToClean();
     procedure CleanBlocks();
   public
     CurrentBlock: TpdBlock;
     CurrentSpeed: Single;
+    CurrentCleanPeriod: Integer;
     Scores: Integer;
     F: array[0..FIELD_SIZE_X - 1, 0..FIELD_SIZE_Y - 1] of Integer;
     Sprites: array[0..FIELD_SIZE_X - 1, 0..FIELD_SIZE_Y - 1] of IglrSprite;
@@ -67,19 +72,21 @@ type
     constructor Create(); virtual;
     destructor Destroy(); override;
 
-    procedure AddBlock(Origin: TpdDirection);
+    procedure NextBlock();
     procedure Update(const dt: Double);
   end;
 
 implementation
 
 uses
-  ogl,
+  ogl, dfTweener,
   Windows, SysUtils,
   uGlobal;
 
 const
   CROSS_LINE_WIDTH = 4;
+  LINE_ACTIVE_ALPHA = 1.0;
+  LINE_INACTIVE_ALPHA = 0.3;
 
   cI1 = '0000'+'1111'+'0000'+'0000';
   cI2 = '0100'+'0100'+'0100'+'0100';
@@ -105,6 +112,12 @@ var
   alphaVertLine, alphaHorLine: Single;
   horLine, vertLine: array[0..3] of TdfVec3f;
 
+
+procedure SPriteTween(aSprite: IInterface; aValue: Single);
+begin
+  (aSprite as IglrSprite).Material.PDiffuse.w := aValue;
+end;
+
 procedure CrossRender(); stdcall;
 begin
   gl.Disable(TGLConst.GL_LIGHTING);
@@ -124,6 +137,8 @@ begin
   gl.Endp();
   gl.Enable(TGLConst.GL_LIGHTING);
 end;
+
+{$REGION 'Block'}
 
 { TpdBlock }
 
@@ -273,10 +288,15 @@ begin
   RotateIndex := GetNextRotation();
 end;
 
+{$ENDREGION}
+
 { TpdField }
 
 procedure TpdField.AddBlock(Origin: TpdDirection);
 begin
+  if Assigned(CurrentBlock) then
+    CurrentBlock.Free();
+
   CurrentBlock := TpdBlock.CreateRandomBlock();
   with CurrentBlock do
     case Origin of
@@ -285,49 +305,37 @@ begin
         X := FIELD_SIZE_X - Bounds[RotateIndex].Right - 1;
         Y := FIELD_SIZE_Y div 2 - BLOCK_CENTER_Y;
         MoveDirection := boLeft;
-        alphaHorLine := 0.3;
-        alphaVertLine := 1.0;
+        alphaHorLine := LINE_INACTIVE_ALPHA;
+        alphaVertLine := LINE_ACTIVE_ALPHA;
       end;
       boLeft:
       begin
         X := -Bounds[RotateIndex].Left;
         Y := FIELD_SIZE_Y div 2 - BLOCK_CENTER_Y;
         MoveDirection := boRight;
-        alphaHorLine := 0.3;
-        alphaVertLine := 1.0;
+        alphaHorLine := LINE_INACTIVE_ALPHA;
+        alphaVertLine := LINE_ACTIVE_ALPHA;
       end;
       boTop:
       begin
         X := FIELD_SIZE_X div 2 - 1 - BLOCK_CENTER_X;
         Y := -Bounds[RotateIndex].Top;
         MoveDirection := boBottom;
-        alphaHorLine := 1.0;
-        alphaVertLine := 0.3;
+        alphaHorLine := LINE_ACTIVE_ALPHA;
+        alphaVertLine := LINE_INACTIVE_ALPHA;
       end;
       boBottom:
       begin
         X := FIELD_SIZE_X div 2 - BLOCK_CENTER_X;
         Y := FIELD_SIZE_Y - Bounds[RotateIndex].Bottom - 1;
         MoveDirection := boTop;
-        alphaHorLine := 1.0;
-        alphaVertLine := 0.3;
+        alphaHorLine := LINE_ACTIVE_ALPHA;
+        alphaVertLine := LINE_INACTIVE_ALPHA;
       end;
     end;
-
-  BeforeCleanCounter := BeforeCleanCounter - 1;
-  if BeforeCleanCounter = 0 then
-  begin
-    CleanBlocks();
-    BeforeCleanCounter := CLEAN_PERIOD;
-  end;
-
-  if CouldBlockSet() then
-    timeToMove := 1 / CurrentSpeed
-  else
-    onGameOver();
 end;
 
-procedure TpdField.CleanBlocks;
+procedure TpdField.FindBlocksToClean;
 
   function CheckCell(c, r: Integer; value: Integer): Integer;
   begin
@@ -345,25 +353,35 @@ procedure TpdField.CleanBlocks;
     Exit(0);
   end;
 
-  procedure MinusBlocksToClean(OnlyRevert: Boolean);
+  procedure MinusBlocksToClean(OnlyRevert: Boolean; var TotalTime: Single);
   var
+    p: Single;
     i, j: Integer;
   begin
+    p := TotalTime;
     for i := 0 to FIELD_SIZE_X - 1 do
       for j := 0 to FIELD_SIZE_Y - 1 do
         if (F[i, j] > 100) then
         begin
           F[i, j] := F[i, j] - 100;
           if not OnlyRevert then
+          begin
             F[i, j] := -F[i, j];
+            p := p + 0.05;
+            Tweener.AddTweenInterface(Sprites[i, j], SpriteTween, tsSimple, 1.0, 0.3, 1.0, p);
+          end;
         end;
+    TotalTime := p;
   end;
 
 var
   i, j, Res, ResSum: Integer;
   hasMove: Boolean;
+  total: Single;
+
 begin
   ResSum := 0;
+  total := 0;
   for i := 0 to FIELD_SIZE_X - 1 do
     for j := 0 to FIELD_SIZE_Y - 1 do
       if (F[i, j] > 0) and (F[i, j] < 100) then
@@ -371,16 +389,23 @@ begin
         Res := CheckCell(i, j, F[i, j]);
         if Res >= CLEAN_BLOCK_THRESHOLD then
         begin
-          MinusBlocksToClean(False);
+          MinusBlocksToClean(False, total);
           ResSum := ResSum + Res;
         end
         else
-          MinusBlocksToClean(True);
+          MinusBlocksToClean(True, total);
       end;
   Scores := Scores + ResSum;
 
-  //TODO: Таймер на ожидание
+  timeToClean := 1.0 + total + 0.2;
 
+end;
+
+procedure TpdField.CleanBlocks;
+var
+  i, j: Integer;
+  hasMove: Boolean;
+begin
   //смещаем все сначало сверхну и снизу, потом слева и справа
   hasMove := True;
   while (hasMove) do
@@ -390,7 +415,7 @@ begin
       for i := 0 to FIELD_SIZE_X - 1 do
       begin
         //Bottom
-        if (F[i, (FIELD_SIZE_Y div 2) + j] > 0) and
+        if (F[i, (FIELD_SIZE_Y div 2) + j]     >  0) and
            (F[i, (FIELD_SIZE_Y div 2) + j - 1] <= 0) then
         begin
           F[i, (FIELD_SIZE_Y div 2) + j - 1] := F[i, (FIELD_SIZE_Y div 2) + j];
@@ -399,17 +424,46 @@ begin
         end;
 
         //Top
-        if (F[i, (FIELD_SIZE_Y div 2) - j] > 0) and
-           (F[i, (FIELD_SIZE_Y div 2) - j + 1] <= 0) then
+        if (F[i, (FIELD_SIZE_Y div 2) - j - 1] >  0) and
+           (F[i, (FIELD_SIZE_Y div 2) - j]     <= 0) then
         begin
-          F[i, (FIELD_SIZE_Y div 2) - j + 1] := F[i, (FIELD_SIZE_Y div 2) - j];
-          F[i, (FIELD_SIZE_Y div 2) - j]     := 0;
+          F[i, (FIELD_SIZE_Y div 2) - j]     := F[i, (FIELD_SIZE_Y div 2) - j - 1];
+          F[i, (FIELD_SIZE_Y div 2) - j - 1] := 0;
+          hasMove := True;
+        end;
+      end;
+
+    //reright this!!!!!
+    //left block index 12
+    //right block index 11
+    for i := 1 to (FIELD_SIZE_X div 2) - 1 do
+      for j := 0 to FIELD_SIZE_Y - 1 do
+      begin
+        //Right
+        if (F[(FIELD_SIZE_X div 2) + i,     j] >  0) and
+           (F[(FIELD_SIZE_X div 2) + i - 1, j] <= 0) then
+        begin
+          F[(FIELD_SIZE_X div 2) + i - 1, j] := F[(FIELD_SIZE_X div 2) + i, j];
+          F[(FIELD_SIZE_X div 2) + i,     j] := 0;
+          hasMove := True;
+        end;
+
+        //Left
+        if (F[(FIELD_SIZE_X div 2) - i,     j] > 0) and
+           (F[(FIELD_SIZE_X div 2) - i + 1, j] <= 0) then
+        begin
+          F[(FIELD_SIZE_X div 2) - i + 1, j] := F[(FIELD_SIZE_X div 2) - i, j];
+          F[(FIELD_SIZE_X div 2) - i,     j] := 0;
           hasMove := True;
         end;
       end;
   end;
-      
 
+  //Удалить все следы
+  for i := 0 to FIELD_SIZE_X - 1 do
+    for j := 0 to FIELD_SIZE_Y - 1 do
+      if F[i, j] < 0 then
+        F[i, j] := 0;
 end;
 
 function TpdField.CouldBlockMove(Direction: TpdDirection): Boolean;
@@ -501,7 +555,7 @@ begin
       nextRotation := GetNextRotation();
       for i := 0 to 3 do
         for j := 0 to 3 do
-          if (Matrices[nextRotation][j, i] > 0) and (F[X + i, Y + j] > 10) then
+          if {not IsInBounds(X, Y) or }((Matrices[nextRotation][j, i] > 0) and (F[X + i, Y + j] > 10)) then
             Exit(False);
       Exit(True);
     end;
@@ -530,10 +584,6 @@ begin
   cross.OnRender := CrossRender;
   mainScene.RootNode.AddChild(cross);
 
-  CurrentBlock := nil;
-  timeToMove := 0;
-  CurrentSpeed := SPEED_START;
-  Scores := 0;
   origin := dfVec3f(R.WindowWidth div 2 + FIELD_OFFSET_X, R.WindowHeight div 2 + FIELD_OFFSET_Y, Z_BLOCKS)
     - dfVec3f((FIELD_SIZE_X div 2) * (CELL_SIZE_X + CELL_SPACE), (FIELD_SIZE_Y div 2) * (CELL_SIZE_Y + CELL_SPACE), 0);
   for i := 0 to FIELD_SIZE_X -1 do
@@ -583,8 +633,15 @@ begin
     Z_BLOCKS - 1);
 
   //Start the game!
+  CurrentSpeed := SPEED_START;
+  CurrentCleanPeriod := CLEAN_PERIOD;
+  timeToMove := 1 / CurrentSpeed;
+  timeToClean := 0;
+  Scores := 0;
+  CurrentBlock := nil;
   AddBlock(boTop);
-  BeforeCleanCounter := CLEAN_PERIOD;
+  BeforeCleanCounter := CurrentCleanPeriod;
+
 end;
 
 destructor TpdField.Destroy();
@@ -634,14 +691,32 @@ begin
     else
     begin
       BlockSet();
-      CurrentBlock.Free();
-      case CurrentBlock.MoveDirection of
-        boRight: AddBlock(boBottom);
-        boLeft: AddBlock(boTop);
-        boTop: AddBlock(boRight);
-        boBottom: AddBlock(boLeft);
-      end;
+      BeforeCleanCounter := BeforeCleanCounter - 1;
+      if BeforeCleanCounter = 0 then
+      begin
+        FindBlocksToClean();
+        Inc(CurrentCleanPeriod);
+        BeforeCleanCounter := CurrentCleanPeriod;
+        CurrentSpeed := CurrentSpeed + SPEED_INC;
+      end
+      else
+        NextBlock();
     end;
+end;
+
+procedure TpdField.NextBlock;
+begin
+  case CurrentBlock.MoveDirection of
+    boRight: AddBlock(boBottom);
+    boLeft: AddBlock(boTop);
+    boTop: AddBlock(boRight);
+    boBottom: AddBlock(boLeft);
+  end;
+
+  if CouldBlockSet() then
+    timeToMove := 1 / CurrentSpeed
+  else
+    onGameOver();
 end;
 
 procedure TpdField.PlayerControl(const dt: Double);
@@ -651,16 +726,15 @@ begin
     begin
       if R.Input.IsKeyPressed(VK_SPACE) and CouldBlockRotate() then
       begin
-        //todo: проверить возможность поворота
         Rotate();
         if (X + Bounds[RotateIndex].Right > FIELD_SIZE_X - 1) then
-          X := X - (X + Bounds[RotateIndex].Right - FIELD_SIZE_X + 1);
+          X := FIELD_SIZE_X - Bounds[RotateIndex].Right - 1;
         if (X + Bounds[RotateIndex].Left < 0) then
-          X := X + (X + Bounds[RotateIndex].Left);
+          X := -Bounds[RotateIndex].Left;
         if (Y + Bounds[RotateIndex].Top < 0) then
-          Y := Y + (Y + Bounds[RotateIndex].Top);
+          Y := -Bounds[RotateIndex].Top;
         if (Y + Bounds[RotateIndex].Bottom > FIELD_SIZE_Y - 1) then
-          Y := Y - (Y + Bounds[RotateIndex].Bottom - FIELD_SIZE_Y + 1);
+          Y := FIELD_SIZE_Y - Bounds[RotateIndex].Bottom - 1;
       end;
 
       case MoveDirection of
@@ -731,7 +805,7 @@ begin
   //erase all dynamic
   for i := 0 to FIELD_SIZE_X - 1 do
     for j := 0 to FIELD_SIZE_Y - 1 do
-      if F[i, j] < 10 then //dynamic only
+      if (F[i, j] < 10) and (F[i, j] > 0) then //dynamic only
         F[i, j] := 0;
 
   if Assigned(CurrentBlock) then
@@ -752,33 +826,35 @@ begin
       begin
         if F[i, j] = 0 then
           Material.Diffuse := colorUnused
-        else if F[i, j] < 100 then
+        else if F[i, j] > 0 then
           //1,2,3... - цвета дин. блоков, 11, 12, 13... - цвета стат. блоков
-          Material.Diffuse := colorUsed[F[i, j] mod 10]
-        //debug
-        else
-        begin
           Material.Diffuse := colorUsed[F[i, j] mod 10];
-          Material.PDiffuse.w := 0.5;
-        end;
       end;
 end;
 
 procedure TpdField.Update(const dt: Double);
 begin
-  PlayerControl(dt);
-
-  if Assigned(CurrentBlock) then
-  begin
-    timeToMove := timeToMove - dt;
-    if timeToMove < 0 then
+  if timeToClean > 0 then
     begin
-      MoveCurrentBlock(dt);
-      timeToMove := 1 / CurrentSpeed;
+      timeToClean := timeToClean - dt;
+      if timeToClean <= 0 then
+      begin
+        CleanBlocks();
+        NextBlock();
+      end;
+    end
+  else
+    if Assigned(CurrentBlock) then
+    begin
+      PlayerControl(dt);
+      RedrawField(dt);
+      timeToMove := timeToMove - dt;
+      if timeToMove < 0 then
+      begin
+        MoveCurrentBlock(dt);
+        timeToMove := 1 / CurrentSpeed;
+      end;
     end;
-  end;
-
-  RedrawField(dt);
 end;
 
 end.

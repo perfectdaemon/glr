@@ -36,6 +36,8 @@ type
     procedure FadeInComplete();
     procedure FadeOutComplete();
   public
+    Scores: Integer;
+
     constructor Create(); override;
     destructor Destroy; override;
 
@@ -251,7 +253,7 @@ begin
   inherited;
   R.RegisterScene(FScene);
 
-  //*
+  FGameOverText.Text := 'Очки: ' + IntToStr(Scores);
 end;
 
 procedure TpdGameOver.SetGameScreenLinks(aMainMenu, aGame: TpdGameScreen);
