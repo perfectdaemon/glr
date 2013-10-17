@@ -429,7 +429,7 @@ begin
   //Устанавливаем цвет фона при переключении окон
   gl.ClearColor(0, 30 / 255, 60 / 250, 1.0);
 
-  FMusicVol.Value := 51;
+  FMusicVol.Value := 30;
   FSoundVol.Value := 51;
   sound.PlayMusic(musicMenu);
 

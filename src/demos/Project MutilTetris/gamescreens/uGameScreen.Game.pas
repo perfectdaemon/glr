@@ -26,13 +26,13 @@ const
 
   //top right
   TEXT_HELP_X = -155;
-  TEXT_HELP_Y = TEXT_CLEAN_Y + 50;
+  TEXT_HELP_Y = TEXT_CLEAN_Y + 40;
 
   TEXT_PAUSE_X = -120;
-  TEXT_PAUSE_Y = -200;
+  TEXT_PAUSE_Y = -160;
 
   BTN_CONTINUE_X = -140;
-  BTN_CONTINUE_Y = -140;
+  BTN_CONTINUE_Y = TEXT_PAUSE_Y + 60;
   BTN_MENU_X = BTN_CONTINUE_X;
   BTN_MENU_Y = BTN_CONTINUE_Y + 60;
 
@@ -279,10 +279,12 @@ begin
       'ѕробел Ч поворот фигуры'#13#10 +
       'Escape Ч пауза'#13#10#13#10 +
       '“екущее "дно" подсвечиваетс€'#13#10 +
-      'красной линией'#13#10 +
-      ' аждые ' + IntToStr(CLEAN_PERIOD) + ' фигур'#13#10 +
-      'выполн€етс€ очистка одинаковых'#13#10+
-      'по цвету фигур';
+      'красной линией'#13#10#13#10 +
+      '„ерез N фигур выполн€етс€'#13#10 +
+      'очистка одинаковых по цвету'#13#10 +
+      'фигур, св€занных по вертикали'#13#10 +
+      'или горизонтали, если их число '#13#10 +
+      'больше или равно ' + IntToStr(CLEAN_BLOCK_THRESHOLD);
   end;
   FHUDScene.RootNode.AddChild(FHelpText);
 

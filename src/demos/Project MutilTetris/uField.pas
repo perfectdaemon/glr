@@ -8,7 +8,7 @@ uses
 const
   FIELD_SIZE_X = 24; //Размеры поля в клетках
   FIELD_SIZE_Y = 24;
-  FIELD_OFFSET_X = -130;
+  FIELD_OFFSET_X = -155;
   FIELD_OFFSET_Y = 0;
 
   CELL_SIZE_X = 24; //Размер клетки в пикселях
@@ -21,9 +21,11 @@ const
   SPEED_START = 1; //1 cell per second
   SPEED_INC   = 0.5;
 
-  CLEAN_WAIT_TIME = 2;
-  CLEAN_PERIOD = 8;
+  CLEAN_PERIOD_START = 8;
   CLEAN_BLOCK_THRESHOLD = 6;
+
+  NEXT_BLOCK_OFFSET_X = -200;
+  NEXT_BLOCK_OFFSET_Y = -280;
 
 type
   TpdDirection = (boRight, boLeft, boTop, boBottom);
@@ -46,6 +48,8 @@ type
   TpdField = class
   private
     timeToMove, timeToClean: Single;
+    FN: array[0..3, 0..3] of IglrSprite;
+
     procedure AddBlock(Origin: TpdDirection);
     function IsInBounds(X, Y: Integer): Boolean;
     function CouldBlockMove(Direction: TpdDirection): Boolean;
@@ -57,7 +61,8 @@ type
     procedure FindBlocksToClean();
     procedure CleanBlocks();
   public
-    CurrentBlock: TpdBlock;
+    CurrentBlock, NextBlock: TpdBlock;
+    NextBlockDir: IglrText;
     CurrentSpeed: Single;
     CurrentCleanPeriod: Integer;
     Scores: Integer;
@@ -72,7 +77,7 @@ type
     constructor Create(); virtual;
     destructor Destroy(); override;
 
-    procedure NextBlock();
+    procedure AddNextBlock();
     procedure Update(const dt: Double);
   end;
 
@@ -296,8 +301,11 @@ procedure TpdField.AddBlock(Origin: TpdDirection);
 begin
   if Assigned(CurrentBlock) then
     CurrentBlock.Free();
+  if not Assigned(NextBlock) then
+    NextBlock := TpdBlock.CreateRandomBlock();
 
-  CurrentBlock := TpdBlock.CreateRandomBlock();
+  CurrentBlock := NextBlock;
+  NextBlock := TpdBlock.CreateRandomBlock();
   with CurrentBlock do
     case Origin of
       boRight:
@@ -307,6 +315,8 @@ begin
         MoveDirection := boLeft;
         alphaHorLine := LINE_INACTIVE_ALPHA;
         alphaVertLine := LINE_ACTIVE_ALPHA;
+        //next dir is from top
+        NextBlockDir.Rotation := 90;
       end;
       boLeft:
       begin
@@ -315,6 +325,7 @@ begin
         MoveDirection := boRight;
         alphaHorLine := LINE_INACTIVE_ALPHA;
         alphaVertLine := LINE_ACTIVE_ALPHA;
+        NextBlockDir.Rotation := -90;
       end;
       boTop:
       begin
@@ -323,6 +334,7 @@ begin
         MoveDirection := boBottom;
         alphaHorLine := LINE_ACTIVE_ALPHA;
         alphaVertLine := LINE_INACTIVE_ALPHA;
+        NextBlockDir.Rotation := 0;
       end;
       boBottom:
       begin
@@ -331,6 +343,7 @@ begin
         MoveDirection := boTop;
         alphaHorLine := LINE_ACTIVE_ALPHA;
         alphaVertLine := LINE_INACTIVE_ALPHA;
+        NextBlockDir.Rotation := 180;
       end;
     end;
 end;
@@ -449,11 +462,11 @@ begin
         end;
 
         //Left
-        if (F[(FIELD_SIZE_X div 2) - i,     j] > 0) and
-           (F[(FIELD_SIZE_X div 2) - i + 1, j] <= 0) then
+        if (F[(FIELD_SIZE_X div 2) - i - 1, j] >  0) and
+           (F[(FIELD_SIZE_X div 2) - i,     j] <= 0) then
         begin
-          F[(FIELD_SIZE_X div 2) - i + 1, j] := F[(FIELD_SIZE_X div 2) - i, j];
-          F[(FIELD_SIZE_X div 2) - i,     j] := 0;
+          F[(FIELD_SIZE_X div 2) - i,     j] := F[(FIELD_SIZE_X div 2) - i - 1, j];
+          F[(FIELD_SIZE_X div 2) - i - 1, j] := 0;
           hasMove := True;
         end;
       end;
@@ -602,6 +615,35 @@ begin
         PivotPoint := ppTopLeft;
       end;
     end;
+
+  for i := 0 to 3 do
+    for j := 0 to 3 do
+    begin
+      FN[i, j] := Factory.NewSprite();
+      mainScene.RootNode.AddChild(FN[i, j]);
+      with FN[i, j] do
+      begin
+        Position := dfVec3f(R.WindowWidth + NEXT_BLOCK_OFFSET_X, R.WindowHeight + NEXT_BLOCK_OFFSET_Y, Z_BLOCKS)
+         + dfVec3f(i * (CELL_SIZE_X + CELL_SPACE), j * (CELL_SIZE_Y + CELL_SPACE), 0);
+        Width := CELL_SIZE_X;
+        Height := CELL_SIZE_Y;
+        Material.Texture := atlasMain.LoadTexture(BLOCK_TEXTURE);
+        Material.Diffuse := colorUnused;
+        UpdateTexCoords();
+        PivotPoint := ppTopLeft;
+      end;
+    end;
+
+  NextBlockDir := Factory.NewText();
+  with NextBlockDir do
+  begin
+    Font := fontSouvenir;
+    PivotPoint := ppCenter;
+    Position := FN[0, 0].Position + dfVec3f(-40, 1.5 * (CELL_SIZE_Y + CELL_SPACE), 0);
+    Text := '=>';
+  end;
+  mainScene.RootNode.AddChild(NextBlockDir);
+
   //top left
   vertLine[0] := dfVec3f(R.WindowWidth div 2 - CROSS_LINE_WIDTH div 2 - 1 + FIELD_OFFSET_X,
     Sprites[0, 0].Position.y - CELL_SIZE_Y, Z_BLOCKS - 1);
@@ -634,14 +676,13 @@ begin
 
   //Start the game!
   CurrentSpeed := SPEED_START;
-  CurrentCleanPeriod := CLEAN_PERIOD;
+  CurrentCleanPeriod := CLEAN_PERIOD_START;
   timeToMove := 1 / CurrentSpeed;
   timeToClean := 0;
   Scores := 0;
   CurrentBlock := nil;
   AddBlock(boTop);
   BeforeCleanCounter := CurrentCleanPeriod;
-
 end;
 
 destructor TpdField.Destroy();
@@ -691,6 +732,7 @@ begin
     else
     begin
       BlockSet();
+      sound.PlaySample(sDown);
       BeforeCleanCounter := BeforeCleanCounter - 1;
       if BeforeCleanCounter = 0 then
       begin
@@ -700,11 +742,11 @@ begin
         CurrentSpeed := CurrentSpeed + SPEED_INC;
       end
       else
-        NextBlock();
+        AddNextBlock();
     end;
 end;
 
-procedure TpdField.NextBlock;
+procedure TpdField.AddNextBlock;
 begin
   case CurrentBlock.MoveDirection of
     boRight: AddBlock(boBottom);
@@ -727,6 +769,7 @@ begin
       if R.Input.IsKeyPressed(VK_SPACE) and CouldBlockRotate() then
       begin
         Rotate();
+        sound.PlaySample(sRotate);
         if (X + Bounds[RotateIndex].Right > FIELD_SIZE_X - 1) then
           X := FIELD_SIZE_X - Bounds[RotateIndex].Right - 1;
         if (X + Bounds[RotateIndex].Left < 0) then
@@ -830,6 +873,12 @@ begin
           //1,2,3... - цвета дин. блоков, 11, 12, 13... - цвета стат. блоков
           Material.Diffuse := colorUsed[F[i, j] mod 10];
       end;
+
+  if Assigned(NextBlock) then
+    with NextBlock do
+      for i := 0 to 3 do
+        for j := 0 to 3 do
+          FN[i, j].Material.Diffuse := colorUsed[Matrices[RotateIndex][j, i]];
 end;
 
 procedure TpdField.Update(const dt: Double);
@@ -840,7 +889,7 @@ begin
       if timeToClean <= 0 then
       begin
         CleanBlocks();
-        NextBlock();
+        AddNextBlock();
       end;
     end
   else

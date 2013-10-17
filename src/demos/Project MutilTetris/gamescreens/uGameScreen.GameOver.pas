@@ -253,7 +253,7 @@ begin
   inherited;
   R.RegisterScene(FScene);
 
-  FGameOverText.Text := 'Очки: ' + IntToStr(Scores);
+  FGameOverText.Text := 'Увы, для следующей фигуры нет места...'#13#10'Очки: ' + IntToStr(Scores);
 end;
 
 procedure TpdGameOver.SetGameScreenLinks(aMainMenu, aGame: TpdGameScreen);
