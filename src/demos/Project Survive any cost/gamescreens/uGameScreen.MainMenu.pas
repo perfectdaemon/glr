@@ -167,12 +167,11 @@ begin
   begin
     Font := fontCooper;
     Text := 'only for' + #10 + 'igdc #93';
-    Position := dfVec2f(R.WindowWidth - 130, R.WindowHeight - 60);
-    Z := Z_MAINMENU_BUTTONS;
+    Position := dfVec3f(R.WindowWidth - 130, R.WindowHeight - 60, Z_MAINMENU_BUTTONS);
     Material.Diffuse := dfVec4f(0, 107.0 / 255, 203 / 255, 1);
     Rotation := -30;
   end;
-  FScene.RegisterElement(FForIGDCText);
+  FScene.RootNode.AddChild(FForIGDCText);
 
   //--Èíèöèàëèçèðóåì òåêñò About
   FAboutText1 := Factory.NewText();
@@ -180,54 +179,50 @@ begin
   begin
     Font := fontCooper;
     Text := '[ñîçäàë]' + #10 + 'perfect.daemon';
-    Position := dfVec2f(50, 320);
-    Z := Z_MAINMENU_BUTTONS;
+    Position := dfVec3f(50, 320, Z_MAINMENU_BUTTONS);
     Material.Diffuse := dfVec4f(1, 1, 1, 1);//dfVec4f(0, 107.0 / 255, 203 / 255, 1);
     Rotation := 0;
     Visible := False;
   end;
-  FScene.RegisterElement(FAboutText1);
+  FScene.RootNode.AddChild(FAboutText1);
 
   FAboutText2 := Factory.NewText();
   with FAboutText2 do
   begin
     Font := fontCooper;
     Text := '[îçâó÷èë]' + #10 + 'Alexandr Zhelanov';
-    Position := dfVec2f(R.WindowWidth - 250, 320);
-    Z := Z_MAINMENU_BUTTONS;
+    Position := dfVec3f(R.WindowWidth - 250, 320, Z_MAINMENU_BUTTONS);
     Material.Diffuse := dfVec4f(1, 1, 1, 1); //dfVec4f(0, 107.0 / 255, 203 / 255, 1);
     Rotation := 0;
     Visible := False;
   end;
-  FScene.RegisterElement(FAboutText2);
+  FScene.RootNode.AddChild(FAboutText2);
 
   FAboutText3 := Factory.NewText();
   with FAboutText3 do
   begin
     Font := fontCooper;
     Text := '[óëó÷øèëè]' + #13#10 + 'Àëåêñåé «Ulop», Ìàêñèì «Ìîíàõ»,'#13#10'«Lampogolovii», Åâãåíèé «ist.flash»,'#13#10'Íàñòÿ «Kisslika»';
-    Position := dfVec2f(R.WindowWidth div 2 - 150, R.WindowHeight + ABOUT3_OFFSET_Y);
-    Z := Z_MAINMENU_BUTTONS;
+    Position := dfVec3f(R.WindowWidth div 2 - 150, R.WindowHeight + ABOUT3_OFFSET_Y, Z_MAINMENU_BUTTONS);
     Material.Diffuse := dfVec4f(1, 1, 1, 1); //dfVec4f(0, 107.0 / 255, 203 / 255, 1);
     Rotation := 0;
     Visible := False;
   end;
-  FScene.RegisterElement(FAboutText3);
+  FScene.RootNode.AddChild(FAboutText3);
 
   //Áýêãðàóíä äëÿ fade in/out
   FFakeBackground := Factory.NewHudSprite();
-  FFakeBackground.Position := dfVec2f(0, 0);
-  FFakeBackground.Z := 100;
+  FFakeBackground.Position := dfVec3f(0, 0, 100);
   FFakeBackground.Material.Diffuse := dfVec4f(1, 1, 1, 1);
   FFakeBackground.Material.Texture.BlendingMode := tbmTransparency;
   FFakeBackground.Width := R.WindowWidth;
   FFakeBackground.Height := R.WindowHeight;
-  FScene.RegisterElement(FFakeBackground);
+  FScene.RootNode.AddChild(FFakeBackground);
 end;
 
 destructor TpdMainMenu.Destroy;
 begin
-  FScene.UnregisterElements();
+  FScene.RootNode.RemoveAllChilds();
   inherited;
 end;
 
@@ -293,8 +288,7 @@ begin
   with FBtnNewGame do
   begin
     PivotPoint := ppCenter;
-    Position := dfVec2f(PLAY_X, PLAY_Y);
-    Z := Z_MAINMENU_BUTTONS;
+    Position := dfVec3f(PLAY_X, PLAY_Y, Z_MAINMENU_BUTTONS);
     TextureNormal := atlasMenu.LoadTexture(PLAY_NORMAL_TEXTURE);
     TextureOver := atlasMenu.LoadTexture(PLAY_OVER_TEXTURE);
     TextureClick := atlasMenu.LoadTexture(PLAY_CLICK_TEXTURE);
@@ -306,8 +300,7 @@ begin
   with FBtnAbout do
   begin
     PivotPoint := ppCenter;
-    Position := dfVec2f(ABOUT_X, ABOUT_Y);
-    Z := Z_MAINMENU_BUTTONS;
+    Position := dfVec3f(ABOUT_X, ABOUT_Y, Z_MAINMENU_BUTTONS);
     TextureNormal := atlasMenu.LoadTexture(ABOUT_NORMAL_TEXTURE);
     TextureOver := atlasMenu.LoadTexture(ABOUT_OVER_TEXTURE);
     TextureClick := atlasMenu.LoadTexture(ABOUT_CLICK_TEXTURE);
@@ -319,8 +312,7 @@ begin
   with FCBSound do
   begin
     PivotPoint := ppCenter;
-    Position := dfVec2f(SOUND_X, SOUND_Y);
-    Z := Z_MAINMENU_BUTTONS;
+    Position := dfVec3f(SOUND_X, SOUND_Y, Z_MAINMENU_BUTTONS);
     TextureOn := atlasMenu.LoadTexture(SOUND_ON_TEXTURE);
     TextureOnOver := atlasMenu.LoadTexture(SOUND_ON_OVER_TEXTURE);
     TextureOff := atlasMenu.LoadTexture(SOUND_OFF_TEXTURE);
@@ -333,8 +325,7 @@ begin
   with FBtnExit do
   begin
     PivotPoint := ppCenter;
-    Position := dfVec2f(EXIT_X, EXIT_Y);
-    Z := Z_MAINMENU_BUTTONS;
+    Position := dfVec3f(EXIT_X, EXIT_Y, Z_MAINMENU_BUTTONS);
     TextureNormal := atlasMenu.LoadTexture(EXIT_NORMAL_TEXTURE);
     TextureOver := atlasMenu.LoadTexture(EXIT_OVER_TEXTURE);
     TextureClick := atlasMenu.LoadTexture(EXIT_CLICK_TEXTURE);
@@ -352,10 +343,10 @@ begin
   FCBSound.OnCheck := OnCheck;
   FBtnExit.OnMouseClick := OnMouseClick;
 
-  FScene.RegisterElement(FBtnNewGame);
-  FScene.RegisterElement(FBtnAbout);
-  FScene.RegisterElement(FCBSound);
-  FScene.RegisterElement(FBtnExit);
+  FScene.RootNode.AddChild(FBtnNewGame);
+  FScene.RootNode.AddChild(FBtnAbout);
+  FScene.RootNode.AddChild(FCBSound);
+  FScene.RootNode.AddChild(FBtnExit);
 end;
 
 procedure TpdMainMenu.Load;
@@ -392,9 +383,8 @@ begin
     Material.Texture := atlasMenu.LoadTexture(FISH_TEXTURE);
     UpdateTexCoords();
     SetSizeToTextureSize();
-    Position := dfVec2f(R.WindowWidth - 150, 180);
+    Position := dfVec3f(R.WindowWidth - 150, 180, Z_BACKGROUND);
     PivotPoint := ppTopCenter;
-    Z := Z_BACKGROUND;
   end;
 
   with FBackTop do
@@ -402,9 +392,8 @@ begin
     Material.Texture := atlasMenu.LoadTexture(BACKTOP_TEXTURE);
     UpdateTexCoords();
     SetSizeToTextureSize();
-    Position := dfVec2f(R.WindowWidth + 65, -20);
+    Position := dfVec3f(R.WindowWidth + 65, -20, Z_BACKGROUND + 1);
     PivotPoint := ppTopRight;
-    Z := Z_BACKGROUND + 1;
   end;
 
   with FBackBottom do
@@ -412,9 +401,8 @@ begin
     Material.Texture := atlasMenu.LoadTexture(BACKBOTTOM_TEXTURE);
     UpdateTexCoords();
     SetSizeToTextureSize();
-    Position := dfVec2f(R.WindowWidth, R.WindowHeight);
+    Position := dfVec3f(R.WindowWidth, R.WindowHeight, Z_BACKGROUND + 1);
     PivotPoint := ppBottomRight;
-    Z := Z_BACKGROUND + 1;
   end;
 
   with FGameName do
@@ -422,9 +410,8 @@ begin
     Material.Texture := atlasMenu.LoadTexture(GAMENAME_TEXTURE);
     UpdateTexCoords();
     SetSizeToTextureSize();
-    Position := dfVec2f(R.WindowWidth div 2 + 40, 50);
+    Position := dfVec3f(R.WindowWidth div 2 + 40, 50, Z_BACKGROUND + 2);
     PivotPoint := ppTopCenter;
-    Z := Z_BACKGROUND + 2;
   end;
 
   with FFlower do
@@ -432,9 +419,8 @@ begin
     Material.Texture := atlasMenu.LoadTexture(FLOWER_TEXTURE);
     UpdateTexCoords();
     SetSizeToTextureSize();
-    Position := dfVec2f(45, R.WindowHeight - 20);
+    Position := dfVec3f(45, R.WindowHeight - 20, Z_BACKGROUND);
     PivotPoint := ppBottomCenter;
-    Z := Z_BACKGROUND;
   end;
 
   with FMushroom do
@@ -442,9 +428,8 @@ begin
     Material.Texture := atlasMenu.LoadTexture(MUSHROOM_TEXTURE);
     UpdateTexCoords();
     SetSizeToTextureSize();
-    Position := dfVec2f(60, R.WindowHeight - 20);
+    Position := dfVec3f(60, R.WindowHeight - 20, Z_BACKGROUND + 1);
     PivotPoint := ppBottomLeft;
-    Z := Z_BACKGROUND + 1;
   end;
 
   with FGrass do
@@ -452,18 +437,17 @@ begin
     Material.Texture := atlasMenu.LoadTexture(GRASS_TEXTURE);
     UpdateTexCoords();
     SetSizeToTextureSize();
-    Position := dfVec2f(10, R.WindowHeight);
+    Position := dfVec3f(10, R.WindowHeight, Z_BACKGROUND + 2);
     PivotPoint := ppBottomLeft;
-    Z := Z_BACKGROUND + 2;
   end;
 
-  FScene.RegisterElement(FFish);
-  FScene.RegisterElement(FBackTop);
-  FScene.RegisterElement(FBackBottom);
-  FScene.RegisterElement(FGameName);
-  FScene.RegisterElement(FFlower);
-  FScene.RegisterElement(FMushroom);
-  FScene.RegisterElement(FGrass);
+  FScene.RootNode.AddChild(FFish);
+  FScene.RootNode.AddChild(FBackTop);
+  FScene.RootNode.AddChild(FBackBottom);
+  FScene.RootNode.AddChild(FGameName);
+  FScene.RootNode.AddChild(FFlower);
+  FScene.RootNode.AddChild(FMushroom);
+  FScene.RootNode.AddChild(FGrass);
 end;
 
 procedure TpdMainMenu.SetGameScreenLinks(aGame, aAdvices: TpdGameScreen);
@@ -506,7 +490,7 @@ begin
       Ft := TIME_FADEOUT;
       FGUIManager.UnRegisterElement(FBtnNewGame);
       FGUIManager.UnRegisterElement(FBtnAbout);
-      FGUIManager.UnregisterElement(FCBSound);
+      FGUIManager.UnRegisterElement(FCBSound);
       FGUIManager.UnRegisterElement(FBtnExit);
     end;
 

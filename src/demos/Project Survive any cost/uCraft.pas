@@ -285,11 +285,11 @@ var
 begin
   //Очень сильное колдунство. Не трогать
   for i := 0 to High(resources) do
-    resources[i].Position := backSpr.Position
+    resources[i].Position := backSpr.Position2D
      + dfVec2f(INGR_OFFSET_X * (Length(resources) + Length(tools)), INGR_OFFSET_Y)
      + dfVec2f(INGR_DISTANCE * i, 0);
   for i := 0 to High(tools) do
-    tools[i].Position := backSpr.Position
+    tools[i].Position := backSpr.Position2D
      + dfVec2f(INGR_OFFSET_X * (Length(resources) + Length(tools)), INGR_OFFSET_Y)
      + dfVec2f(INGR_DISTANCE * (i + Length((resources))), 0);
 end;
@@ -339,7 +339,7 @@ begin
     Result := True;
     with AddNewWorldObject(TpdCampFire) do
     begin
-      sprite.Position := player.sprite.Position + dfVec2f(0, 60);
+      sprite.Position2D := player.sprite.Position2D + dfVec2f(0, 60);
       RecalcBB();
     end;
     player.speech.Say('Burn, baby, burn!', 3);
@@ -443,12 +443,11 @@ class function TpdCraftPanel.Initialize(aScene: Iglr2DScene): TpdCraftPanel;
     with aSlot.resultSpr do
     begin
       PivotPoint := ppCenter;
-      Position := aSlot.backSpr.Position;
-      Z := Z_HUD + 1;
+      Position := dfVec3f(aSlot.backSpr.Position2D, Z_HUD + 1);
       Material.Texture := atlasGame.LoadTexture(CAMPFIRE_TEXTURE);
       UpdateTexCoords();
       SetSizeToTextureSize();
-      aScene.RegisterElement(aSlot.resultSpr);
+      aScene.RootNode.AddChild(aSlot.resultSpr);
     end;
     aSlot.onCraft := Result.CraftCampfire;
     aSlot.hintText := 'Костер';
@@ -469,13 +468,12 @@ class function TpdCraftPanel.Initialize(aScene: Iglr2DScene): TpdCraftPanel;
     with aSlot.resultSpr do
     begin
       PivotPoint := ppCenter;
-      Position := aSlot.backSpr.Position;
-      Z := Z_HUD + 1;
+      Position := dfVec3f(aSlot.backSpr.Position2D, Z_HUD + 1);
       Material.Texture := atlasGame.LoadTexture(SHARP_TWIG_TEXTURE);
       Rotation := -40;
       UpdateTexCoords();
       SetSizeToTextureSize();
-      aScene.RegisterElement(aSlot.resultSpr);
+      aScene.RootNode.AddChild(aSlot.resultSpr);
     end;
     aSlot.onCraft := Result.CraftSharpTwig;
     aSlot.hintText := 'Острая ветка';
@@ -497,13 +495,12 @@ class function TpdCraftPanel.Initialize(aScene: Iglr2DScene): TpdCraftPanel;
     with aSlot.resultSpr do
     begin
       PivotPoint := ppCenter;
-      Position := aSlot.backSpr.Position;
-      Z := Z_HUD + 1;
+      Position := dfVec3f(aSlot.backSpr.Position2D, Z_HUD + 1);
       Material.Texture := atlasGame.LoadTexture(FISHROD_TEXTURE);
       Material.Texture.CombineMode := tcmModulate;
       UpdateTexCoords();
       SetSizeToTextureSize();
-      aScene.RegisterElement(aSlot.resultSpr);
+      aScene.RootNode.AddChild(aSlot.resultSpr);
     end;
     aSlot.onCraft := Result.CraftFishRod;
     aSlot.hintText := 'Удочка';
@@ -527,13 +524,12 @@ class function TpdCraftPanel.Initialize(aScene: Iglr2DScene): TpdCraftPanel;
     with aSlot.resultSpr do
     begin
       PivotPoint := ppCenter;
-      Position := aSlot.backSpr.Position;
-      Z := Z_HUD + 1;
+      Position := dfVec3f(aSlot.backSpr.Position2D, Z_HUD + 1);
       Material.Texture := atlasGame.LoadTexture(MUSHROOM_SHASHLIK_TEXTURE);
       Rotation := -45;
       UpdateTexCoords();
       SetSizeToTextureSize();
-      aScene.RegisterElement(aSlot.resultSpr);
+      aScene.RootNode.AddChild(aSlot.resultSpr);
     end;
     aSlot.onCraft := Result.CraftMushroomShashlik;
     aSlot.hintText := 'Сырой шашлык из грибов';
@@ -554,13 +550,12 @@ class function TpdCraftPanel.Initialize(aScene: Iglr2DScene): TpdCraftPanel;
     with aSlot.resultSpr do
     begin
       PivotPoint := ppCenter;
-      Position := aSlot.backSpr.Position;
-      Z := Z_HUD + 1;
+      Position := dfVec3f(aSlot.backSpr.Position2D, Z_HUD + 1);
       Material.Texture := atlasGame.LoadTexture(FISH_SHASHLIK_TEXTURE);
       Rotation := 45;
       UpdateTexCoords();
       SetSizeToTextureSize();
-      aScene.RegisterElement(aSlot.resultSpr);
+      aScene.RootNode.AddChild(aSlot.resultSpr);
     end;
     aSlot.onCraft := Result.CraftFishShashlik;
     aSlot.hintText := 'Сырой шашлык из рыбы';
@@ -584,12 +579,11 @@ class function TpdCraftPanel.Initialize(aScene: Iglr2DScene): TpdCraftPanel;
     with aSlot.resultSpr do
     begin
       PivotPoint := ppCenter;
-      Position := aSlot.backSpr.Position;
-      Z := Z_HUD + 1;
+      Position := dfVec3f(aSlot.backSpr.Position2D, Z_HUD + 1);
       Material.Texture := atlasGame.LoadTexture(BOTTLE_TEA_TEXTURE);
       UpdateTexCoords();
       SetSizeToTextureSize();
-      aScene.RegisterElement(aSlot.resultSpr);
+      aScene.RootNode.AddChild(aSlot.resultSpr);
     end;
     aSlot.onCraft := Result.CraftBottleWithFlower;
     aSlot.hintText := 'Фляга с заготовкой чая';
@@ -617,12 +611,11 @@ begin
     FBackground.UpdateTexCoords();
     FBackground.SetSizeToTextureSize();
     FBackground.PivotPoint := ppCenter;
-    FBackground.Position := dfVec2f(R.WindowWidth div 2, R.WindowHeight - 55);
-    FBackground.Z := Z_HUD - 1;
+    FBackground.Position := dfVec3f(R.WindowWidth div 2, R.WindowHeight - 55, Z_HUD -1);
 
     FGUIManager := R.GUIManager;
 
-    aScene.RegisterElement(FBackground);
+    aScene.RootNode.AddChild(FBackground);
 
     SetLength(FSlots, 6);
 
@@ -635,15 +628,15 @@ begin
         with backSpr do
         begin
           PivotPoint := ppCenter;
-          Position := FBackground.Position + slotsOrigin + dfVec2f(i * SLOTS_DISTANCE, 0);
-          Z := Z_HUD;
+          Position := dfVec3f(FBackground.Position2D + slotsOrigin + dfVec2f(i * SLOTS_DISTANCE, 0),
+            Z_HUD);
           TextureNormal := atlasGame.LoadTexture(SLOT_BACK_NORMAL_TEXTURE);
           TextureOver := atlasGame.LoadTexture(SLOT_BACK_OVER_TEXTURE);
           UpdateTexCoords();
           SetSizeToTextureSize();
           OnMouseClick := OnCraftSlotClick;
           FGUIManager.RegisterElement(backSpr);
-          aScene.RegisterElement(backSpr);
+          aScene.RootNode.AddChild(backSpr);
         end;
         Enabled := False;
       end;
@@ -777,7 +770,7 @@ end;
 
 function TpdCraftResource.GetPos: TdfVec2f;
 begin
-  Result := backSprite.Position;
+  Result := backSprite.Position2D;
 end;
 
 procedure TpdCraftResource.Init(aClass: TpdWorldObjectClass; aScene: Iglr2DScene;
@@ -790,24 +783,24 @@ begin
     backSprite.Material.Texture := atlasGame.LoadTexture(SLOT_RES_TEXTURE);
   backSprite.UpdateTexCoords();
   backSprite.SetSizeToTextureSize();
-  backSprite.Z := Z_HUD - 3;
+  backSprite.PPosition.z := Z_HUD - 3;
   backSprite.PivotPoint := ppCenter;
 
   aObject := aClass;
   aObjectSprite := aClass.GetObjectSprite();
-  aObjectSprite.Z := Z_HUD - 2;
+  aObjectSprite.PPosition.z := Z_HUD - 2;
   aObjectSprite.PivotPoint := ppCenter;
 
   countText := Factory.NewText();
   countText.Font := fontCooper;
   countText.Material.Diffuse := dfVec4f(0, 0, 0, 1);
-  countText.Z := Z_HUD - 1;
+  countText.PPosition.z := Z_HUD - 1;
 
   Count := 1;
 
-  aScene.RegisterElement(backSprite);
-  aScene.RegisterElement(aObjectSprite);
-  aScene.RegisterElement(countText);
+  aScene.RootNode.AddChild(backSprite);
+  aScene.RootNode.AddChild(aObjectSprite);
+  aScene.RootNode.AddChild(countText);
 end;
 
 procedure TpdCraftResource.SetAlpha(aAlpha: Single);
@@ -828,9 +821,9 @@ end;
 
 procedure TpdCraftResource.SetPos(const Value: TdfVec2f);
 begin
-  backSprite.Position := Value;
-  aObjectSprite.Position := Value;
-  countText.Position := Value + dfVec2f(12, 4);
+  backSprite.Position2D := Value;
+  aObjectSprite.Position2D := Value;
+  countText.Position2D := Value + dfVec2f(12, 4);
 end;
 
 end.

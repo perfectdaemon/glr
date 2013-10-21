@@ -149,29 +149,27 @@ begin
   begin
     FGUIManager := R.GUIManager;
 
-    FBackground.Z := Z_INGAMEMENU - 1;
-    FBackground.Position := dfVec2f((R.WindowWidth - ADVICE_BACKGROUND_W) div 2, ADVICE_TEXT_POSITION_Y - 5);
+    FBackground.Position := dfVec3f((R.WindowWidth - ADVICE_BACKGROUND_W) div 2, ADVICE_TEXT_POSITION_Y - 5, Z_INGAMEMENU - 1);
     FBackground.Width := 500;
     FBackground.Height := 120;
     FBackground.Material.Diffuse := dfVec4f(0 / 255, 132 / 255, 251 / 255);
-    aScene.RegisterElement(FBackground);
+    aScene.RootNode.AddChild(FBackground);
 
     FAdviceText.Font := fontCooper;
     FAdviceText.ScaleMult(0.7);
-    FAdviceText.Position := dfVec2f(FBackground.Position.x + 5, ADVICE_TEXT_POSITION_Y);
-    FAdviceText.Z := Z_INGAMEMENU;
-    aScene.RegisterElement(FAdviceText);
+    FAdviceText.Position := dfVec3f(FBackground.Position.x + 5, ADVICE_TEXT_POSITION_Y, Z_INGAMEMENU);
+    aScene.RootNode.AddChild(FAdviceText);
 
     //--Buttons
     with FBtnPrev do
     begin
-      Position := FAdviceText.Position + dfVec2f(ADVICE_PREV_OFFSET_X, ADVICE_PREV_OFFSET_Y);
+      Position2D := FAdviceText.Position2D + dfVec2f(ADVICE_PREV_OFFSET_X, ADVICE_PREV_OFFSET_Y);
       PivotPoint := ppCenter;
       TextureNormal := atlasGame.LoadTexture(PREV_BTN_NORMAL_TEXTURE);
       TextureOver := atlasGame.LoadTexture(PREV_BTN_OVER_TEXTURE);
       TextureClick := atlasGame.LoadTexture(PREV_BTN_CLICK_TEXTURE);
 //      OnMouseClick := OnAdviceBtnClick;
-      Z := Z_INGAMEMENU;
+      PPosition.z := Z_INGAMEMENU;
 
       UpdateTexCoords();
       SetSizeToTextureSize();
@@ -179,20 +177,20 @@ begin
 
     with FBtnNext do
     begin
-      Position := FAdviceText.Position + dfVec2f(ADVICE_NEXT_OFFSET_X, ADVICE_NEXT_OFFSET_Y);
+      Position2D := FAdviceText.Position2D + dfVec2f(ADVICE_NEXT_OFFSET_X, ADVICE_NEXT_OFFSET_Y);
       PivotPoint := ppCenter;
       TextureNormal := atlasGame.LoadTexture(PREV_BTN_NORMAL_TEXTURE);
       TextureOver := atlasGame.LoadTexture(PREV_BTN_OVER_TEXTURE);
       TextureClick := atlasGame.LoadTexture(PREV_BTN_CLICK_TEXTURE);
 //      OnMouseClick := OnAdviceBtnClick;
-      Z := Z_INGAMEMENU;
+      PPosition.z := Z_INGAMEMENU;
       Rotation := 180;
       UpdateTexCoords();
       SetSizeToTextureSize();
     end;
 
-    aScene.RegisterElement(FBtnPrev);
-    aScene.RegisterElement(FBtnNext);
+    aScene.RootNode.AddChild(FBtnPrev);
+    aScene.RootNode.AddChild(FBtnNext);
     FGUIManager.RegisterElement(FBtnPrev);
     FGUIManager.RegisterElement(FBtnNext);
   end;

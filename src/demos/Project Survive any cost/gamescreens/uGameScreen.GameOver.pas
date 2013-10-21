@@ -203,7 +203,7 @@ end;
 
 destructor TpdGameOver.Destroy;
 begin
-  FScene.UnregisterElements();
+  FScene.RootNode.RemoveAllChilds();
   inherited;
 end;
 
@@ -247,11 +247,10 @@ begin
   begin
     Material.Diffuse := dfVec4f(0.7, 0, 0, 0.0);
     Material.Texture.BlendingMode := tbmTransparency;
-    Z := Z_INGAMEMENU - 1;
     PivotPoint := ppTopLeft;
     Width := R.WindowWidth;
     Height := R.WindowHeight;
-    Position := dfVec2f(0, 0);
+    Position := dfVec3f(0, 0, Z_INGAMEMENU - 1);
   end;
 
   FBackground := Factory.NewHudSprite();
@@ -260,13 +259,12 @@ begin
     Material.Texture := atlasInGameMenu.LoadTexture(BACKGRND_TEXTURE);
     UpdateTexCoords();
     SetSizeToTextureSize;
-    Z := Z_INGAMEMENU;
     PivotPoint := ppCenter;
-    Position := dfVec2f(R.WindowWidth div 2, R.WindowHeight div 2);
+    Position := dfVec3f(R.WindowWidth div 2, R.WindowHeight div 2, Z_INGAMEMENU);
   end;
 
-  FScene.RegisterElement(FFakeBackground);
-  FScene.RegisterElement(FBackground);
+  FScene.RootNode.AddChild(FFakeBackground);
+  FScene.RootNode.AddChild(FBackground);
 end;
 
 procedure TpdGameOver.InitButtons();
@@ -280,8 +278,8 @@ begin
   with FBtnUpload do
   begin
     PivotPoint := ppCenter;
-    Position := FBackground.Position + dfVec2f(UPLOAD_OFFSET_X, UPLOAD_OFFSET_Y);
-    Z := Z_INGAMEMENU + 2;
+    Position2D := FBackground.Position2D + dfVec2f(UPLOAD_OFFSET_X, UPLOAD_OFFSET_Y);
+    PPosition.z := Z_INGAMEMENU + 2;
     TextureNormal := atlasInGameMenu.LoadTexture(UPLOAD_NORMAL_TEXTURE);
     TextureOver := atlasInGameMenu.LoadTexture(UPLOAD_OVER_TEXTURE);
     TextureClick := atlasInGameMenu.LoadTexture(UPLOAD_CLICK_TEXTURE);
@@ -293,8 +291,8 @@ begin
   with FBtnNoUpload do
   begin
     PivotPoint := ppCenter;
-    Position := FBackground.Position + dfVec2f(NOUPLOAD_OFFSET_X, NOUPLOAD_OFFSET_Y);
-    Z := Z_INGAMEMENU + 2;
+    Position2D := FBackground.Position2D + dfVec2f(NOUPLOAD_OFFSET_X, NOUPLOAD_OFFSET_Y);
+    PPosition.z := Z_INGAMEMENU + 2;
     TextureNormal := atlasInGameMenu.LoadTexture(NOUPLOAD_NORMAL_TEXTURE);
     TextureOver := atlasInGameMenu.LoadTexture(NOUPLOAD_OVER_TEXTURE);
     TextureClick := atlasInGameMenu.LoadTexture(NOUPLOAD_CLICK_TEXTURE);
@@ -306,8 +304,8 @@ begin
   with FBtnRetry do
   begin
     PivotPoint := ppCenter;
-    Position := FBackground.Position + dfVec2f(RETRY_OFFSET_X, RETRY_OFFSET_Y);
-    Z := Z_INGAMEMENU + 2;
+    Position2D := FBackground.Position2D + dfVec2f(RETRY_OFFSET_X, RETRY_OFFSET_Y);
+    PPosition.z := Z_INGAMEMENU + 2;
     TextureNormal := atlasInGameMenu.LoadTexture(RETRY_NORMAL_TEXTURE);
     TextureOver := atlasInGameMenu.LoadTexture(RETRY_OVER_TEXTURE);
     TextureClick := atlasInGameMenu.LoadTexture(RETRY_CLICK_TEXTURE);
@@ -320,8 +318,8 @@ begin
   with FBtnMenu do
   begin
     PivotPoint := ppCenter;
-    Position := FBackground.Position + dfVec2f(MENU_OFFSET_X, MENU_OFFSET_Y);
-    Z := Z_INGAMEMENU + 2;
+    Position2D := FBackground.Position2D + dfVec2f(MENU_OFFSET_X, MENU_OFFSET_Y);
+    PPosition.z := Z_INGAMEMENU + 2;
     TextureNormal := atlasInGameMenu.LoadTexture(MENU_NORMAL_TEXTURE);
     TextureOver := atlasInGameMenu.LoadTexture(MENU_OVER_TEXTURE);
     TextureClick := atlasInGameMenu.LoadTexture(MENU_CLICK_TEXTURE);
@@ -336,10 +334,10 @@ begin
   FBtnRetry.OnMouseClick := OnMouseClick;
   FBtnMenu.OnMouseClick := OnMouseClick;
 
-  FScene.RegisterElement(FBtnUpload);
-  FScene.RegisterElement(FBtnNoUpload);
-  FScene.RegisterElement(FBtnRetry);
-  FScene.RegisterElement(FBtnMenu);
+  FScene.RootNode.AddChild(FBtnUpload);
+  FScene.RootNode.AddChild(FBtnNoUpload);
+  FScene.RootNode.AddChild(FBtnRetry);
+  FScene.RootNode.AddChild(FBtnMenu);
 end;
 
 procedure TpdGameOver.InitTexts;
@@ -350,19 +348,19 @@ begin
   with FTimeText do
   begin
     Font := fontCooper;
-    Position := FBackground.Position + dfVec2f(TIMETEXT_OFFSET_X, TIMETEXT_OFFSET_Y);
-    Z := Z_INGAMEMENU + 1;
+    Position2D := FBackground.Position2D + dfVec2f(TIMETEXT_OFFSET_X, TIMETEXT_OFFSET_Y);
+    PPosition.z := Z_INGAMEMENU + 1;
   end;
 
   with FReasonText do
   begin
     Font := fontCooper;
-    Position := FBackground.Position + dfVec2f(REASONTEXT_OFFSET_X, REASONTEXT_OFFSET_Y);
-    Z := Z_INGAMEMENU + 1;
+    Position2D := FBackground.Position2D + dfVec2f(REASONTEXT_OFFSET_X, REASONTEXT_OFFSET_Y);
+    PPosition.z := Z_INGAMEMENU + 1;
   end;
 
-  FScene.RegisterElement(FTimeText);
-  FScene.RegisterElement(FReasonText);
+  FScene.RootNode.AddChild(FTimeText);
+  FScene.RootNode.AddChild(FReasonText);
 end;
 
 procedure TpdGameOver.Load;

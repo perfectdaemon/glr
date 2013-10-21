@@ -127,7 +127,7 @@ end;
 
 destructor TpdPauseMenu.Destroy;
 begin
-  FScene.UnregisterElements();
+  FScene.RootNode.RemoveAllChilds();
   inherited;
 end;
 
@@ -174,11 +174,10 @@ begin
   begin
     Material.Diffuse := dfVec4f(0, 0, 0, 0.0);
     Material.Texture.BlendingMode := tbmTransparency;
-    Z := Z_INGAMEMENU - 1;
     PivotPoint := ppTopLeft;
     Width := R.WindowWidth;
     Height := R.WindowHeight;
-    Position := dfVec2f(0, 0);
+    Position := dfVec3f(0, 0, Z_INGAMEMENU - 1);
   end;
 
   FBackground := Factory.NewHudSprite();
@@ -187,9 +186,8 @@ begin
     Material.Texture := atlasInGameMenu.LoadTexture(BACKGRND_TEXTURE);
     UpdateTexCoords();
     SetSizeToTextureSize;
-    Z := Z_INGAMEMENU;
     PivotPoint := ppCenter;
-    Position := dfVec2f(R.WindowWidth div 2, R.WindowHeight div 2);
+    Position := dfVec3f(R.WindowWidth div 2, R.WindowHeight div 2, Z_INGAMEMENU);
   end;
 
   FFlower := Factory.NewHudSprite();
@@ -198,15 +196,15 @@ begin
     Material.Texture := atlasInGameMenu.LoadTexture(FLOWER_TEXTURE);
     UpdateTexCoords();
     SetSizeToTextureSize();
-    Z := Z_INGAMEMENU + 1;
+    PPosition.z := Z_INGAMEMENU + 1;
     PivotPoint := ppBottomLeft;
-    Position := FBackground.Position +
+    Position2D := FBackground.Position2D +
       dfVec2f(FLOWER_OFFSET_X - FBackground.Width / 2, FLOWER_OFFSET_Y + FBackground.Height / 2);
   end;
 
-  FScene.RegisterElement(FFakeBackground);
-  FScene.RegisterElement(FBackground);
-  FScene.RegisterElement(FFlower);
+  FScene.RootNode.AddChild(FFakeBackground);
+  FScene.RootNode.AddChild(FBackground);
+  FScene.RootNode.AddChild(FFlower);
 end;
 
 procedure TpdPauseMenu.InitButtons();
@@ -218,8 +216,7 @@ begin
   with FBtnToGame do
   begin
     PivotPoint := ppCenter;
-    Position := dfVec2f(R.WindowWidth div 2, R.WindowHeight div 2 + BACK_OFFSET_Y);
-    Z := Z_INGAMEMENU + 2;
+    Position := dfVec3f(R.WindowWidth div 2, R.WindowHeight div 2 + BACK_OFFSET_Y, Z_INGAMEMENU + 2);
     TextureNormal := atlasInGameMenu.LoadTexture(BACK_NORMAL_TEXTURE);
     TextureOver := atlasInGameMenu.LoadTexture(BACK_OVER_TEXTURE);
     TextureClick := atlasInGameMenu.LoadTexture(BACK_CLICK_TEXTURE);
@@ -231,8 +228,7 @@ begin
   with FBtnToAdvices do
   begin
     PivotPoint := ppCenter;
-    Position := dfVec2f(R.WindowWidth div 2, R.WindowHeight div 2 + ADVICES_OFFSET_Y);
-    Z := Z_INGAMEMENU + 2;
+    Position := dfVec3f(R.WindowWidth div 2, R.WindowHeight div 2 + ADVICES_OFFSET_Y, Z_INGAMEMENU + 2);
     TextureNormal := atlasInGameMenu.LoadTexture(ADVICES_NORMAL_TEXTURE);
     TextureOver := atlasInGameMenu.LoadTexture(ADVICES_OVER_TEXTURE);
     TextureClick := atlasInGameMenu.LoadTexture(ADVICES_CLICK_TEXTURE);
@@ -244,8 +240,7 @@ begin
   with FBtnToMenu do
   begin
     PivotPoint := ppCenter;
-    Position := dfVec2f(R.WindowWidth div 2, R.WindowHeight div 2 + MENU_OFFSET_Y);
-    Z := Z_INGAMEMENU + 2;
+    Position := dfVec3f(R.WindowWidth div 2, R.WindowHeight div 2 + MENU_OFFSET_Y, Z_INGAMEMENU + 2);
     TextureNormal := atlasInGameMenu.LoadTexture(MENU_NORMAL_TEXTURE);
     TextureOver := atlasInGameMenu.LoadTexture(MENU_OVER_TEXTURE);
     TextureClick := atlasInGameMenu.LoadTexture(MENU_CLICK_TEXTURE);
@@ -258,9 +253,9 @@ begin
   FBtnToAdvices.OnMouseClick := OnMouseClick;
   FBtnToGame.OnMouseClick := OnMouseClick;
 
-  FScene.RegisterElement(FBtnToMenu);
-  FScene.RegisterElement(FBtnToAdvices);
-  FScene.RegisterElement(FBtnToGame);
+  FScene.RootNode.AddChild(FBtnToMenu);
+  FScene.RootNode.AddChild(FBtnToAdvices);
+  FScene.RootNode.AddChild(FBtnToGame);
 end;
 
 procedure TpdPauseMenu.Load;

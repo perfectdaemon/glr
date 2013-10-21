@@ -105,8 +105,8 @@ begin
     sprite.UpdateTexCoords();
     sprite.SetSizeToTextureSize;
     sprite.PivotPoint := ppCenter;
-    sprite.Z := Z_STATICOBJECTS - 5;
-    aScene.RegisterElement(sprite);
+    sprite.PPosition.z := Z_STATICOBJECTS - 5;
+    aScene.RootNode.AddChild(sprite);
 
     fishCount := 5 + Random(6);
   end;
@@ -114,7 +114,7 @@ end;
 
 function TpdWater.IsInside(aPos: TdfVec2f): Boolean;
 begin
-  Result := aPos.Dist(sprite.Position) < radius;
+  Result := aPos.Dist(sprite.Position2D) < radius;
 end;
 
 procedure TpdWater.OnCollect;
@@ -165,7 +165,7 @@ begin
     water[i] := TpdWater.Initialize(mainScene);
     with water[i].sprite, aSurFile.Water[i] do
     begin
-      Position := aPos;
+      Position2D := aPos;
       Rotation := aRot;
       Scale := aSurFile.Water[i].aScale;
     end;
@@ -179,7 +179,7 @@ var
 begin
   player.inWater := False;
   for i := 0 to High(water) do
-    if water[i].IsInside(player.sprite.Position) then
+    if water[i].IsInside(player.sprite.Position2D) then
     begin
       player.inWater := True;
       playerInWater := water[i];
@@ -205,7 +205,7 @@ begin
   for i := 0 to High(water) do
     with aSURFile.Water[i] do
     begin
-      aPos := water[i].sprite.Position;
+      aPos := water[i].sprite.Position2D;
       aScale:= water[i].sprite.Scale;
       aRot := water[i].sprite.Rotation;
     end;
@@ -218,7 +218,7 @@ begin
   Result := False;
   currentWater := nil;
   for i := 0 to High(water) do
-    if water[i].IsInside(dfVec2f(X, Y) - mainScene.Origin) then
+    if water[i].IsInside(dfVec2f(X, Y) - dfVec2f(mainScene.RootNode.Position)) then
     begin
       Result := True;
       currentWater := water[i];

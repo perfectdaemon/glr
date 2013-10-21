@@ -151,9 +151,6 @@ begin
   DeinitializePlayer();
   DeinitializeCraft();
 
-  FMainScene.UnregisterElements();
-  FHudScene.UnregisterElements();
-
   FMainScene := nil;
   FHUDscene := nil;
   inherited;
@@ -241,7 +238,7 @@ begin
   else
   {$ENDIF}
   begin
-    FMainScene.Origin := dfVec2f(R.WindowWidth div 2, R.WindowHeight div 2) - player.sprite.Position;
+    FMainScene.RootNode.Position := dfVec3f(dfVec2f(R.WindowWidth div 2, R.WindowHeight div 2) - player.sprite.Position2D, 0);
 
     //--update all
     UpdatePlayer(dt);
@@ -328,9 +325,9 @@ begin
   if FLoaded then
     Exit();
 
-  FMainScene.UnregisterElements();
-  FMainScene.Origin := dfVec2f(0, 0);
-  FHudScene.UnregisterElements();
+  FMainScene.RootNode.RemoveAllChilds();
+  FMainScene.RootNode.Position := dfVec3f(0, 0, 0);
+  FHudScene.RootNode.RemoveAllChilds();
 
   //Ставим свой цвет буфера (вместо текстуры бэкграунда)
   gl.ClearColor(0.40, 0.65, 0.40, 1.0);
@@ -340,13 +337,12 @@ begin
   FTime := 0;
 
   FFakeBackground := Factory.NewHudSprite();
-  FFakeBackground.Position := dfVec2f(0, 0);
-  FFakeBackground.Z := 100;
+  FFakeBackground.Position := dfVec3f(0, 0, 100);
   FFakeBackground.Material.Diffuse := dfVec4f(1, 1, 1, 1);
   FFakeBackground.Material.Texture.BlendingMode := tbmTransparency;
   FFakeBackground.Width := R.WindowWidth;
   FFakeBackground.Height := R.WindowHeight;
-  FHUDScene.RegisterElement(FFakeBackground);
+  FHUDScene.RootNode.AddChild(FFakeBackground);
 
   R.RegisterScene(FMainScene);
   R.RegisterScene(FHUDScene);
@@ -435,9 +431,8 @@ begin
 //  FGoButton.OnMouseClick := OnMouseClick;
 
   FTimerIcon := Factory.NewHudSprite();
-  FTimerIcon.Z := Z_HUD;
   FTimerIcon.PivotPoint := ppTopLeft;
-  FTimerIcon.Position := dfVec2f(10, 10);
+  FTimerIcon.Position := dfVec3f(10, 10, Z_HUD);
   FTimerIcon.Material.Texture := atlasGame.LoadTexture(TIMER_TEXTURE);
   FTimerIcon.Material.Texture.BlendingMode := tbmTransparency;
   FTimerIcon.UpdateTexCoords();
@@ -446,13 +441,12 @@ begin
 
   FTimeText := Factory.NewText();
   FTimeText.Font := fontCooper;
-  FTimeText.Z := Z_HUD;
-  FTimeText.Position := FTimerIcon.Position + dfVec2f(40, 5);
+  FTimeText.Position := FTimerIcon.Position + dfVec3f(40, 5, 0);
   FTimeText.Text := '00:00';
   FTimeText.Material.Diffuse := dfVec4f(1, 1, 1, 1);
 
-  FHUDScene.RegisterElement(FTimerIcon);
-  FHUDScene.RegisterElement(FTimeText);
+  FHUDScene.RootNode.AddChild(FTimerIcon);
+  FHUDScene.RootNode.AddChild(FTimeText);
 //  FHUDScene.RegisterElement(FGoButton);
 //  R.GUIManager.RegisterElement(FGoButton);
 end;

@@ -144,7 +144,7 @@ end;
 
 destructor TpdAdvicesMenu.Destroy;
 begin
-  FScene.UnregisterElements();
+  FScene.RootNode.RemoveAllChilds();
   FAdvc.Free();
   inherited;
 end;
@@ -190,14 +190,13 @@ begin
   begin
     Material.Diffuse := dfVec4f(0, 0, 0, 0.0);
     Material.Texture.BlendingMode := tbmTransparency;
-    Z := Z_INGAMEMENU - 2;
     PivotPoint := ppTopLeft;
     Width := R.WindowWidth;
     Height := R.WindowHeight;
-    Position := dfVec2f(0, 0);
+    Position := dfVec3f(0, 0, Z_INGAMEMENU - 2);
   end;
 
-  FScene.RegisterElement(FFakeBackground);
+  FScene.RootNode.AddChild(FFakeBackground);
 end;
 
 procedure TpdAdvicesMenu.InitButtons();
@@ -207,8 +206,7 @@ begin
   with FBtnToPauseMenu do
   begin
     PivotPoint := ppCenter;
-    Position := dfVec2f(R.WindowWidth div 2, R.WindowHeight div 2 + OK_OFFSET_Y);
-    Z := Z_INGAMEMENU + 1;
+    Position := dfVec3f(R.WindowWidth div 2, R.WindowHeight div 2 + OK_OFFSET_Y, Z_INGAMEMENU + 1);
     TextureNormal := atlasInGameMenu.LoadTexture(OK_NORMAL_TEXTURE);
     TextureOver := atlasInGameMenu.LoadTexture(OK_OVER_TEXTURE);
     TextureClick := atlasInGameMenu.LoadTexture(OK_CLICK_TEXTURE);
@@ -219,7 +217,7 @@ begin
 
   FBtnToPauseMenu.OnMouseClick := OnMouseClick;
 
-  FScene.RegisterElement(FBtnToPauseMenu);
+  FScene.RootNode.AddChild(FBtnToPauseMenu);
 end;
 
 procedure TpdAdvicesMenu.Load;

@@ -386,7 +386,7 @@ begin
   inherited Create();
   sprite := Factory.NewSprite();
   sprite.PivotPoint := ppCenter;
-  sprite.Z := Z_STATICOBJECTS;
+  sprite.PPosition.z := Z_STATICOBJECTS;
   status := sWorld;
   removeOnUse := True;
 end;
@@ -417,24 +417,24 @@ procedure TpdWorldObject.RecalcBB;
 var
   i: Integer;
 begin
-  with bb, sprite do
+  with sprite do
   begin
-    Left := 1/0;
+    bb.Left := 1/0;
     for i := 0 to 3 do
-      if (Coords[i].x + Position.x) < Left then
-        Left := Position.x + Coords[i].x;
-    Right := - 1/0;
+      if (Coords[i].x + Position.x) < bb.Left then
+        bb.Left := Position.x + Coords[i].x;
+    bb.Right := - 1/0;
     for i := 0 to 3 do
-      if (Coords[i].x + Position.x) > Right then
-        Right := Position.x + Coords[i].x;
-    Top :=  1/0;
+      if (Coords[i].x + Position.x) > bb.Right then
+        bb.Right := Position.x + Coords[i].x;
+    bb.Top :=  1/0;
     for i := 0 to 3 do
-      if (Coords[i].y + Position.y) < Top then
-        Top := Position.y + Coords[i].y;
-    Bottom := - 1/0;
+      if (Coords[i].y + Position.y) < bb.Top then
+        bb.Top := Position.y + Coords[i].y;
+    bb.Bottom := - 1/0;
     for i := 0 to 3 do
-      if (Coords[i].y + Position.y) > Bottom then
-        Bottom := Position.y + Coords[i].y;
+      if (Coords[i].y + Position.y) > bb.Bottom then
+        bb.Bottom := Position.y + Coords[i].y;
   end;
 end;
 
@@ -474,8 +474,8 @@ begin
     sprite.Material.Texture := atlasGame.LoadTexture(BUSH_TEXTURE);
     sprite.UpdateTexCoords();
     sprite.SetSizeToTextureSize();
-    sprite.Z := sprite.Z - 2;
-    aScene.RegisterElement(sprite);
+    sprite.PPosition.z := sprite.PPosition.z - 2;
+    aScene.RootNode.AddChild(sprite);
 
     FBerryCount := 1 + Random(5);
     FScene := aScene;
@@ -483,7 +483,7 @@ begin
     for i := 0 to FBerryCount - 1 do
     begin
       FBerries[i] := InitLittleBerry();
-      FScene.RegisterElement(FBerries[i]);
+      FScene.RootNode.AddChild(FBerries[i]);
     end;
   end;
 end;
@@ -497,7 +497,7 @@ begin
     UpdateTexCoords();
     SetSizeToTextureSize();
     PivotPoint := ppCenter;
-    Z := Z_STATICOBJECTS + 1;
+    PPosition.z := Z_STATICOBJECTS + 1;
   end;
 end;
 
@@ -523,7 +523,7 @@ begin
   inherited;
   //ыыы, хак
   for i := 0 to FBerryCount - 1 do
-    FBerries[i].Position := sprite.Position
+    FBerries[i].Position2D := sprite.Position2D
       + BERRIES_COORDS[i]
       + dfVec2f(6 - Random(13), 6 - Random(13));
 end;
@@ -531,7 +531,7 @@ end;
 procedure TpdBush.RemoveOnBerry;
 begin
    FBerryCount := FBerryCount - 1;
-   FScene.UnregisterElement(FBerries[High(FBerries)]);
+   FScene.RootNode.RemoveChild(FBerries[High(FBerries)]);
    SetLength(FBerries, High(FBerries));
 end;
 
@@ -564,7 +564,7 @@ begin
     sprite.UpdateTexCoords();
     sprite.SetSizeToTextureSize();
     //sprite.Rotation := 90 - Random(180);
-    aScene.RegisterElement(sprite);
+    aScene.RootNode.AddChild(sprite);
     removeOnUse := False;
   end;
 end;
@@ -605,7 +605,7 @@ begin
     sprite.Material.Texture := atlasGame.LoadTexture(MUSHROOM_TEXTURE);
     sprite.UpdateTexCoords();
     sprite.SetSizeToTextureSize();
-    aScene.RegisterElement(sprite);
+    aScene.RootNode.AddChild(sprite);
     removeOnUse := True;
   end;
 end;
@@ -670,7 +670,7 @@ begin
     sprite.Material.Texture := atlasGame.LoadTexture(FLOWER_TEXTURE);
     sprite.UpdateTexCoords();
     sprite.SetSizeToTextureSize();
-    aScene.RegisterElement(sprite);
+    aScene.RootNode.AddChild(sprite);
     removeOnUse := True;
   end;
 end;
@@ -718,7 +718,7 @@ begin
     sprite.Material.Texture := atlasGame.LoadTexture(OLDGRASS_TEXTURE);
     sprite.UpdateTexCoords();
     sprite.SetSizeToTextureSize();
-    aScene.RegisterElement(sprite);
+    aScene.RootNode.AddChild(sprite);
     removeOnUse := False;
   end;
 end;
@@ -761,7 +761,7 @@ begin
     sprite.Material.Texture := atlasGame.LoadTexture(KNIFE_TEXTURE);
     sprite.UpdateTexCoords();
     sprite.SetSizeToTextureSize();
-    aScene.RegisterElement(sprite);
+    aScene.RootNode.AddChild(sprite);
     removeOnUse := False;
   end;
 end;
@@ -799,7 +799,7 @@ begin
     sprite.Material.Texture := atlasGame.LoadTexture(BACKPACK_TEXTURE);
     sprite.UpdateTexCoords();
     sprite.SetSizeToTextureSize();
-    aScene.RegisterElement(sprite);
+    aScene.RootNode.AddChild(sprite);
   end;
 end;
 
@@ -864,7 +864,7 @@ begin
     FNormTex := atlasGame.LoadTexture(BOTTLE_TEXTURE);
     FTeaTex := atlasGame.LoadTexture(BOTTLE_TEA_TEXTURE);
     SetTexture(FNormTex);
-    aScene.RegisterElement(sprite);
+    aScene.RootNode.AddChild(sprite);
     removeOnUse := False;
     WaterLevel := 0;
     FWaterStatus := bsWater;
@@ -990,7 +990,7 @@ begin
     sprite.UpdateTexCoords();
     sprite.SetSizeToTextureSize();
     sprite.ScaleMult(0.6);
-    aScene.RegisterElement(sprite);
+    aScene.RootNode.AddChild(sprite);
     removeOnUse := True;
   end;
 end;
@@ -1041,7 +1041,7 @@ begin
     sprite.Material.Texture := atlasGame.LoadTexture(BERRY_TEXTURE);
     sprite.UpdateTexCoords();
     sprite.SetSizeToTextureSize();
-    aScene.RegisterElement(sprite);
+    aScene.RootNode.AddChild(sprite);
     removeOnUse := True;
   end;
 end;
@@ -1089,8 +1089,8 @@ begin
     sprite.Material.Texture := atlasGame.LoadTexture(NEWGRASS_TEXTURE);
     sprite.UpdateTexCoords();
     sprite.SetSizeToTextureSize();
-    sprite.Z := sprite.Z - 1;
-    aScene.RegisterElement(sprite);
+    sprite.PPosition.z := sprite.PPosition.z - 1;
+    aScene.RootNode.AddChild(sprite);
 
     alreadySearch := False;
   end;
@@ -1116,7 +1116,7 @@ begin
       player.speech.Say('Ух ты, грибочек!', 3);
       with AddNewWorldObject(TpdMushroom) do
       begin
-        sprite.Position := Self.sprite.Position + dfVec2f(4 - Random(9), 4 - Random(9));
+        sprite.Position2D := Self.sprite.Position2D + dfVec2f(4 - Random(9), 4 - Random(9));
         sprite.Rotation := 10 - Random(20);
         RecalcBB();
       end;
@@ -1126,7 +1126,7 @@ begin
       player.speech.Say('Отличная ветка!', 3);
       with AddNewWorldObject(TpdTwig) do
       begin
-        sprite.Position := Self.sprite.Position + dfVec2f(15 - Random(31), 15 - Random(31));
+        sprite.Position2D := Self.sprite.Position2D + dfVec2f(15 - Random(31), 15 - Random(31));
         sprite.Rotation := 70 - Random(141);
         RecalcBB();
       end;
@@ -1168,7 +1168,7 @@ begin
     sprite.UpdateTexCoords();
     sprite.SetSizeToTextureSize();
     sprite.Rotation := 40;
-    aScene.RegisterElement(sprite);
+    aScene.RootNode.AddChild(sprite);
   end;
 end;
 
@@ -1217,7 +1217,7 @@ begin
     sprite.UpdateTexCoords();
     sprite.SetSizeToTextureSize();
     sprite.Rotation := -40;
-    aScene.RegisterElement(sprite);
+    aScene.RootNode.AddChild(sprite);
 
     removeOnUse := False;
   end;
@@ -1264,7 +1264,7 @@ begin
     sprite.Material.Texture := atlasGame.LoadTexture(FISHROD_TEXTURE);
     sprite.UpdateTexCoords();
     sprite.SetSizeToTextureSize();
-    aScene.RegisterElement(sprite);
+    aScene.RootNode.AddChild(sprite);
     removeOnUse := False;
   end;
 end;
@@ -1325,7 +1325,7 @@ begin
     sprite.UpdateTexCoords();
     sprite.SetSizeToTextureSize();
     sprite.Rotation := 40;
-    aScene.RegisterElement(sprite);
+    aScene.RootNode.AddChild(sprite);
     removeOnUse := True;
   end;
 end;
@@ -1376,7 +1376,7 @@ begin
     sprite.UpdateTexCoords();
     sprite.SetSizeToTextureSize();
     sprite.Rotation := 40;
-    aScene.RegisterElement(sprite);
+    aScene.RootNode.AddChild(sprite);
     removeOnUse := True;
   end;
 end;
@@ -1428,7 +1428,7 @@ begin
     sprite.UpdateTexCoords();
     sprite.SetSizeToTextureSize();
     sprite.Rotation := 40;
-    aScene.RegisterElement(sprite);
+    aScene.RootNode.AddChild(sprite);
     removeOnUse := True;
   end;
 end;
@@ -1480,7 +1480,7 @@ begin
     sprite.UpdateTexCoords();
     sprite.SetSizeToTextureSize();
     sprite.Rotation := 40;
-    aScene.RegisterElement(sprite);
+    aScene.RootNode.AddChild(sprite);
     removeOnUse := True;
   end;
 end;
@@ -1528,18 +1528,18 @@ begin
     sprite.Material.Texture := atlasGame.LoadTexture(CAMPFIRE_TEXTURE);
     sprite.UpdateTexCoords();
     sprite.SetSizeToTextureSize();
-    sprite.Z := sprite.Z - 1;
-    aScene.RegisterElement(sprite);
+    sprite.PPosition.z := sprite.Position.z - 1;
+    aScene.RootNode.AddChild(sprite);
 
     timeToLife := CAMPFIRE_TIME_TO_LIFE;
     restRadius := CAMPFIRE_REST_RADIUS + (sprite.Width + sprite.Height) / 4;
 
     lifeSpr := Factory.NewSprite();
-    lifeSpr.Z := Z_STATICOBJECTS + 1;
+    lifeSpr.PPosition.z := Z_STATICOBJECTS + 1;
     lifeSpr.Width := sprite.Width;
     lifespr.Height := 5;
     lifespr.Material.Diffuse := colorRed;
-    aScene.RegisterElement(lifeSpr);
+    aScene.RootNode.AddChild(lifeSpr);
   end;
 end;
 
@@ -1552,7 +1552,7 @@ end;
 procedure TpdCampFire.RecalcBB;
 begin
   inherited;
-  lifeSpr.Position := sprite.Position + dfVec2f(-sprite.Width / 2, 30);
+  lifeSpr.Position2D := sprite.Position2D + dfVec2f(-sprite.Width / 2, 30);
 end;
 
 //--Общие функции
@@ -1588,7 +1588,7 @@ begin
       SUR_OBJ_IGNORE: Continue;
       else Continue;
     end;
-    worldObjects[i].sprite.Position := aSurFile.Objects[i].aPos;
+    worldObjects[i].sprite.Position2D := aSurFile.Objects[i].aPos;
     worldObjects[i].sprite.Rotation := aSurFile.Objects[i].aRot;
   end;
 
@@ -1624,7 +1624,7 @@ begin
     with aSurFile.Objects[i] do
     begin
       aType := ClassTypeToByte(worldObjects[i].ClassType);
-      aPos := worldObjects[i].sprite.Position;
+      aPos := worldObjects[i].sprite.Position2D;
       aRot := worldObjects[i].sprite.Rotation;
     end;
 end;
@@ -1659,14 +1659,14 @@ begin
     if worldObjects[i] is TpdCampFire then
       with (worldObjects[i] as TpdCampFire) do
       begin
-        if player.sprite.Position.Dist(sprite.Position) < restRadius then
+        if player.sprite.Position2D.Dist(sprite.Position2D) < restRadius then
           nearFire := True;
         
         timeToLife := timeToLife - dt;
         lifeSpr.Width := sprite.Width * (timeToLife / CAMPFIRE_TIME_TO_LIFE);
         if timeToLife < 0 then
         begin
-          mainScene.UnregisterElement(lifeSpr);
+          mainScene.RootNode.RemoveChild(lifeSpr);
           DeleteWorldObject(worldObjects[i]);
         end;
       end;
@@ -1683,12 +1683,12 @@ begin
   for i := 0 to High(worldObjects) do
   begin
     //TODO: отсчечение по видимости
-    if worldObjects[i].IsInside(dfVec2f(X, Y) - mainScene.Origin) then
+    if worldObjects[i].IsInside(dfVec2f(X, Y) - dfVec2f(mainScene.RootNode.Position)) then
     begin
       //Проверяем, не выбран ли какой-то объект до этого и сравниваем их Z-величину
       if Assigned(selectedWorldObject) then
       begin
-        if selectedWorldObject.sprite.Z < worldObjects[i].sprite.Z then
+        if selectedWorldObject.sprite.Position.z < worldObjects[i].sprite.Position.z then
         //Новый выше, значит выбираем его
         begin
           selectedWorldObject := worldObjects[i];
@@ -1754,7 +1754,7 @@ begin
 
   if Assigned(worldObjects[index]) then
   begin
-    mainScene.UnregisterElement(worldObjects[index].sprite);
+    mainScene.RootNode.RemoveChild(worldObjects[index].sprite);
     worldObjects[index].Free();
   end;
   len := Length(worldObjects);

@@ -273,9 +273,9 @@ function TpdPlayer.IsPickupDistanceReached(aObject: TpdWorldObject): Boolean;
 begin
   //Костыль, надо делать у всех WorldObject отдельный radius
   if aObject is TpdWater then
-    Result := sprite.Position.Dist(aObject.sprite.Position) < (aObject as TpdWater).radius
+    Result := sprite.Position2D.Dist(aObject.sprite.Position2D) < (aObject as TpdWater).radius
   else
-    Result := sprite.Position.Dist(aObject.sprite.Position)
+    Result := sprite.Position2D.Dist(aObject.sprite.Position2D)
       < PLAYER_PICKUP_RADIUS + sprite.Width / 2 + aObject.sprite.Width / 2;
 end;
 
@@ -327,7 +327,7 @@ begin
   end
   else
   begin
-    MoveTo(aObject.sprite.Position); //Тут обнуляется FObjectToCollect в силу кривости архитектуры
+    MoveTo(aObject.sprite.Position2D); //Тут обнуляется FObjectToCollect в силу кривости архитектуры
     FObjectToCollect := aObject;     //Поэтому ставим ее после
   end;
 end;
@@ -352,9 +352,8 @@ const
       Material.Texture := atlasGame.LoadTexture(aTexture);
       UpdateTexCoords();
       PivotPoint := ppTopRight;
-      Position := aPosition;
+      Position := dfVec3f(aPosition, Z_HUD);
       SetSizeToTextureSize();
-      Z := Z_HUD;
     end;
 
     with aBarContour do
@@ -364,13 +363,12 @@ const
       Material.Diffuse := dfVec4f(0, 0, 0, 1);
       UpdateTexCoords();
       PivotPoint := ppTopRight;
-      Position := aPosition;
+      Position := dfVec3f(aPosition, Z_HUD + 1);
       SetSizeToTextureSize();
-      Z := Z_HUD + 1;
     end;
 
-    aHUDScene.RegisterElement(aBar);
-    aHUDScene.RegisterElement(aBarContour);
+    aHUDScene.RootNode.AddChild(aBar);
+    aHUDScene.RootNode.AddChild(aBarContour);
   end;
 
 begin
@@ -383,13 +381,12 @@ begin
     isMoving := False;
     inWater := False;
 
-    sprite.Position := dfVec2f(R.WindowWidth div 2, R.WindowHeight div 2);
+    sprite.Position := dfVec3f(R.WindowWidth div 2, R.WindowHeight div 2, Z_PLAYER);
     sprite.PivotPoint := ppCenter;
-    sprite.Z := Z_PLAYER;
     sprite.Material.Texture := atlasGame.LoadTexture(PLAYER_NORM);
     sprite.UpdateTexCoords();
     sprite.SetSizeToTextureSize();
-    FScene.RegisterElement(sprite);
+    FScene.RootNode.AddChild(sprite);
 
     speed := PLAYER_MAX_SPEED;
     params[pHealth] := PLAYER_START_HEALTH;
@@ -431,7 +428,7 @@ procedure TpdPlayer.MoveTo(aPos: TdfVec2f; showMovePoint: Boolean = True);
 begin
   FObjectToCollect := nil;
   moveToPoint := aPos;
-  moveVec := (moveToPoint - sprite.Position).Normal;
+  moveVec := (moveToPoint - sprite.Position2D).Normal;
   isMoving := True;
 
   if showMovePoint then
@@ -587,7 +584,7 @@ begin
       FMoveToPoint.Visible := False;
     end;
 
-  if sprite.Position.Dist(moveToPoint) < 5 then
+  if sprite.Position2D.Dist(moveToPoint) < 5 then
   begin
     isMoving := False;
     FMoveToPoint.Visible := False;
@@ -604,7 +601,7 @@ begin
 
   if isMoving then
   begin
-    sprite.Position := sprite.Position + moveVec * dt * speed;;
+    sprite.Position2D := sprite.Position2D + moveVec * dt * speed;;
   end;
 end;
 
@@ -637,7 +634,7 @@ begin
   Result := False;
   if (ssLeft in Shift) and (player.isMovingPermanently) then
   begin
-    player.MoveTo(dfVec2f(X, Y) - mainScene.Origin, False);
+    player.MoveTo(dfVec2f(X, Y) - dfVec2f(mainScene.RootNode.Position), False);
     Result := True;
   end;             
 end;
@@ -661,7 +658,7 @@ begin
   if player.isMovingPermanently then
   begin
     player.isMovingPermanently := False;
-    player.MoveTo(dfVec2f(X, Y) - mainScene.Origin);
+    player.MoveTo(dfVec2f(X, Y) - dfVec2f(mainScene.RootNode.Position));
     Result := True;
   end;
 end;
@@ -713,8 +710,8 @@ begin
         Visible := False;
         PivotPoint := ppCenter;
         Rotation := 90 * i;
-        Z := Z_HUD - 1;
-        aScene.RegisterElement(FArrows[i]);
+        PPosition.z := Z_HUD - 1;
+        aScene.RootNode.AddChild(FArrows[i]);
       end;
   end;
 end;
@@ -724,10 +721,10 @@ begin
   FPos := Value;
   Visible := True;
   FTime := 0;
-  FArrows[0].Position := FPos + dfVec2f(0, -MOVETOPOINT_ARROW_OFFSET);
-  FArrows[1].Position := FPos + dfVec2f(MOVETOPOINT_ARROW_OFFSET, 0);
-  FArrows[2].Position := FPos + dfVec2f(0, MOVETOPOINT_ARROW_OFFSET);
-  FArrows[3].Position := FPos + dfVec2f(-MOVETOPOINT_ARROW_OFFSET, 0);
+  FArrows[0].Position2D := FPos + dfVec2f(0, -MOVETOPOINT_ARROW_OFFSET);
+  FArrows[1].Position2D := FPos + dfVec2f(MOVETOPOINT_ARROW_OFFSET, 0);
+  FArrows[2].Position2D := FPos + dfVec2f(0, MOVETOPOINT_ARROW_OFFSET);
+  FArrows[3].Position2D := FPos + dfVec2f(-MOVETOPOINT_ARROW_OFFSET, 0);
 end;
 
 procedure TpdMoveToPoint.SetVisible(const Value: Boolean);
@@ -809,12 +806,11 @@ begin
     begin
       Font := fontCooper;
       Material.Diffuse := dfVec4f(1, 1, 1, 1);
-      Z := Z_HUD + 3;
-      Position := dfVec2f(R.WindowWidth div 2 + PLAYER_SAY_ORIGIN_X,
-        R.WindowHeight div 2 + PLAYER_SAY_ORIGIN_Y);
-      FUsualPos := Position;
+      Position := dfVec3f(R.WindowWidth div 2 + PLAYER_SAY_ORIGIN_X,
+        R.WindowHeight div 2 + PLAYER_SAY_ORIGIN_Y, Z_HUD + 3);
+      FUsualPos := Position2D;
       ScaleMult(0.8);
-      aScene.RegisterElement(FTextObject);
+      aScene.RootNode.AddChild(FTextObject);
     end;
   end;
 end;
@@ -867,7 +863,7 @@ begin
   //Считаем количество строк в тексте
   lines := CountPos(#13#10, FSpeeches[FCurrent].text);
   FTextObject.Text := FSpeeches[FCurrent].text;
-  FTextObject.Position := FUsualPos + dfVec2f(0, - 20 * lines);
+  FTextObject.Position2D := FUsualPos + dfVec2f(0, - 20 * lines);
 end;
 
 procedure TpdPlayerSpeechController.TrySwitchToNext;

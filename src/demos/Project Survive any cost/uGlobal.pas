@@ -142,17 +142,17 @@ begin
   cursor.Material.Texture := atlasGame.LoadTexture(CURSOR_TEXTURE);
   cursor.UpdateTexCoords;
   cursor.SetSizeToTextureSize;
-  cursor.Z := 100;
+  cursor.PPosition.z := 100;
 
   cursorText := Factory.NewText();
   cursorText.Font := fontCooper;
-  cursorText.Z := 100;
+  cursorText.PPosition.z := 100;
   cursorText.Text := '';
   cursorText.Material.Diffuse := dfVec4f(1, 1, 1, 1);//dfVec4f(0, 107.0 / 255, 203 / 255, 1);
   cursorText.ScaleMult(0.6);
 
-  globalScene.RegisterElement(cursor);
-  globalScene.RegisterElement(cursorText);
+  globalScene.RootNode.AddChild(cursor);
+  globalScene.RootNode.AddChild(cursorText);
 end;
 
 procedure FreeGlobalResources();
@@ -163,16 +163,15 @@ begin
   fontCooper := nil;
   mainScene := nil;
   hudScene := nil;
-  globalScene.UnregisterElements();
   R.UnregisterScene(globalScene);
   sound.Free();
 end;
 
 procedure UpdateCursor(const dt: Double);
 begin
-  cursor.Position := mousePos;
+  cursor.Position2D := mousePos;
 //  if mousePos.x < R.WindowWidth - 250 then
-  cursorText.Position := mousePos + dfVec2f(32, 32);
+  cursorText.Position2D := mousePos + dfVec2f(32, 32);
 //  else
 //    cursorText.Position := mousePos + dfVec2f(-64, 32)
 end;

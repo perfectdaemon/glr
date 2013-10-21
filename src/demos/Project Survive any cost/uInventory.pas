@@ -112,12 +112,12 @@ constructor TpdInvSlot.Create;
 begin
   inherited;
   backSprite := Factory.NewHudSprite();
-  backSprite.Z := Z_HUD;
+  backSprite.PPosition.z := Z_HUD;
   backSprite.PivotPoint := ppCenter;
   countText := Factory.NewText();
   countText.Font := fontCooper;
   countText.Material.Diffuse := dfVec4f(0, 0, 0, 1);
-  countText.Z := Z_HUD + 2;
+  countText.PPosition.z := Z_HUD + 2;
 end;
 
 destructor TpdInvSlot.Destroy;
@@ -136,7 +136,7 @@ end;
 
 procedure TpdInvSlot.RemoveItemObject;
 begin
-  hudScene.UnregisterElement(item.sprite);
+  hudScene.RootNode.RemoveChild(item.sprite);
   item.Free();
   item := nil;
 end;
@@ -190,8 +190,7 @@ begin
 
     slot.item := aObjectClass.Initialize(hudScene);
     slot.item.status := sInventory;
-    slot.item.sprite.Z := Z_HUD + 1;
-    slot.item.sprite.Position := slot.backSprite.Position;
+    slot.item.sprite.Position := dfVec3f(slot.backSprite.Position2D, Z_HUD + 1);
     if aObjectClass = TpdTwig then
       slot.item.sprite.Rotation := 35;
     if aObjectClass = TpdKnife then
@@ -218,15 +217,15 @@ begin
     with FSlots[i] do
     begin
       usualPos := origin  + dfVec2f(- colNum * COLUMN_WIDTH, rowNum * COLUMN_WIDTH);
-      backSprite.Position := dfVec2f(R.WindowWidth + 40, usualPos.y);
+      backSprite.Position2D := dfVec2f(R.WindowWidth + 40, usualPos.y);
       backSprite.Material.Texture := FTexBack;
       backSprite.UpdateTexCoords();
       backSprite.SetSizeToTextureSize();
-      hudScene.RegisterElement(backSprite);
+      hudScene.RootNode.AddChild(backSprite);
       count := 0;
       item := nil;
-      countText.Position := backSprite.Position + dfVec2f(12, 4);
-      hudScene.RegisterElement(countText);
+      countText.Position2D := backSprite.Position2D + dfVec2f(12, 4);
+      hudScene.RootNode.AddChild(countText);
     end;
     colNum := colNum + 1;
     if colNum = COLUMNS then
@@ -236,7 +235,7 @@ begin
     end;
   end;
 
-  FHintText.Position := FSlots[High(FSlots)].usualPos + dfVec2f(-40, 40);
+  FHintText.Position2D := FSlots[High(FSlots)].usualPos + dfVec2f(-40, 40);
 end;
 
 constructor TpdInventory.Create(const aSlotCount: Integer);
@@ -252,8 +251,8 @@ begin
   FHintText.Font := fontCooper;
   FHintText.Text := '';
   FHintText.ScaleMult(0.7);
-  FHintText.Z := Z_HUD;
-  hudScene.RegisterElement(FHintText);
+  FHintText.PPosition.z := Z_HUD;
+  hudScene.RootNode.AddChild(FHintText);
 
   AddSlots(aSlotCount);
 
@@ -262,9 +261,8 @@ begin
   FCaptionText := Factory.NewText();
   FCaptionText.Font := fontCooper;
   FCaptionText.Text := '»нвентарь';
-  FCaptionText.Position := dfVec2f(R.WindowWidth + 20, FCaptionTextUsualPos.y);
-  FCaptionText.Z := Z_HUD;
-  hudScene.RegisterElement(FCaptionText);
+  FCaptionText.Position := dfVec3f(R.WindowWidth + 20, FCaptionTextUsualPos.y, Z_HUD);
+  hudScene.RootNode.AddChild(FCaptionText);
 end;
 
 destructor TpdInventory.Destroy;
@@ -358,7 +356,7 @@ begin
   inventory.FHintText.Visible := False;
 
   if Assigned(dragObject) then
-    dragObject.item.sprite.Position := dfVec2f(X, Y);
+    dragObject.item.sprite.Position2D := dfVec2f(X, Y);
 
   for i := 0 to High(inventory.FSlots) do
     with inventory do
@@ -586,10 +584,10 @@ begin
         dropObj := AddNewWorldObject(TpdWorldObjectClass(dragObject.item.ClassType));
         with dropObj do
         begin
-          dropPos := dfVec2f(X, Y) - mainScene.Origin;
-          if dropPos.Dist(player.sprite.Position) > PLAYER_DROP_RADIUS then
-            dropPos := player.sprite.Position + (dropPos - player.sprite.Position).Normal * PLAYER_DROP_RADIUS;
-          sprite.Position := dropPos;
+          dropPos := dfVec2f(X, Y) - dfVec2f(mainScene.RootNode.Position);
+          if dropPos.Dist(player.sprite.Position2D) > PLAYER_DROP_RADIUS then
+            dropPos := player.sprite.Position2D + (dropPos - player.sprite.Position2D).Normal * PLAYER_DROP_RADIUS;
+          sprite.Position2D := dropPos;
           RecalcBB();
           //ќтдельна€ проверка дл€ фл€ги, так как она может существовать в разных статусах
           if ClassType = TpdBottle then
