@@ -30,6 +30,9 @@
 			<Projects Include="demos\Project MutilTetris\multitetris.dproj">
 				<Dependencies/>
 			</Projects>
+			<Projects Include="demos\Project GoodLine\GoodLineGame.dproj">
+				<Dependencies/>
+			</Projects>
 		</ItemGroup>
 		<ProjectExtensions>
 			<Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -119,14 +122,23 @@
 		<Target Name="multitetris:Make">
 			<MSBuild Targets="Make" Projects="demos\Project MutilTetris\multitetris.dproj"/>
 		</Target>
+		<Target Name="GoodLineGame">
+			<MSBuild Projects="demos\Project GoodLine\GoodLineGame.dproj"/>
+		</Target>
+		<Target Name="GoodLineGame:Clean">
+			<MSBuild Targets="Clean" Projects="demos\Project GoodLine\GoodLineGame.dproj"/>
+		</Target>
+		<Target Name="GoodLineGame:Make">
+			<MSBuild Targets="Make" Projects="demos\Project GoodLine\GoodLineGame.dproj"/>
+		</Target>
 		<Target Name="Build">
-			<CallTarget Targets="glRenderer;Checker1;Checker2;Checker5_GUI;Checker6;survive;RagdollSport;RagdollFighting;multitetris"/>
+			<CallTarget Targets="glRenderer;Checker1;Checker2;Checker5_GUI;Checker6;survive;RagdollSport;RagdollFighting;multitetris;GoodLineGame"/>
 		</Target>
 		<Target Name="Clean">
-			<CallTarget Targets="glRenderer:Clean;Checker1:Clean;Checker2:Clean;Checker5_GUI:Clean;Checker6:Clean;survive:Clean;RagdollSport:Clean;RagdollFighting:Clean;multitetris:Clean"/>
+			<CallTarget Targets="glRenderer:Clean;Checker1:Clean;Checker2:Clean;Checker5_GUI:Clean;Checker6:Clean;survive:Clean;RagdollSport:Clean;RagdollFighting:Clean;multitetris:Clean;GoodLineGame:Clean"/>
 		</Target>
 		<Target Name="Make">
-			<CallTarget Targets="glRenderer:Make;Checker1:Make;Checker2:Make;Checker5_GUI:Make;Checker6:Make;survive:Make;RagdollSport:Make;RagdollFighting:Make;multitetris:Make"/>
+			<CallTarget Targets="glRenderer:Make;Checker1:Make;Checker2:Make;Checker5_GUI:Make;Checker6:Make;survive:Make;RagdollSport:Make;RagdollFighting:Make;multitetris:Make;GoodLineGame:Make"/>
 		</Target>
 		<Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 	</Project>
