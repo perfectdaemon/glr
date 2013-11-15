@@ -17,7 +17,12 @@ uses
   ogl in '..\..\headers\ogl.pas',
   uBox2DImport in '..\..\headers\box2d\uBox2DImport.pas',
   UPhysics2D in '..\..\headers\box2d\UPhysics2D.pas',
-  UPhysics2DTypes in '..\..\headers\box2d\UPhysics2DTypes.pas';
+  UPhysics2DTypes in '..\..\headers\box2d\UPhysics2DTypes.pas',
+  uCar in 'uCar.pas',
+  uSettingsSaveLoad in 'uSettingsSaveLoad.pas',
+  uCarSaveLoad in 'uCarSaveLoad.pas',
+  uLevel in 'uLevel.pas';
+
 var
   gsManager: TpdGSManager;
   bigPause: Boolean;
@@ -86,11 +91,11 @@ begin
   gsManager.Add(mainMenu);
   gsManager.Add(game);
   gsManager.Add(gameOver);
-//  {$IFDEF DEBUG}
-//  gsManager.Notify(game, naSwitchTo);
-//  {$ELSE}
+  {$IFDEF DEBUG}
+  gsManager.Notify(game, naSwitchTo);
+  {$ELSE}
   gsManager.Notify(mainMenu, naSwitchTo);
-//  {$ENDIF}
+  {$ENDIF}
 
   R.Start();
 

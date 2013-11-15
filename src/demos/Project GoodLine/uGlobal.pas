@@ -3,7 +3,7 @@ unit uGlobal;
 interface
 
 uses
-  glr, glrMath, glrUtils, uSound;
+  glr, glrMath, glrUtils, uSound, uBox2DImport;
 
 const
   GAMEVERSION = '0.03';
@@ -12,6 +12,8 @@ const
 
   Z_BACKGROUND = -100;
   Z_MAINMENU = 25;
+  Z_LEVEL = 0;
+  Z_PLAYER = 25;
   Z_HUD = 50;
   Z_INGAMEMENU = 75;
 
@@ -20,10 +22,10 @@ const
   MUSIC_MENU   = RES_FOLDER + 'Misha Mishenko - Sol.ogg';
 
   SOUND_CLICK   = RES_FOLDER + 'click.ogg';
-  SOUND_ROTATE  = RES_FOLDER + 'rotate.ogg';
-  SOUND_DOWN    = RES_FOLDER + 'down.ogg';
 
   FILE_MAIN_TEXTURE_ATLAS = RES_FOLDER + 'atlas.atlas';
+
+  CAR_CONF_FILE = RES_FOLDER + 'car.conf';
 
   BTN_NORMAL_TEXTURE  = 'btn_normal.png';
   BTN_OVER_TEXTURE    = 'btn_over.png';
@@ -33,13 +35,17 @@ const
   SLIDER_OVER = 'slider_over.png';
   SLIDER_BTN  = 'slider_btn.png';
 
-  CB_ON_TEXTURE       = 'cb_on.png';
-  CB_OFF_TEXTURE      = 'cb_off.png';
-  CB_ON_OVER_TEXTURE  = 'cb_on_over.png';
-  CB_OFF_OVER_TEXTURE = 'cb_off_over.png';
+  BLOCK_TEXTURE = 'block.png';
+  CUBE_TEXTURE = 'cube.png';
+  CIRCLE_TEXTURE = 'circle.png';
 
-  PARTICLE_TEXTURE  = 'particle.png';
-  PARTICLE_TEXTURE2 = 'particle2.png';
+  //CB_ON_TEXTURE       = 'cb_on.png';
+  //CB_OFF_TEXTURE      = 'cb_off.png';
+  //CB_ON_OVER_TEXTURE  = 'cb_on_over.png';
+  //CB_OFF_OVER_TEXTURE = 'cb_off_over.png';
+
+  //PARTICLE_TEXTURE  = 'particle.png';
+  //PARTICLE_TEXTURE2 = 'particle2.png';
 
   BTN_TEXT_OFFSET_X = -100;
   BTN_TEXT_OFFSET_Y = -15;
@@ -55,6 +61,7 @@ var
 
   //Game systems
   sound: TpdSoundSystem;
+  b2world: Tglrb2World;
 
   //Sound & music
   sClick: LongWord;
@@ -76,7 +83,12 @@ procedure FinalizeGlobal();
 
 implementation
 
+//uses
+//  uCarSaveLoad;
+
 procedure InitializeGlobal();
+//var
+//  car: TpdCarInfo;
 begin
   atlasMain := TglrAtlas.InitCheetahAtlas(FILE_MAIN_TEXTURE_ATLAS);
 
@@ -95,6 +107,35 @@ begin
   musicIngame := sound.LoadMusic(MUSIC_INGAME);
   musicMenu := sound.LoadMusic(MUSIC_MENU);
   sClick := sound.LoadSample(SOUND_CLICK);
+
+//  with car do
+//  begin
+//    BodyR := 0.5;
+//    BodyD := 1.0;
+//    BodyF := 0.9;
+//    WheelRearR := 0.4;
+//    WheelRearD := 0.2;
+//    WheelRearF := 0.7;
+//    WheelFrontR := 0.4;
+//    WheelFrontD := 0.2;
+//    WheelFrontF := 0.7;
+//
+//    WheelRearOffset := dfVec2f(-30, 20);
+//    WheelFrontOfsset := dfVec2f(30, 20);
+//    SuspRearOffset := dfVec2f(-30, 10);
+//    SuspFrontOffset := dfVec2f(30, 10);
+//    BodyMassCenterOffset := dfVec2f(0, 10);
+//
+//    SuspRearLimit := dfVec2f(-5, 5);
+//    SuspFrontLimit := dfVec2f(-5, 5);
+//
+//    SuspRearMotorSpeed := 10;
+//    SuspRearMaxMotorForce := 100;
+//    SuspFrontMotorSpeed := 10;
+//    SuspFrontMaxMotorForce := 100;
+//  end;
+//
+//  TpdCarInfoSaveLoad.SaveToFile(CAR_CONF_FILE, car);
 end;
 
 procedure FinalizeGlobal();

@@ -61,6 +61,10 @@
 			<DCCReference Include="..\..\headers\box2d\uBox2DImport.pas"/>
 			<DCCReference Include="..\..\headers\box2d\UPhysics2D.pas"/>
 			<DCCReference Include="..\..\headers\box2d\UPhysics2DTypes.pas"/>
+			<DCCReference Include="uCar.pas"/>
+			<DCCReference Include="uSettingsSaveLoad.pas"/>
+			<DCCReference Include="uCarSaveLoad.pas"/>
+			<DCCReference Include="uLevel.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

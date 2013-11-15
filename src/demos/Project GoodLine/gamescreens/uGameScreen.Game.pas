@@ -5,6 +5,7 @@ interface
 uses
   Contnrs,
   glr, glrUtils, glrMath,
+  uCar, uLevel,
   uGameScreen, uGlobal;
 
 const
@@ -38,8 +39,20 @@ type
     Ft: Single; //Время для расчета анимации fadein/fadeout
     FFakeBackground: IglrSprite;
 
+    FPlayerCar: TpdCar;
+    FLevel: TpdLevel;
+
     procedure LoadHUD();
     procedure FreeHUD();
+
+    procedure LoadPlayer();
+    procedure FreePlayer();
+
+    procedure LoadLevel();
+    procedure FreeLevel();
+
+    procedure LoadPhysics();
+    procedure FreePhysics();
 
     procedure DoUpdate(const dt: Double);
   protected
@@ -73,7 +86,7 @@ var
 implementation
 
 uses
-  uGameScreen.GameOver,
+  uGameScreen.GameOver, uCarSaveLoad, uPhysics2DTypes, uBox2DImport,
   Windows, SysUtils,
   dfTweener, ogl;
 
@@ -131,6 +144,12 @@ begin
     Exit();
 
   //code here
+
+  b2world.Update(dt);
+  FPlayerCar.Update(dt);
+
+  if R.Input.IsKeyPressed(VK_TAB) then
+    LoadPlayer();
 end;
 
 procedure TpdGame.FadeIn(deltaTime: Double);
@@ -179,6 +198,24 @@ begin
 end;
 
 
+procedure TpdGame.FreeLevel;
+begin
+  if Assigned(FLevel) then
+    FreeAndNil(FLevel);
+end;
+
+procedure TpdGame.FreePhysics;
+begin
+  if Assigned(b2world) then
+    FreeAndNil(b2world);
+end;
+
+procedure TpdGame.FreePlayer;
+begin
+  if Assigned(FPlayerCar) then
+    FreeAndNil(FPlayerCar);
+end;
+
 procedure TpdGame.Load;
 begin
   inherited;
@@ -195,7 +232,10 @@ begin
   FHudScene.RootNode.RemoveAllChilds();
 
   LoadHUD();
+  LoadPhysics();
+  LoadLevel();
   //Load here
+  LoadPlayer();
 
   FFakeBackground := Factory.NewHudSprite();
   with FFakeBackground do
@@ -292,6 +332,33 @@ begin
   FHUDScene.RootNode.AddChild(FPauseText);
 end;
 
+procedure TpdGame.LoadLevel;
+begin
+  if Assigned(FLevel) then
+    FLevel.Free();
+
+  FLevel := TpdLevel.Create();
+end;
+
+procedure TpdGame.LoadPhysics;
+begin
+  if Assigned(b2world) then
+    b2world.Free();
+
+  b2world := Tglrb2World.Create(TVector2.From(0, 10), True, 1 / 60, 8);
+end;
+
+procedure TpdGame.LoadPlayer;
+var
+  info: TpdCarInfo;
+begin
+  if Assigned(FPlayerCar) then
+    FPlayerCar.Free();
+
+  info := TpdCarInfoSaveLoad.LoadFromFile(CAR_CONF_FILE);
+  FPlayerCar := TpdCar.Create(info);
+end;
+
 procedure TpdGame.SetGameScreenLinks(aGameOver: TpdGameScreen; aMenu: TpdGameScreen);
 begin
   FScrGameOver := aGameOver;
@@ -331,6 +398,9 @@ begin
     Exit();
 
   FreeHUD();
+  FreePlayer();
+  FreeLevel();
+  FreePhysics();
 
   R.GUIManager.UnregisterElement(FBtnMenu);
 

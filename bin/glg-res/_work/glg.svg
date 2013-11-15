@@ -15,7 +15,7 @@
    id="svg3755"
    version="1.1"
    inkscape:version="0.48.4 r9939"
-   sodipodi:docname="main.svg">
+   sodipodi:docname="glg.svg">
   <defs
      id="defs3757">
     <linearGradient
@@ -227,9 +227,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.4142136"
-     inkscape:cx="555.75728"
-     inkscape:cy="481.65325"
+     inkscape:zoom="1"
+     inkscape:cx="596.68545"
+     inkscape:cy="641.8919"
      inkscape:current-layer="layer1"
      inkscape:document-units="px"
      showgrid="false"
@@ -323,16 +323,6 @@
          ry="9.646018" />
     </g>
     <rect
-       style="fill:#ffffff;fill-opacity:1;stroke:#828282;stroke-width:1.50000000000000000;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       id="block"
-       width="32"
-       height="32"
-       x="628.5"
-       y="175.5"
-       rx="6"
-       ry="6"
-       inkscape:label="#rect4357" />
-    <rect
        ry="7"
        rx="7"
        y="183.80594"
@@ -368,5 +358,36 @@
        style="fill:url(#linearGradient5211);fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-opacity:1;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
+    <path
+       sodipodi:type="arc"
+       style="fill:#000000;fill-opacity:0;stroke:#b0b0b0;stroke-width:3;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="circle"
+       sodipodi:cx="168.5"
+       sodipodi:cy="459.5"
+       sodipodi:rx="23.5"
+       sodipodi:ry="23.5"
+       d="m 192,459.5 a 23.5,23.5 0 1 1 -47,0 23.5,23.5 0 1 1 47,0 z"
+       transform="matrix(0.66666667,0,0,0.66666667,621.16664,-4.3333052)"
+       inkscape:label="#path3855" />
+    <rect
+       style="fill:#000000;fill-opacity:0;stroke:#b0b0b0;stroke-width:2;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="cube"
+       width="32"
+       height="32"
+       x="774.5"
+       y="282"
+       rx="7"
+       ry="7"
+       inkscape:label="#rect3857" />
+    <rect
+       style="fill:#000000;fill-opacity:0;stroke:#b0b0b0;stroke-width:2;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="block"
+       width="96"
+       height="32"
+       x="715"
+       y="244"
+       rx="7"
+       ry="7"
+       inkscape:label="#rect3859" />
   </g>
 </svg>
