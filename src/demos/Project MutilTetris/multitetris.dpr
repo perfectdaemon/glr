@@ -24,9 +24,18 @@
   + Звук падения блоков
     Звук удаления блоков
   + Помощь по сгорающим блокам
-    Следующая фигура
+  + Следующая фигура
 
-  + BUG: неправильное схлопаывание блоков
+  + BUG: неправильное схлопывание блоков
+
+  + Непрерывное управление
+  + Частицы
+  + Нарисованная стрелка, откуда упадет следующая фигура
+  + Плавный поворот стрелки
+  + Изменение цвета до очистки осталось
+  + Перенос надписей "до очистки осталось", очки и скорость
+  - Сохранение настроек
+ +- Логотип GoodLine на задний фон (с анимацией прозрачности?)
 }
 
 program multitetris;
@@ -46,7 +55,9 @@ uses
   uGameScreen.MainMenu in 'gamescreens\uGameScreen.MainMenu.pas',
   uGameScreen in 'gamescreens\uGameScreen.pas',
   uGameScreenManager in 'gamescreens\uGameScreenManager.pas',
-  uField in 'uField.pas';
+  uField in 'uField.pas',
+  uParticles in 'uParticles.pas',
+  uAccum in 'uAccum.pas';
 
 var
   gsManager: TpdGSManager;

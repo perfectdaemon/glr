@@ -3,13 +3,13 @@ unit uField;
 interface
 
 uses
-  glr, glrMath;
+  glr, glrMath, uParticles;
 
 const
   FIELD_SIZE_X = 24; //Размеры поля в клетках
   FIELD_SIZE_Y = 24;
   FIELD_OFFSET_X = -155;
-  FIELD_OFFSET_Y = 0;
+  FIELD_OFFSET_Y = 30;
 
   CELL_SIZE_X = 24; //Размер клетки в пикселях
   CELL_SIZE_Y = 24;
@@ -26,6 +26,9 @@ const
 
   NEXT_BLOCK_OFFSET_X = -200;
   NEXT_BLOCK_OFFSET_Y = -280;
+
+  //Через сколько секунд перейти к непрерывному управлению
+  SWITCH_TO_CONTINIOUS_CONTROL_SEC = 0.2;
 
 type
   TpdDirection = (boRight, boLeft, boTop, boBottom);
@@ -47,6 +50,8 @@ type
 
   TpdField = class
   private
+    ctrlTimers: array[TpdDirection] of Single;
+    ctrlAllowMove: array[TpdDirection] of Boolean;
     timeToMove, timeToClean: Single;
     FN: array[0..3, 0..3] of IglrSprite;
 
@@ -60,15 +65,17 @@ type
     procedure MoveCurrentBlock(const dt: Double);
     procedure FindBlocksToClean();
     procedure CleanBlocks();
+    function BlockPosToScreenPos(X, Y: Integer): TdfVec2f;
   public
     CurrentBlock, NextBlock: TpdBlock;
-    NextBlockDir: IglrText;
+    NextBlockDir: IglrSprite;
     CurrentSpeed: Single;
     CurrentCleanPeriod: Integer;
     Scores: Integer;
     F: array[0..FIELD_SIZE_X - 1, 0..FIELD_SIZE_Y - 1] of Integer;
     Sprites: array[0..FIELD_SIZE_X - 1, 0..FIELD_SIZE_Y - 1] of IglrSprite;
     cross: IglrUserRenderable;
+    particles: TpdParticles;
 
     BeforeCleanCounter: Integer;
 
@@ -226,6 +233,7 @@ begin
   Result := TpdBlock.Create();
   ind := Random(7); //0..6
   colorInd := 1 + Random(Length(colorUsed));
+  Result.Color := colorUsed[colorInd];
   case ind of
     0: //I
     begin
@@ -297,6 +305,12 @@ end;
 
 { TpdField }
 
+procedure RotateArrow(Arrow: IdfTweenObject; Value: Single);
+begin
+  with Arrow as IglrSprite do
+    Rotation := Value;
+end;
+
 procedure TpdField.AddBlock(Origin: TpdDirection);
 begin
   if Assigned(CurrentBlock) then
@@ -306,6 +320,7 @@ begin
 
   CurrentBlock := NextBlock;
   NextBlock := TpdBlock.CreateRandomBlock();
+  NextBlockDir.Material.Diffuse := NextBlock.Color;
   with CurrentBlock do
     case Origin of
       boRight:
@@ -316,7 +331,8 @@ begin
         alphaHorLine := LINE_INACTIVE_ALPHA;
         alphaVertLine := LINE_ACTIVE_ALPHA;
         //next dir is from top
-        NextBlockDir.Rotation := 90;
+        Tweener.AddTweenInterface(NextBlockDir, RotateArrow, tsElasticEaseIn, NextBlockDir.Rotation, 90, 1.2, 0.0);
+//        NextBlockDir.Rotation := 90;
       end;
       boLeft:
       begin
@@ -325,7 +341,8 @@ begin
         MoveDirection := boRight;
         alphaHorLine := LINE_INACTIVE_ALPHA;
         alphaVertLine := LINE_ACTIVE_ALPHA;
-        NextBlockDir.Rotation := -90;
+        Tweener.AddTweenInterface(NextBlockDir, RotateArrow, tsElasticEaseIn, NextBlockDir.Rotation, -90, 1.2, 0.0);
+//        NextBlockDir.Rotation := -90;
       end;
       boTop:
       begin
@@ -334,7 +351,8 @@ begin
         MoveDirection := boBottom;
         alphaHorLine := LINE_ACTIVE_ALPHA;
         alphaVertLine := LINE_INACTIVE_ALPHA;
-        NextBlockDir.Rotation := 0;
+        Tweener.AddTweenInterface(NextBlockDir, RotateArrow, tsElasticEaseIn, NextBlockDir.Rotation, 0, 1.2, 0.0);
+        //NextBlockDir.Rotation := 0;
       end;
       boBottom:
       begin
@@ -343,7 +361,8 @@ begin
         MoveDirection := boTop;
         alphaHorLine := LINE_ACTIVE_ALPHA;
         alphaVertLine := LINE_INACTIVE_ALPHA;
-        NextBlockDir.Rotation := 180;
+        Tweener.AddTweenInterface(NextBlockDir, RotateArrow, tsElasticEaseIn, 270, 180, 1.2, 0.0);
+//        NextBlockDir.Rotation := 180;
       end;
     end;
 end;
@@ -389,7 +408,7 @@ procedure TpdField.FindBlocksToClean;
 
 var
   i, j, Res, ResSum: Integer;
-  hasMove: Boolean;
+  //hasMove: Boolean;
   total: Single;
 
 begin
@@ -634,13 +653,14 @@ begin
       end;
     end;
 
-  NextBlockDir := Factory.NewText();
+  NextBlockDir := Factory.NewHudSprite();
   with NextBlockDir do
   begin
-    Font := fontSouvenir;
+    Material.Texture := atlasMain.LoadTexture(ARROW_TEXTURE);
+    UpdateTexCoords();
+    SetSizeToTextureSize();
     PivotPoint := ppCenter;
     Position := FN[0, 0].Position + dfVec3f(-40, 1.5 * (CELL_SIZE_Y + CELL_SPACE), 0);
-    Text := '=>';
   end;
   mainScene.RootNode.AddChild(NextBlockDir);
 
@@ -674,6 +694,8 @@ begin
     R.WindowHeight div 2 - CROSS_LINE_WIDTH div 2 - 1 + FIELD_OFFSET_Y,
     Z_BLOCKS - 1);
 
+  particles := TpdParticles.Initialize(mainScene);
+
   //Start the game!
   CurrentSpeed := SPEED_START;
   CurrentCleanPeriod := CLEAN_PERIOD_START;
@@ -693,6 +715,7 @@ begin
     for j := 0 to FIELD_SIZE_Y - 1 do
       Sprites[i, j] := nil;
 
+  particles.Free();
   inherited;
 end;
 
@@ -733,6 +756,8 @@ begin
     begin
       BlockSet();
       sound.PlaySample(sDown);
+      with CurrentBlock do
+        particles.AddBlock(BlockPosToScreenPos(X + 1, Y + 1));
       BeforeCleanCounter := BeforeCleanCounter - 1;
       if BeforeCleanCounter = 0 then
       begin
@@ -761,7 +786,52 @@ begin
     onGameOver();
 end;
 
+function TpdField.BlockPosToScreenPos(X, Y: Integer): TdfVec2f;
+var
+  origin: TdfVec2f;
+begin
+  origin := dfVec2f(R.WindowWidth div 2 + FIELD_OFFSET_X, R.WindowHeight div 2 + FIELD_OFFSET_Y)
+    - dfVec2f((FIELD_SIZE_X div 2) * (CELL_SIZE_X + CELL_SPACE), (FIELD_SIZE_Y div 2) * (CELL_SIZE_Y + CELL_SPACE));
+  Result := origin + dfVec2f(X * (CELL_SIZE_X + CELL_SPACE), Y * (CELL_SIZE_Y + CELL_SPACE));
+end;
+
 procedure TpdField.PlayerControl(const dt: Double);
+
+  procedure CalculateKeyboardTimeouts();
+  begin
+    with R.Input do
+    begin
+      if IsKeyDown(VK_UP) or IsKeyDown(VK_W) then
+        ctrlTimers[boTop] := Clamp(ctrlTimers[boTop] - dt, 0, SWITCH_TO_CONTINIOUS_CONTROL_SEC)
+      else
+        ctrlTimers[boTop] := SWITCH_TO_CONTINIOUS_CONTROL_SEC;
+
+      if IsKeyDown(VK_DOWN) or IsKeyDown(VK_S) then
+        ctrlTimers[boBottom] := Clamp(ctrlTimers[boBottom] - dt, 0, SWITCH_TO_CONTINIOUS_CONTROL_SEC)
+      else
+        ctrlTimers[boBottom] := SWITCH_TO_CONTINIOUS_CONTROL_SEC;
+
+      if IsKeyDown(VK_LEFT) or IsKeyDown(VK_A) then
+        ctrlTimers[boLeft] := Clamp(ctrlTimers[boLeft] - dt, 0, SWITCH_TO_CONTINIOUS_CONTROL_SEC)
+      else
+        ctrlTimers[boLeft] := SWITCH_TO_CONTINIOUS_CONTROL_SEC;
+
+      if IsKeyDown(VK_RIGHT) or IsKeyDown(VK_D) then
+        ctrlTimers[boRight] := Clamp(ctrlTimers[boRight] - dt, 0, SWITCH_TO_CONTINIOUS_CONTROL_SEC)
+      else
+        ctrlTimers[boRight] := SWITCH_TO_CONTINIOUS_CONTROL_SEC;
+
+      ctrlAllowMove[boTop] := (Abs(ctrlTimers[boTop]) < cEPS) or
+        (Abs(ctrlTimers[boTop] - SWITCH_TO_CONTINIOUS_CONTROL_SEC) < cEPS);
+      ctrlAllowMove[boBottom] := (Abs(ctrlTimers[boBottom]) < cEPS) or
+        (Abs(ctrlTimers[boBottom] - SWITCH_TO_CONTINIOUS_CONTROL_SEC) < cEPS);
+      ctrlAllowMove[boLeft] := (Abs(ctrlTimers[boLeft]) < cEPS) or
+        (Abs(ctrlTimers[boLeft] - SWITCH_TO_CONTINIOUS_CONTROL_SEC) < cEPS);
+      ctrlAllowMove[boRight] := (Abs(ctrlTimers[boRight]) < cEPS) or
+        (Abs(ctrlTimers[boRight] - SWITCH_TO_CONTINIOUS_CONTROL_SEC) < cEPS);
+    end;
+  end;
+
 begin
   if Assigned(CurrentBlock) then
     with CurrentBlock do
@@ -783,61 +853,91 @@ begin
       case MoveDirection of
         boRight:
         begin
-          if R.Input.IsKeyPressed(VK_UP) or R.Input.IsKeyPressed(VK_W) then
+          if (R.Input.IsKeyDown(VK_UP) or R.Input.IsKeyDown(VK_W)) and ctrlAllowMove[boTop] then
             if CouldBlockMove(boTop) then
+            begin
+              ctrlTimers[boTop] := SWITCH_TO_CONTINIOUS_CONTROL_SEC / 2;
               Y := Y - 1;
-          if R.Input.IsKeyPressed(VK_DOWN) or R.Input.IsKeyPressed(VK_S) then
+            end;
+          if (R.Input.IsKeyDown(VK_DOWN) or R.Input.IsKeyDown(VK_S)) and ctrlAllowMove[boBottom] then
             if CouldBlockMove(boBottom) then
+            begin
+              ctrlTimers[boBottom] := SWITCH_TO_CONTINIOUS_CONTROL_SEC / 2;
               Y := Y + 1;
-          if R.Input.IsKeyPressed(VK_RIGHT) or R.Input.IsKeyPressed(VK_D) then
+            end;
+          if (R.Input.IsKeyDown(VK_RIGHT) or R.Input.IsKeyDown(VK_D)) and ctrlAllowMove[boRight] then
           begin
+            ctrlTimers[boRight] := SWITCH_TO_CONTINIOUS_CONTROL_SEC / 2;
             MoveCurrentBlock(dt);
             timeToMove := 1 / CurrentSpeed;
           end;
         end;
         boLeft:
         begin
-          if R.Input.IsKeyPressed(VK_UP) or R.Input.IsKeyPressed(VK_W) then
+          if (R.Input.IsKeyDown(VK_UP) or R.Input.IsKeyDown(VK_W)) and ctrlAllowMove[boTop] then
             if CouldBlockMove(boTop) then
+            begin
+              ctrlTimers[boTop] := SWITCH_TO_CONTINIOUS_CONTROL_SEC / 2;
               Y := Y - 1;
-          if R.Input.IsKeyPressed(VK_DOWN) or R.Input.IsKeyPressed(VK_S) then
+            end;
+          if (R.Input.IsKeyDown(VK_DOWN) or R.Input.IsKeyDown(VK_S)) and ctrlAllowMove[boBottom] then
             if CouldBlockMove(boBottom) then
+            begin
+              ctrlTimers[boBottom] := SWITCH_TO_CONTINIOUS_CONTROL_SEC / 2;
               Y := Y + 1;
-          if R.Input.IsKeyPressed(VK_LEFT) or R.Input.IsKeyPressed(VK_A) then
+            end;
+          if (R.Input.IsKeyDown(VK_LEFT) or R.Input.IsKeyDown(VK_A)) and ctrlAllowMove[boLeft] then
           begin
+            ctrlTimers[boLeft] := SWITCH_TO_CONTINIOUS_CONTROL_SEC / 2;
             MoveCurrentBlock(dt);
             timeToMove := 1 / CurrentSpeed;
           end;
         end;
         boTop:
         begin
-          if R.Input.IsKeyPressed(VK_LEFT) or R.Input.IsKeyPressed(VK_A) then
+          if (R.Input.IsKeyDown(VK_LEFT) or R.Input.IsKeyDown(VK_A)) and ctrlAllowMove[boLeft]  then
             if CouldBlockMove(boLeft) then
+            begin
               X := X - 1;
-          if R.Input.IsKeyPressed(VK_RIGHT) or R.Input.IsKeyPressed(VK_D) then
+              ctrlTimers[boLeft] := SWITCH_TO_CONTINIOUS_CONTROL_SEC / 2;
+            end;
+          if (R.Input.IsKeyDown(VK_RIGHT) or R.Input.IsKeyDown(VK_D)) and ctrlAllowMove[boRight]  then
             if CouldBlockMove(boRight) then
+            begin
               X := X + 1;
-          if R.Input.IsKeyPressed(VK_UP) or R.Input.IsKeyPressed(VK_W) then
+              ctrlTimers[boRight] := SWITCH_TO_CONTINIOUS_CONTROL_SEC / 2;
+            end;
+          if (R.Input.IsKeyDown(VK_UP) or R.Input.IsKeyDown(VK_W)) and ctrlAllowMove[boTop]  then
           begin
+            ctrlTimers[boTop] := SWITCH_TO_CONTINIOUS_CONTROL_SEC / 2;
             MoveCurrentBlock(dt);
             timeToMove := 1 / CurrentSpeed;
           end;
         end;
         boBottom:
         begin
-          if R.Input.IsKeyPressed(VK_LEFT) or R.Input.IsKeyPressed(VK_A) then
+          if (R.Input.IsKeyDown(VK_LEFT) or R.Input.IsKeyDown(VK_A)) and ctrlAllowMove[boLeft] then
             if CouldBlockMove(boLeft) then
+            begin
               X := X - 1;
-          if R.Input.IsKeyPressed(VK_RIGHT) or R.Input.IsKeyPressed(VK_D) then
+              ctrlTimers[boLeft] := SWITCH_TO_CONTINIOUS_CONTROL_SEC / 2;
+            end;
+          if (R.Input.IsKeyDown(VK_RIGHT) or R.Input.IsKeyDown(VK_D)) and ctrlAllowMove[boRight] then
             if CouldBlockMove(boRight) then
+            begin
               X := X + 1;
-          if R.Input.IsKeyPressed(VK_DOWN) or R.Input.IsKeyPressed(VK_S) then
+              ctrlTimers[boRight] := SWITCH_TO_CONTINIOUS_CONTROL_SEC / 2;
+            end;
+          if (R.Input.IsKeyDown(VK_DOWN) or R.Input.IsKeyDown(VK_S)) and ctrlAllowMove[boBottom] then
           begin
+            ctrlTimers[boBottom] := SWITCH_TO_CONTINIOUS_CONTROL_SEC / 2;
             MoveCurrentBlock(dt);
             timeToMove := 1 / CurrentSpeed;
           end;
         end;
       end;
+
+      CalculateKeyboardTimeouts();
     end;
 end;
 
@@ -883,6 +983,7 @@ end;
 
 procedure TpdField.Update(const dt: Double);
 begin
+  particles.Update(dt);
   if timeToClean > 0 then
     begin
       timeToClean := timeToClean - dt;

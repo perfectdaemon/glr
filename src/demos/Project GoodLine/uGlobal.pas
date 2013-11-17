@@ -3,7 +3,7 @@ unit uGlobal;
 interface
 
 uses
-  glr, glrMath, glrUtils, uSound, uBox2DImport;
+  glr, glrMath, glrUtils, uSound, uLevel, uBox2DImport;
 
 const
   GAMEVERSION = '0.03';
@@ -26,6 +26,7 @@ const
   FILE_MAIN_TEXTURE_ATLAS = RES_FOLDER + 'atlas.atlas';
 
   CAR_CONF_FILE = RES_FOLDER + 'car.conf';
+  LEVEL_CONF_FILE = RES_FOLDER + 'level1.conf';
 
   BTN_NORMAL_TEXTURE  = 'btn_normal.png';
   BTN_OVER_TEXTURE    = 'btn_over.png';
@@ -62,6 +63,7 @@ var
   //Game systems
   sound: TpdSoundSystem;
   b2world: Tglrb2World;
+  level: TpdLevel;
 
   //Sound & music
   sClick: LongWord;

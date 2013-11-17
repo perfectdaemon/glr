@@ -15,10 +15,15 @@ type
     SuspRearOffset, SuspFrontOffset,
     BodyMassCenterOffset: TdfVec2f;
 
+    WheelRearSize, WheelFrontSize: Single;
+
     SuspRearLimit, SuspFrontLimit: TdfVec2f;
 
     SuspRearMotorSpeed, SuspRearMaxMotorForce,
     SuspFrontMotorSpeed, SuspFrontMaxMotorForce: Single;
+
+    MaxMotorSpeed, Acceleration,
+    GearR, Gear0, Gear1, Gear2: Single;
   end;
 
 
@@ -75,6 +80,9 @@ begin
     WheelFrontD := GetFloat();
     WheelFrontF := GetFloat();
 
+    WheelRearSize := GetFloat();
+    WheelFrontSize := GetFloat();
+
     WheelRearOffset := GetVec();
     WheelFrontOfsset := GetVec();
     SuspRearOffset := GetVec();
@@ -88,6 +96,13 @@ begin
     SuspRearMaxMotorForce := GetFloat();
     SuspFrontMotorSpeed := GetFloat();
     SuspFrontMaxMotorForce := GetFloat();
+
+    MaxMotorSpeed := GetFloat();
+    Acceleration := GetFloat();
+    GearR := GetFloat();
+    Gear0 := GetFloat();
+    Gear1 := GetFloat();
+    Gear2 := GetFloat();
 
     CloseFile(f);
   end;
@@ -112,6 +127,9 @@ begin
     WriteLn(f, FloatToStr(WheelFrontD) + ';'#9#9'WheelFrontD');
     WriteLn(f, FloatToStr(WheelFrontF) + ';'#9#9'WheelFrontF');
 
+    WriteLn(f, FloatToStr(WheelRearSize) + ';'#9#9'WheelRearSize');
+    WriteLn(f, FloatToStr(WheelFrontSize) + ';'#9#9'WheelFrontSize');
+
     WriteLn(f, FloatToStr(WheelRearOffset.x) + ' ' + FloatToStr(WheelRearOffset.y) + ';'#9#9'WheelRearOffset');
     WriteLn(f, FloatToStr(WheelFrontOfsset.x) + ' ' + FloatToStr(WheelFrontOfsset.y) + ';'#9#9'WheelFrontOfsset');
     WriteLn(f, FloatToStr(SuspRearOffset.x) + ' ' + FloatToStr(SuspRearOffset.y) + ';'#9#9'SuspRearOffset');
@@ -126,6 +144,13 @@ begin
     WriteLn(f, FloatToStr(SuspRearMaxMotorForce) + ';'#9#9'SuspRearMaxMotorForce');
     WriteLn(f, FloatToStr(SuspFrontMotorSpeed) + ';'#9#9'SuspFrontMotorSpeed');
     WriteLn(f, FloatToStr(SuspFrontMaxMotorForce) + ';'#9#9'SuspFrontMaxMotorForce');
+
+    WriteLn(f, FloatToStr(MaxMotorSpeed) + ';'#9#9'MaxMotorSpeed');
+    WriteLn(f, FloatToStr(Acceleration) + ';'#9#9'Acceleration');
+    WriteLn(f, FloatToStr(GearR) + ';'#9#9'GearR');
+    WriteLn(f, FloatToStr(Gear0) + ';'#9#9'Gear0');
+    WriteLn(f, FloatToStr(Gear1) + ';'#9#9'Gear1');
+    WriteLn(f, FloatToStr(Gear2) + ';'#9#9'Gear2');
   end;
   CloseFile(f);
 end;

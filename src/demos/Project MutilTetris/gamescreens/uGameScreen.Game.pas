@@ -14,15 +14,15 @@ const
 
   TIME_COUNT_GAMEOVER = 2.0;
 
-  //top right
-  TEXT_SCORES_X = -300;
-  TEXT_SCORES_Y = 30;
+  //top left
+  TEXT_SCORES_X = 32;
+  TEXT_SCORES_Y = 10;
 
   TEXT_SPEED_X = TEXT_SCORES_X;
-  TEXT_SPEED_Y = TEXT_SCORES_Y + 30;
+  TEXT_SPEED_Y = TEXT_SCORES_Y + 35;
 
-  TEXT_CLEAN_X = TEXT_SCORES_X;
-  TEXT_CLEAN_Y = TEXT_SPEED_Y + 30;
+  TEXT_CLEAN_X = TEXT_SCORES_X + 220;
+  TEXT_CLEAN_Y = TEXT_SCORES_Y + 15;
 
   //top right
   TEXT_HELP_X = -155;
@@ -52,9 +52,11 @@ type
     FHelpText, FPauseText,
     FCleanCounterText, FScoresText, FSpeedText: IglrText;
     FBtnMenu, FBtnContinue: IglrGUITextButton;
+    FLastCleanCount: Integer;
 
     Ft: Single; //Время для расчета анимации fadein/fadeout
     FFakeBackground: IglrSprite;
+    FGoodLine: IglrSprite;
 
     FField: TpdField;
 
@@ -154,7 +156,13 @@ begin
     Exit();
 
   FField.Update(dt);
-  FCleanCounterText.Text := 'Очистка через ' + IntToStr(FField.BeforeCleanCounter) + ' фигур';
+  if (FField.BeforeCleanCounter <> FLastCleanCount) then
+  begin
+    FLastCleanCount := FField.BeforeCleanCounter;
+    FCleanCounterText.Text := 'Очистка через ' + IntToStr(FLastCleanCount) + ' фигур';
+    Tweener.AddTweenPSingle(@FCleanCounterText.Material.PDiffuse.x, tsSimple, 0.0, 1.0, 1.0, 0.2);
+    Tweener.AddTweenPSingle(@FCleanCounterText.Material.PDiffuse.z, tsSimple, 0.0, 1.0, 1.0, 0.2);
+  end;
   FScoresText.Text := 'Очки: ' + IntToStr(FField.Scores);
   FSpeedText.Text := 'Скорость: ' + FloatToStrF(FField.CurrentSpeed, ffGeneral, 1, 2);
 end;
@@ -357,7 +365,7 @@ begin
   begin
     Font := fontSouvenir;
     PivotPoint := ppTopLeft;
-    Position := dfVec3f(R.WindowWidth + TEXT_SCORES_X, TEXT_SCORES_Y, Z_HUD);
+    Position := dfVec3f(TEXT_SCORES_X, TEXT_SCORES_Y, Z_HUD);
     Text := 'Очки: 0';
   end;
   FHUDScene.RootNode.AddChild(FScoresText);
@@ -367,7 +375,7 @@ begin
   begin
     Font := fontSouvenir;
     PivotPoint := ppTopLeft;
-    Position := dfVec3f(R.WindowWidth + TEXT_SPEED_X, TEXT_SPEED_Y, Z_HUD);
+    Position := dfVec3f(TEXT_SPEED_X, TEXT_SPEED_Y, Z_HUD);
     Text := 'Скорость: 1';
   end;
   FHUDScene.RootNode.AddChild(FSpeedText);
@@ -377,10 +385,25 @@ begin
   begin
     Font := fontSouvenir;
     PivotPoint := ppTopLeft;
-    Position := dfVec3f(R.WindowWidth + TEXT_CLEAN_X, TEXT_CLEAN_Y, Z_HUD);
+    Position := dfVec3f(TEXT_CLEAN_X, TEXT_CLEAN_Y, Z_HUD);
     Text := 'Очистка через _ фигур';
   end;
   FHUDScene.RootNode.AddChild(FCleanCounterText);
+
+  FGoodLine := Factory.NewHudSprite();
+  with FGoodLine do
+  begin
+    Material.Texture := atlasMain.LoadTexture(GOODLINE_TEXTURE);
+    Material.Diffuse := dfVec4f(1, 1, 1, 0.3);
+    SetSizeToTextureSize();
+    Width := 1.5 * Width;
+    Height := 1.5 * Height;
+    PivotPoint := ppCenter;
+    UpdateTexCoords();
+    Position := dfVec3f(R.WindowWidth div 2 + uField.FIELD_OFFSET_X,
+      R.WindowHeight div 2 + uField.FIELD_OFFSET_Y, Z_BACKGROUND);
+  end;
+  FMainScene.RootNode.AddChild(FGoodLine);
 end;
 
 procedure TpdGame.SetGameScreenLinks(aGameOver: TpdGameScreen; aMenu: TpdGameScreen);

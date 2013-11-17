@@ -5,7 +5,7 @@ interface
 uses
   Contnrs,
   glr, glrUtils, glrMath,
-  uCar, uLevel,
+  uCar, uLevel, uHud,
   uGameScreen, uGlobal;
 
 const
@@ -21,6 +21,8 @@ const
   BTN_CONTINUE_X = PAUSE_TEXT_X - 130;
   BTN_CONTINUE_Y = BTN_MENU_Y;
 
+  CAM_SMOOTH = 5;
+
 type
   TpdGame = class (TpdGameScreen)
   private
@@ -30,6 +32,14 @@ type
     FPause: Boolean;
     FPauseText: IglrText;
     FBtnMenu, FBtnContinue: IglrGUITextButton;
+
+    FEditorMode: Boolean;
+    FEditorText: IglrText;
+
+    FTaho: TpdTahometer;
+    FGearDisplay: TpdGearDisplay;
+
+    FCamMax, FCamMin: TdfVec2f;
 
     {$IFDEF DEBUG}
     FFPSCounter: TglrFPSCounter;
@@ -41,6 +51,9 @@ type
 
     FPlayerCar: TpdCar;
     FLevel: TpdLevel;
+
+    procedure LoadLevelFromFile();
+    procedure SaveLevelToFile();
 
     procedure LoadHUD();
     procedure FreeHUD();
@@ -55,6 +68,8 @@ type
     procedure FreePhysics();
 
     procedure DoUpdate(const dt: Double);
+
+    procedure CameraControl(const dt: Double);
   protected
     procedure FadeIn(deltaTime: Double); override;
     procedure FadeOut(deltaTime: Double); override;
@@ -104,6 +119,37 @@ end;
 
 { TpdGame }
 
+procedure TpdGame.CameraControl(const dt: Double);
+
+  function Lerp(aFrom, aTo, aT: Single): Single;
+  begin
+    Result := aFrom + (aTo - aFrom) * aT;
+  end;
+
+var
+  target: TdfVec2f;
+  add: Single;
+begin
+  target := dfVec2f(mainScene.RootNode.Position.NegateVector);
+
+//  case FPlayerCar.MoveDirection of
+//    mNoMove: add := 0;
+//    mLeft:   add := -400;
+//    mRight:  add := 400;
+//  end;
+
+  add := 300;
+
+//  target.x := Lerp(target.x, FPlayerCar.Body.Position.x + add - R.WindowWidth div 2, CAM_SMOOTH * dt);
+//  target.y := Lerp(target.y, FPlayerCar.Body.Position.y       - R.WindowHeight div 2, CAM_SMOOTH * dt);
+
+  target := FPlayerCar.Body.Position2D + dfVec2f(add, -300) - dfVec2f (R.WindowWidth div 2, R.WindowHeight div 2);
+
+  target := target.Clamp(FCamMin, FCamMax);
+
+  mainScene.RootNode.Position := dfVec3f(target.NegateVector, mainScene.RootNode.Position.z);
+end;
+
 constructor TpdGame.Create;
 begin
   inherited;
@@ -143,13 +189,32 @@ begin
   if FPause then
     Exit();
 
-  //code here
+  if R.Input.IsKeyPressed(VK_E) then
+    FEditorMode := not FEditorMode;
 
-  b2world.Update(dt);
-  FPlayerCar.Update(dt);
+  if FEditorMode then
+  begin
+    if R.Input.IsKeyPressed(VK_S) then
+      SaveLevelToFile();
+    if R.Input.IsKeyPressed(VK_L) then
+      LoadLevelFromFile();
+  end
+  else
+  begin
+    //code here
+    b2world.Update(dt);
+    FPlayerCar.Update(dt);
+    FTaho.TahoValue := Abs(FPlayerCar.CurrentMotorSpeed / FPlayerCar.MaxMotorSpeed);
+    FTaho.Update(dt);
+    FGearDisplay.SetGear(FPlayerCar.Gear);
+    //CameraControl(dt);
 
-  if R.Input.IsKeyPressed(VK_TAB) then
-    LoadPlayer();
+    if R.Input.IsKeyPressed(VK_TAB) then
+    begin
+      LoadPlayer();
+      mainScene.RootNode.Position := dfVec3f(0, 0, 0);
+    end;
+  end;
 end;
 
 procedure TpdGame.FadeIn(deltaTime: Double);
@@ -194,7 +259,10 @@ begin
   if Assigned(FFPSCounter) then
     FreeAndNil(FFPSCounter);
   {$ENDIF}
-  //*
+  if Assigned(FTaho) then
+    FreeAndNil(FTaho);
+  if Assigned(FGearDisplay) then
+    FreeAndNil(FGearDisplay);
 end;
 
 
@@ -202,6 +270,7 @@ procedure TpdGame.FreeLevel;
 begin
   if Assigned(FLevel) then
     FreeAndNil(FLevel);
+  uGlobal.level := nil;
 end;
 
 procedure TpdGame.FreePhysics;
@@ -267,6 +336,16 @@ begin
   FDebug.FText.PPosition.y := 20;
   {$ENDIF}
 
+  FEditorText := Factory.NewText();
+  with FEditorText do
+  begin
+    Font := fontSouvenir;
+    Material.Diffuse := colorWhite;
+    PivotPoint := ppCenter;
+    Position := dfVec3f(R.WindowWidth div 2, R.WindowHeight - 50, Z_HUD);
+  end;
+  hudScene.RootNode.AddChild(FEditorText);
+
   FBtnMenu := Factory.NewGUITextButton();
   with FBtnMenu do
   begin
@@ -330,6 +409,9 @@ begin
     Visible := False;
   end;
   FHUDScene.RootNode.AddChild(FPauseText);
+
+  FTaho := TpdTahometer.Create();
+  FGearDisplay := TpdGearDisplay.Create();
 end;
 
 procedure TpdGame.LoadLevel;
@@ -337,7 +419,22 @@ begin
   if Assigned(FLevel) then
     FLevel.Free();
 
-  FLevel := TpdLevel.Create();
+//  FLevel := TpdLevel.Create();
+//  SetLength(Points, 20);
+//  for i := 0 to High(Points) do
+//    Points[i] := dfVec2f(30 + 70 * i, 500 +Random(100));
+  FLevel := TpdLevel.LoadFromFile(LEVEL_CONF_FILE);
+  FCamMax := FLevel.GetLevelMax;// + dfVec2f(R.WindowWidth div 2, R.WindowHeight div 2);
+  FCamMin := FLevel.GetLevelMin;// - dfVec2f(R.WindowWidth div 2, R.WindowHeight div 2);
+
+  uGlobal.level := FLevel;
+end;
+
+procedure TpdGame.LoadLevelFromFile;
+begin
+  LoadLevel();
+  FEditorText.Text := 'Файл ' + LEVEL_CONF_FILE + ' загружен...';
+  Tweener.AddTweenPSingle(@FEditorText.Material.PDiffuse.w, tsSimple, 1.0, 0.0, 1.5, 0.5);
 end;
 
 procedure TpdGame.LoadPhysics;
@@ -357,6 +454,13 @@ begin
 
   info := TpdCarInfoSaveLoad.LoadFromFile(CAR_CONF_FILE);
   FPlayerCar := TpdCar.Create(info);
+end;
+
+procedure TpdGame.SaveLevelToFile;
+begin
+  FLevel.SaveToFile(LEVEL_CONF_FILE);
+  FEditorText.Text := 'Файл ' + LEVEL_CONF_FILE + ' сохранен...';
+  Tweener.AddTweenPSingle(@FEditorText.Material.PDiffuse.w, tsSimple, 1.0, 0.0, 1.5, 0.5);
 end;
 
 procedure TpdGame.SetGameScreenLinks(aGameOver: TpdGameScreen; aMenu: TpdGameScreen);
@@ -424,6 +528,10 @@ procedure TpdGame.OnMouseMove(X, Y: Integer; Shift: TglrMouseShiftState);
 begin
   if status <> gssReady then
     Exit();
+  if FEditorMode then
+  begin
+
+  end;
 end;
 
 procedure TpdGame.OnGameOver;

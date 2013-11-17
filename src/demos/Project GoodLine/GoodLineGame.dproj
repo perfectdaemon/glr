@@ -65,6 +65,7 @@
 			<DCCReference Include="uSettingsSaveLoad.pas"/>
 			<DCCReference Include="uCarSaveLoad.pas"/>
 			<DCCReference Include="uLevel.pas"/>
+			<DCCReference Include="uHud.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

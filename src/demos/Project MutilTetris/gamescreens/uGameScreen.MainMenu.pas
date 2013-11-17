@@ -20,6 +20,10 @@ const
 
   ABOUT_OFFSET_Y = -75;
   IGDC_OFFSET_Y  = 30;
+
+  GOODLINE_OFFSET_X = 50;
+  GOODLINE_OFFSET_Y = 200;
+
 type
   TpdMainMenu = class (TpdGameScreen)
   private
@@ -32,6 +36,7 @@ type
     FFakeBackground: IglrSprite;
 
     FAboutText, FIGDCText: IglrText;
+    FGoodLine: IglrSprite;
 
     FSettingsShowed: Boolean;
     Ft: Single; //¬рем€ дл€ анимации
@@ -438,7 +443,16 @@ end;
 
 procedure TpdMainMenu.LoadBackground();
 begin
-
+  FGoodLine := Factory.NewHudSprite();
+  with FGoodLine do
+  begin
+    Material.Texture := atlasMain.LoadTexture(GOODLINE_TEXTURE);
+    SetSizeToTextureSize();
+    UpdateTexCoords();
+    PivotPoint := ppTopLeft;
+    Position := dfVec3f(GOODLINE_OFFSET_X, GOODLINE_OFFSET_Y, Z_BACKGROUND);
+  end;
+  FScene.RootNode.AddChild(FGoodLine);
 end;
 
 procedure TpdMainMenu.LoadText;
@@ -449,7 +463,7 @@ begin
   with FAboutText do
   begin
     Font := fontSouvenir;
-    Text := '   дл€ igdc#0x64'#13#10'Ч perfect.daemon Ч'#13#10'   окт€брь 2013';
+    Text := 'Ч perfect.daemon Ч'#13#10'   но€брь 2013';
     PivotPoint := ppBottomCenter;
     Position := dfVec3f(R.WindowWidth div 2, R.WindowHeight + ABOUT_OFFSET_Y, Z_MAINMENU);
   end;
@@ -495,6 +509,8 @@ begin
 
       Tweener.AddTweenPSingle(@FIGDCText.PPosition.Y, tsExpoEaseIn,
         -150, IGDC_OFFSET_Y, TIME_ABOUTTEXT + 1, TIME_ABOUTTEXT_PAUSE);
+
+      Tweener.AddTweenPSingle(@FGoodLine.Material.PDiffuse.w, tsSimple, 0, 1.0, 1.0, 1.6);
     end;
 
     gssFadeInComplete: FadeInComplete();

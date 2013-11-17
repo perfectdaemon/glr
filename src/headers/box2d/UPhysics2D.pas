@@ -1884,7 +1884,8 @@ type
       /// Create a chain with isolated end vertices.
       /// @param vertices an array of vertices, these are copied
       /// @param count the vertex count
-      constructor CreateChain(pv: PVector2; count: Int32);
+      constructor CreateChain(pv: PVector2; count: Int32); overload;
+      constructor CreateChain(v: TVectorArray); overload;
 
       /// Establish connectivity to a vertex that precedes the first vertex.
       /// Don't call this for loops.
@@ -14074,6 +14075,24 @@ end;
 
 { Tb2ChainShape }
 
+constructor Tb2ChainShape.CreateChain(v: TVectorArray);
+var
+  i: Integer;
+begin
+   m_loop := False;
+   m_type := e_chainShape;
+   m_radius := b2_polygonRadius;
+
+   //b2Assert(m_vertices == NULL && m_count == 0);
+   //b2Assert(count >= 2);
+   m_count := Length(v);
+   SetLength(m_vertices, Length(v));
+   for i := 0 to Length(v) - 1 do
+     m_vertices[i] := v[i];
+   m_hasPrevVertex := False;
+   m_hasNextVertex := False;
+end;
+
 constructor Tb2ChainShape.CreateLoop(pv: PVector2; count: Int32);
 begin
    m_loop := True;
@@ -14093,6 +14112,9 @@ begin
 end;
 
 constructor Tb2ChainShape.CreateChain(pv: PVector2; count: Int32);
+var
+  i: Integer;
+  p: PVector2;
 begin
    m_loop := False;
    m_type := e_chainShape;

@@ -48,6 +48,8 @@ type
   function dfb2InitBoxStatic(b2World: Tb2World; const aSprite: IglrSprite; d, f, r: Double; mask, category: UInt16; group: SmallInt): Tb2Body; overload;
   function dfb2InitBoxStatic(b2World: Tb2World; aPos, aSize: TdfVec2f; aRot: Single; d, f, r: Double; mask, category: UInt16; group: SmallInt): Tb2Body; overload;
 
+  function dfb2InitChainStatic(b2World: Tb2World; aPos: TdfVec2f; aVertices: array of TdfVec2f; d, f, r: Double; mask, category: UInt16; group: SmallInt): Tb2Body;
+
 implementation
 
 { Tdfb2World }
@@ -256,6 +258,48 @@ begin
   begin
     SetAsBox(aSize.x * 0.5 * C_COEF, aSize.y * 0.5 * C_COEF);
   end;
+
+  with FixtureDef do
+  begin
+    shape := ShapeDef;
+    density := d;
+    friction := f;
+    restitution := r;
+    filter.maskBits := mask;
+    filter.categoryBits := category;
+    filter.groupIndex := group;
+  end;
+
+  Result := b2World.CreateBody(BodyDef);
+  Result.CreateFixture(FixtureDef);
+  Result.SetSleepingAllowed(True);
+end;
+
+function dfb2InitChainStatic(b2World: Tb2World; aPos: TdfVec2f; aVertices: array of TdfVec2f;
+  d, f, r: Double; mask, category: UInt16; group: SmallInt): Tb2Body;
+var
+  BodyDef: Tb2BodyDef;
+  ShapeDef: Tb2ChainShape;
+  FixtureDef: Tb2FixtureDef;
+  Ar: TVectorArray;
+  i: Integer;
+begin
+  FixtureDef := Tb2FixtureDef.Create;
+  //ShapeDef := Tb2ChainShape.Create;
+  BodyDef := Tb2BodyDef.Create;
+
+  with BodyDef do
+  begin
+    bodyType := b2_staticBody;
+    position := ConvertGLToB2(aPos * C_COEF);
+    angle := 0;
+  end;
+
+  SetLength(Ar, Length(aVertices));
+  for i := 0 to High(aVertices) do
+    Ar[i] := ConvertGLToB2(aVertices[i] * C_COEF);
+
+  ShapeDef := Tb2ChainShape.CreateChain(@Ar[0], Length(Ar));
 
   with FixtureDef do
   begin

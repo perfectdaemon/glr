@@ -1,3 +1,15 @@
+{
+  TODO:
+    Переключение передач
+    Перемещение камеры
+    Редактирование ландшафта
+
+    Груз ?
+    Таймер доставки
+    Звуки
+
+}
+
 program GoodLineGame;
 uses
   ShareMem,
@@ -21,7 +33,8 @@ uses
   uCar in 'uCar.pas',
   uSettingsSaveLoad in 'uSettingsSaveLoad.pas',
   uCarSaveLoad in 'uCarSaveLoad.pas',
-  uLevel in 'uLevel.pas';
+  uLevel in 'uLevel.pas',
+  uHud in 'uHud.pas';
 
 var
   gsManager: TpdGSManager;
