@@ -17,7 +17,7 @@ const
   Z_INGAMEMENU = 75;
 
 
-  MUSIC_INGAME = RES_FOLDER + 'HE-LUX - Essentials.ogg';
+  MUSIC_INGAME = RES_FOLDER + 'BRD - Teleport Prokg.ogg';
   MUSIC_MENU   = RES_FOLDER + 'Misha Mishenko - Sol.ogg';
 
   SOUND_CLICK   = RES_FOLDER + 'click.ogg';

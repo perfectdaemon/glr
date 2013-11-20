@@ -190,6 +190,8 @@ function Max(x, y: Integer): Integer; overload; inline;
 function Min(x, y: Integer): Integer; overload; inline;
 function Sign(x: Single): Integer; inline;
 
+function IsPointInBox(aPoint: TdfVec2f; aMin, aMax: TdfVec2f): Boolean;
+
 function Ceil(const X: Extended): Integer;
 function Floor(const X: Extended): Integer;
 
@@ -257,6 +259,12 @@ begin
       Result := -1
     else
       Result := 0;
+end;
+
+function IsPointInBox(aPoint: TdfVec2f; aMin, aMax: TdfVec2f): Boolean;
+begin
+  Result := (aPoint.x >= aMin.x) and (aPoint.x <= aMax.x) and
+    (aPoint.y >= aMin.y) and (aPoint.y <= aMax.y);
 end;
 
 function Ceil(const X: Extended): Integer;

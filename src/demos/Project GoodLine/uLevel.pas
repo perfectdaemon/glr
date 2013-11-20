@@ -21,6 +21,10 @@ type
 
     function GetLevelMax(): TdfVec2f;
     function GetLevelMin(): TdfVec2f;
+
+    function GetPointIndexAt(aPos: TdfVec2f; aThreshold: TdfVec2f): Integer;
+
+    procedure RebuildLevel();
   end;
 
 implementation
@@ -91,10 +95,18 @@ begin
   Result.y := -100;
 end;
 
-//type
-//  TpdEarthRec = packed record
-//    p: TdfVec2f;
-//  end;
+function TpdLevel.GetPointIndexAt(aPos, aThreshold: TdfVec2f): Integer;
+var
+  i: Integer;
+  aMin, aMax: TdfVec2f;
+begin
+  Result := -1;
+  aMin := aPos - aThreshold;
+  aMax := aPos + aThreshold;
+  for i := 0 to High(Points) do
+    if IsPointInBox(Points[i], aMin, aMax) then
+      Exit(i);
+end;
 
 class function TpdLevel.LoadFromFile(const aFileName: String): TpdLevel;
 var
@@ -113,9 +125,17 @@ begin
   with Result do
   begin
     SetLength(b2EarthBlocks, 1);
-    b2EarthBlocks[0] := dfb2InitChainStatic(b2world, dfVec2f(0, 0), Points,
-      1.0, 0.8, 0.5, $FFFF, $0001, -5);
+    RebuildLevel();
   end;
+end;
+
+procedure TpdLevel.RebuildLevel;
+begin
+  if Assigned(b2EarthBlocks[0]) then
+    b2world.DestroyBody(b2EarthBlocks[0]);
+
+  b2EarthBlocks[0] := dfb2InitChainStatic(b2world, dfVec2f(0, 0), Points,
+      1.0, 0.8, 0.1, $FFFF, $0001, -5);
 end;
 
 procedure TpdLevel.SaveToFile(const aFileName: String);

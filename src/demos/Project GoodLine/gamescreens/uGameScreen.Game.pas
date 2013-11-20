@@ -33,8 +33,11 @@ type
     FPauseText: IglrText;
     FBtnMenu, FBtnContinue: IglrGUITextButton;
 
+    //Edtor
     FEditorMode: Boolean;
     FEditorText: IglrText;
+    FCurrentEarthIndex: Integer;
+    FEarthPointRenderer: IglrUserRenderable;
 
     FTaho: TpdTahometer;
     FGearDisplay: TpdGearDisplay;
@@ -117,6 +120,25 @@ begin
       PauseOrContinue();
 end;
 
+procedure EarthPointRender(); stdcall;
+var
+  i: Integer;
+begin
+  gl.Disable(TGLConst.GL_LIGHTING);
+  gl.Enable(TGLConst.GL_BLEND);
+  gl.Color4fv(colorOrange);
+  gl.Beginp(GL_QUADS);
+    with game.FLevel do
+      for i := 0 to High(Points) do
+      begin
+        gl.Vertex3f(Points[i].x - 10, Points[i].y - 10, Z_LEVEL + 1);
+        gl.Vertex3f(Points[i].x - 10, Points[i].y + 10, Z_LEVEL + 1);
+        gl.Vertex3f(Points[i].x + 10, Points[i].y + 10, Z_LEVEL + 1);
+        gl.Vertex3f(Points[i].x + 10, Points[i].y - 10, Z_LEVEL + 1);
+      end;
+  gl.Endp();
+end;
+
 { TpdGame }
 
 procedure TpdGame.CameraControl(const dt: Double);
@@ -190,7 +212,13 @@ begin
     Exit();
 
   if R.Input.IsKeyPressed(VK_E) then
+  begin
     FEditorMode := not FEditorMode;
+    FCurrentEarthIndex := -1;
+    FEarthPointRenderer.Visible := FEditorMode;
+    if not FEditorMode then
+      FLevel.RebuildLevel();
+  end;
 
   if FEditorMode then
   begin
@@ -198,6 +226,11 @@ begin
       SaveLevelToFile();
     if R.Input.IsKeyPressed(VK_L) then
       LoadLevelFromFile();
+
+    if R.Input.IsKeyDown(VK_NUMPAD6) then
+      mainScene.RootNode.PPosition.x := mainScene.RootNode.PPosition.x - dt * 180;
+    if R.Input.IsKeyDown(VK_NUMPAD4) then
+      mainScene.RootNode.PPosition.x := mainScene.RootNode.PPosition.x + dt * 180;
   end
   else
   begin
@@ -345,6 +378,14 @@ begin
     Position := dfVec3f(R.WindowWidth div 2, R.WindowHeight - 50, Z_HUD);
   end;
   hudScene.RootNode.AddChild(FEditorText);
+
+  FEarthPointRenderer := Factory.NewUserRender();
+  with FEarthPointRenderer do
+  begin
+    OnRender := EarthPointRender;
+    Visible := False;
+  end;
+  mainScene.RootNode.AddChild(FEarthPointRenderer);
 
   FBtnMenu := Factory.NewGUITextButton();
   with FBtnMenu do
@@ -524,20 +565,21 @@ begin
   end;
 end;
 
+procedure TpdGame.OnGameOver;
+begin
+  //todo - что-то посчитать
+  OnNotify(FScrGameOver, naShowModal);
+end;
+
 procedure TpdGame.OnMouseMove(X, Y: Integer; Shift: TglrMouseShiftState);
 begin
   if status <> gssReady then
     Exit();
   if FEditorMode then
   begin
-
+    if FCurrentEarthIndex <> -1 then
+      FLevel.Points[FCurrentEarthIndex] := dfVec2f(X, Y) - dfVec2f(mainScene.RootNode.Position);
   end;
-end;
-
-procedure TpdGame.OnGameOver;
-begin
-  //todo - что-то посчитать
-  OnNotify(FScrGameOver, naShowModal);
 end;
 
 procedure TpdGame.OnMouseDown(X, Y: Integer; MouseButton: TglrMouseButton;
@@ -545,6 +587,11 @@ procedure TpdGame.OnMouseDown(X, Y: Integer; MouseButton: TglrMouseButton;
 begin
   if status <> gssReady then
     Exit();
+
+  if FEditorMode then
+  begin
+    FCurrentEarthIndex := FLevel.GetPointIndexAt(dfVec2f(X, Y) - dfVec2f(mainScene.RootNode.Position), dfVec2f(10, 10));
+  end;
 end;
 
 procedure TpdGame.OnMouseUp(X, Y: Integer; MouseButton: TglrMouseButton;
@@ -552,6 +599,11 @@ procedure TpdGame.OnMouseUp(X, Y: Integer; MouseButton: TglrMouseButton;
 begin
   if status <> gssReady then
     Exit();
+
+  if FEditorMode then
+  begin
+    FCurrentEarthIndex := -1;
+  end;
 end;
 
 procedure TpdGame.PauseOrContinue;

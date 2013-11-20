@@ -198,7 +198,31 @@ begin
   mainScene.RootNode.AddChild(WheelFront);
 end;
 
+const
+  MIN_MOTOR_SPEED = 5;
+
 procedure TpdCar.Update(const dt: Double);
+
+  procedure AutomaticTransmissionUpdate(const dt: Double);
+  begin
+    if Abs(CurrentMotorSpeed - MaxMotorSpeed) <= cEPS then
+    begin
+      if (Gear <> -1) and (Gear < High(Gears)) then
+      begin
+        Inc(Gear); //Повышаем передачу
+        CurrentMotorSpeed := CurrentMotorSpeed * (Gears[Gear - 1] / Gears[Gear]);
+      end;
+    end
+    else if CurrentMotorSpeed < MIN_MOTOR_SPEED then
+    begin
+      if Gear > 0 then
+      begin
+        Dec(Gear);
+        CurrentMotorSpeed := CurrentMotorSpeed * (Gears[Gear + 1] / Gears[Gear])
+      end;
+    end;
+  end;
+
 begin
   if R.Input.IsKeyDown(VK_UP) then
   begin
@@ -215,12 +239,11 @@ begin
       else
       begin
         //Просот снижаем скорость
-        CurrentMotorSpeed := CurrentMotorSpeed - dt * Acceleration;
+        CurrentMotorSpeed := CurrentMotorSpeed - 2 * dt * Acceleration;
       end;
     end
     else
     begin
-      MoveDirection := mRight;
       CurrentMotorSpeed := Clamp(CurrentMotorSpeed + dt * Acceleration, 0, MaxMotorSpeed);
     end;
   end
@@ -239,7 +262,7 @@ begin
       else
       begin
         //Прост снижаем скорость
-        CurrentMotorSpeed := CurrentMotorSpeed - dt * Acceleration;
+        CurrentMotorSpeed := CurrentMotorSpeed - 2 * dt * Acceleration;
       end;
 
     end
@@ -262,6 +285,8 @@ begin
   end;
   if b2WheelJointRear.IsMotorEnabled then
     b2WheelJointRear.SetMotorSpeed(-CurrentMotorSpeed * Gears[Gear]);
+
+  AutomaticTransmissionUpdate(dt);
 
   SyncObjects(b2Body, Body);
   SyncObjects(b2SuspRear, SuspRear);
