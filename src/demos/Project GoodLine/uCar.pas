@@ -11,8 +11,10 @@ const
   INITIAL_X = 100;
   INITIAL_Y = 300;
 
+  MIN_MOTOR_SPEED = 5;
+
   //Значение при котором можно переключиться с первой на заднюю и наоборот
-  CHANGE_GEAR_MOTORFORCE_THRESHOLD = 4;
+  CHANGE_GEAR_MOTORFORCE_THRESHOLD = 10;//4;
 
 type
   TpdMoveDirection = (mNoMove, mLeft, mRight);
@@ -22,6 +24,12 @@ type
     procedure InitSprites(const aCarInfo: TpdCarInfo);
     procedure InitBodies(const aCarInfo: TpdCarInfo);
     procedure InitJoints(const aCarInfo: TpdCarInfo);
+
+    procedure AutomaticTransmissionUpdate(const dt: Double);
+    procedure DefineCarDynamicParams(const dt: Double);
+    procedure AddAccel(const dt: Double);
+    procedure ReduceAccel(const dt: Double);
+    procedure Brake(UseBrake: Boolean);
   public
     WheelRear, WheelFront, Body, SuspRear, SuspFront: IglrSprite;
     b2WheelRear, b2WheelFront, b2Body, b2SuspRear, b2SuspFront: Tb2Body;
@@ -31,7 +39,10 @@ type
     CurrentMotorSpeed, MaxMotorSpeed, Acceleration: Single;
     Gear: Integer;
     Gears: array[-1..2] of Single;
+
     MoveDirection: TpdMoveDirection;
+    BodySpeed: Single;
+    //CurrentWheelSpeed: Single;
 
     constructor Create(const aCarInfo: TpdCarInfo);
     destructor Destroy(); override;
@@ -47,6 +58,37 @@ uses
 
 { TpdCar }
 
+procedure TpdCar.AddAccel(const dt: Double);
+begin
+  CurrentMotorSpeed := Clamp(CurrentMotorSpeed + dt * Acceleration, 0, MaxMotorSpeed);
+end;
+
+procedure TpdCar.AutomaticTransmissionUpdate(const dt: Double);
+begin
+  if Abs(CurrentMotorSpeed - MaxMotorSpeed) <= cEPS then
+  begin
+    if (Gear <> -1) and (Gear < High(Gears)) then
+    begin
+      Inc(Gear); //Повышаем передачу
+      CurrentMotorSpeed := CurrentMotorSpeed * (Gears[Gear - 1] / Gears[Gear]) * 0.7;
+    end;
+  end
+  else if CurrentMotorSpeed < MIN_MOTOR_SPEED then
+  begin
+    if Gear > 0 then
+    begin
+      Dec(Gear);
+      CurrentMotorSpeed := CurrentMotorSpeed * (Gears[Gear + 1] / Gears[Gear]) * 0.7;
+    end;
+  end;
+end;
+
+procedure TpdCar.Brake(UseBrake: Boolean);
+begin
+  b2WheelJointFront.SetMotorSpeed(0);
+  b2WheelJointFront.EnableMotor(UseBrake);
+end;
+
 constructor TpdCar.Create(const aCarInfo: TpdCarInfo);
 begin
   inherited Create();
@@ -61,6 +103,21 @@ begin
   Gears[0] := aCarInfo.Gear0;
   Gears[1] := aCarInfo.Gear1;
   Gears[2] := aCarInfo.Gear2;
+end;
+
+procedure TpdCar.DefineCarDynamicParams(const dt: Double);
+
+const
+  SPEED_THRESHOLD = 2.0 / C_COEF;
+
+begin
+  BodySpeed := b2Body.GetLinearVelocity.x / C_COEF;
+  if BodySpeed > SPEED_THRESHOLD then
+    MoveDirection := mRight
+  else if BodySpeed < -SPEED_THRESHOLD then
+    MoveDirection := mLeft
+  else
+    MoveDirection := mNoMove;
 end;
 
 destructor TpdCar.Destroy;
@@ -198,39 +255,23 @@ begin
   mainScene.RootNode.AddChild(WheelFront);
 end;
 
-const
-  MIN_MOTOR_SPEED = 5;
+
+procedure TpdCar.ReduceAccel(const dt: Double);
+begin
+  CurrentMotorSpeed := Clamp(CurrentMotorSpeed - dt * Acceleration, 0, MaxMotorSpeed);
+end;
 
 procedure TpdCar.Update(const dt: Double);
-
-  procedure AutomaticTransmissionUpdate(const dt: Double);
-  begin
-    if Abs(CurrentMotorSpeed - MaxMotorSpeed) <= cEPS then
-    begin
-      if (Gear <> -1) and (Gear < High(Gears)) then
-      begin
-        Inc(Gear); //Повышаем передачу
-        CurrentMotorSpeed := CurrentMotorSpeed * (Gears[Gear - 1] / Gears[Gear]);
-      end;
-    end
-    else if CurrentMotorSpeed < MIN_MOTOR_SPEED then
-    begin
-      if Gear > 0 then
-      begin
-        Dec(Gear);
-        CurrentMotorSpeed := CurrentMotorSpeed * (Gears[Gear + 1] / Gears[Gear])
-      end;
-    end;
-  end;
-
 begin
+  Brake(False);
+
   if R.Input.IsKeyDown(VK_UP) then
   begin
     b2WheelJointRear.EnableMotor(True);
     //Если включена задняя передача
     if Gear = -1 then
     begin
-      if CurrentMotorSpeed < CHANGE_GEAR_MOTORFORCE_THRESHOLD then
+      if BodySpeed < CHANGE_GEAR_MOTORFORCE_THRESHOLD then
       begin
         //Можно переключаться на первую
         Gear := 0;
@@ -239,12 +280,13 @@ begin
       else
       begin
         //Просот снижаем скорость
-        CurrentMotorSpeed := CurrentMotorSpeed - 2 * dt * Acceleration;
+        ReduceAccel(2 * dt);
+        Brake(True);
       end;
     end
     else
     begin
-      CurrentMotorSpeed := Clamp(CurrentMotorSpeed + dt * Acceleration, 0, MaxMotorSpeed);
+      AddAccel(dt);
     end;
   end
 
@@ -253,7 +295,7 @@ begin
     b2WheelJointRear.EnableMotor(True);
     if Gear >= 0 then
     begin
-      if CurrentMotorSpeed < CHANGE_GEAR_MOTORFORCE_THRESHOLD then
+      if BodySpeed < CHANGE_GEAR_MOTORFORCE_THRESHOLD then
       begin
         //Можно переключаться на заднюю
         Gear := -1;
@@ -262,31 +304,30 @@ begin
       else
       begin
         //Прост снижаем скорость
-        CurrentMotorSpeed := CurrentMotorSpeed - 2 * dt * Acceleration;
+        ReduceAccel(2 * dt);
+        Brake(True);
       end;
 
     end
     else
     begin
-      MoveDirection := mLeft;
-
-      CurrentMotorSpeed := Clamp(CurrentMotorSpeed + dt * Acceleration, 0, MaxMotorSpeed);
+      AddAccel(dt);
     end;
   end
 
   //не нажато ни вперед, ни назад
   else
   begin
-    MoveDirection := mNoMove;
     b2WheelJointRear.EnableMotor(False);
-    CurrentMotorSpeed := Clamp(CurrentMotorSpeed - dt * 0.5 * Acceleration, 0, MaxMotorSpeed);
-//    b2WheelJointRear.EnableMotor(True);
-//    b2WheelJointRear.SetMaxMotorTorque(100);
+    ReduceAccel(0.5 * dt);
+    //b2WheelJointRear.EnableMotor(True);
+    //b2WheelJointRear.SetMaxMotorTorque(100);
   end;
   if b2WheelJointRear.IsMotorEnabled then
     b2WheelJointRear.SetMotorSpeed(-CurrentMotorSpeed * Gears[Gear]);
 
-  AutomaticTransmissionUpdate(dt);
+  //AutomaticTransmissionUpdate(dt);
+  DefineCarDynamicParams(dt);
 
   SyncObjects(b2Body, Body);
   SyncObjects(b2SuspRear, SuspRear);

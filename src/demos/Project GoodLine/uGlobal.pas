@@ -69,6 +69,8 @@ var
   sClick: LongWord;
   musicIngame, musicMenu: LongWord;
 
+  mousePos: TdfVec2f;
+
   //Resources
   atlasMain: TglrAtlas;
   fontSouvenir: IglrFont;

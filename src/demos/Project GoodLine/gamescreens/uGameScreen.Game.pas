@@ -21,7 +21,7 @@ const
   BTN_CONTINUE_X = PAUSE_TEXT_X - 130;
   BTN_CONTINUE_Y = BTN_MENU_Y;
 
-  CAM_SMOOTH = 5;
+  CAM_SMOOTH = 2;
 
 type
   TpdGame = class (TpdGameScreen)
@@ -154,18 +154,18 @@ var
 begin
   target := dfVec2f(mainScene.RootNode.Position.NegateVector);
 
-//  case FPlayerCar.MoveDirection of
-//    mNoMove: add := 0;
-//    mLeft:   add := -400;
-//    mRight:  add := 400;
-//  end;
+  case FPlayerCar.MoveDirection of
+    mNoMove: add := 0;
+    mLeft:   add := -400;
+    mRight:  add := 400;
+  end;
 
-  add := 300;
+//  add := 300;
 
-//  target.x := Lerp(target.x, FPlayerCar.Body.Position.x + add - R.WindowWidth div 2, CAM_SMOOTH * dt);
-//  target.y := Lerp(target.y, FPlayerCar.Body.Position.y       - R.WindowHeight div 2, CAM_SMOOTH * dt);
+  target.x := Lerp(target.x, FPlayerCar.Body.Position.x + add - R.WindowWidth div 2, CAM_SMOOTH * dt);
+  target.y := Lerp(target.y, FPlayerCar.Body.Position.y       - R.WindowHeight div 2, CAM_SMOOTH * dt);
 
-  target := FPlayerCar.Body.Position2D + dfVec2f(add, -300) - dfVec2f (R.WindowWidth div 2, R.WindowHeight div 2);
+//  target := FPlayerCar.Body.Position2D + dfVec2f(add, -300) - dfVec2f (R.WindowWidth div 2, R.WindowHeight div 2);
 
   target := target.Clamp(FCamMin, FCamMax);
 
@@ -240,7 +240,7 @@ begin
     FTaho.TahoValue := Abs(FPlayerCar.CurrentMotorSpeed / FPlayerCar.MaxMotorSpeed);
     FTaho.Update(dt);
     FGearDisplay.SetGear(FPlayerCar.Gear);
-    //CameraControl(dt);
+    CameraControl(dt);
 
     if R.Input.IsKeyPressed(VK_TAB) then
     begin
@@ -573,6 +573,8 @@ end;
 
 procedure TpdGame.OnMouseMove(X, Y: Integer; Shift: TglrMouseShiftState);
 begin
+  mousePos := dfVec2f(X, Y);
+
   if status <> gssReady then
     Exit();
   if FEditorMode then
@@ -590,7 +592,11 @@ begin
 
   if FEditorMode then
   begin
-    FCurrentEarthIndex := FLevel.GetPointIndexAt(dfVec2f(X, Y) - dfVec2f(mainScene.RootNode.Position), dfVec2f(10, 10));
+    if MouseButton = mbLeft then
+      FCurrentEarthIndex := FLevel.GetPointIndexAt(dfVec2f(X, Y) - dfVec2f(mainScene.RootNode.Position), dfVec2f(10, 10));
+    if MouseButton = mbRight then
+      FLevel.AddPoint(mousePos - dfVec2f(mainScene.RootNode.Position),
+        High(FLevel.Points) + 1);
   end;
 end;
 

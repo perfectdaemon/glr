@@ -23,6 +23,7 @@ type
     function GetLevelMin(): TdfVec2f;
 
     function GetPointIndexAt(aPos: TdfVec2f; aThreshold: TdfVec2f): Integer;
+    procedure AddPoint(atPos: TdfVec2f; atIndex: Integer);
 
     procedure RebuildLevel();
   end;
@@ -52,6 +53,24 @@ begin
 end;
 
 { TpdLevel }
+
+procedure TpdLevel.AddPoint(atPos: TdfVec2f; atIndex: Integer);
+var
+  L: Integer;
+begin
+  L := Length(Points);
+  SetLength(Points, L + 1);
+  if atIndex = 0 then
+  begin
+    Move(Points[0], Points[1], SizeOf(TdfVec2f) * (L - 1));
+    Points[0] := atPos;
+  end    //*
+  else if atIndex = L then
+  begin
+    Points[L] := atPos;
+  end;
+
+end;
 
 constructor TpdLevel.Create;
 var
