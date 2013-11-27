@@ -3,15 +3,19 @@ unit uLevel;
 interface
 
 uses
-  glr, glrMath, uPhysics2D;
+  glr, glrMath, uPhysics2D,
+  uTrigger;
 
 type
   TpdLevel = class
-//    Earth: IglrSprite;
-//    b2Earth: Tb2Body;
+  private
+    procedure OnLevelEnd(Trigger: TpdTrigger; Catched: Tb2Fixture);
+  public
     b2EarthBlocks: array of Tb2Body;
     EarthRenderer: IglrUserRenderable;
     Points: array of TdfVec2f;
+
+    tLevelEnd: TpdTrigger;
 
     constructor Create();
     destructor Destroy(); override;
@@ -31,8 +35,8 @@ type
 implementation
 
 uses
-  ogl,
-  uGlobal, uBox2DImport;
+  ogl, uBox2DImport,
+  uGlobal, uGameScreen.Game;
 
 procedure OnEarthRender(); stdcall;
 var
@@ -104,8 +108,8 @@ end;
 
 function TpdLevel.GetLevelMax: TdfVec2f;
 begin
-  Result.x := 3000;
-  Result.y := 700;
+  Result.x := Points[High(Points)].x - 300;
+  Result.y := 0;
 end;
 
 function TpdLevel.GetLevelMin: TdfVec2f;
@@ -145,16 +149,36 @@ begin
   begin
     SetLength(b2EarthBlocks, 1);
     RebuildLevel();
+    tLevelEnd := triggers.AddBoxTrigger(Points[Low(Points)+1], 150, 130, CAT_PLAYER);
+    tLevelEnd.Visible := True;
+    tLevelEnd.OnEnter := OnLevelEnd;
   end;
 end;
 
+procedure TpdLevel.OnLevelEnd(Trigger: TpdTrigger; Catched: Tb2Fixture);
+begin
+  game.OnGameOver();
+end;
+
 procedure TpdLevel.RebuildLevel;
+
+  procedure SetUserData(forBody: Tb2Body);
+  var
+    ud: PpdUserData;
+  begin
+    New(ud);
+    ud^.aType := oEarth;
+    ud^.aObject := Self;
+    forBody.UserData := ud;
+  end;
+
 begin
   if Assigned(b2EarthBlocks[0]) then
     b2world.DestroyBody(b2EarthBlocks[0]);
 
   b2EarthBlocks[0] := dfb2InitChainStatic(b2world, dfVec2f(0, 0), Points,
-      1.0, 0.8, 0.1, $FFFF, $0001, -5);
+      1.0, 0.8, 0.1, CAT_PLAYER or CAT_ENEMY, CAT_STATIC, -5);
+  SetUserData(b2EarthBlocks[0]);
 end;
 
 procedure TpdLevel.SaveToFile(const aFileName: String);

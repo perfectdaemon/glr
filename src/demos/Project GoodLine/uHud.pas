@@ -70,14 +70,13 @@ end;
 
 procedure TpdTahometer.Update(dt: Double);
 var
-  newRot, sub: Single;
+  newRot: Single;
 begin
   newRot := ARROW_ROTATION_ZERO + (ARROW_ROTATION_MAX - ARROW_ROTATION_ZERO) * TahoValue;
-  sub := newRot - Arrow.Rotation;
-  if Abs(sub) > 10 then
-    Arrow.Rotation := Arrow.Rotation + 0.2 * sub
-  else
-    Arrow.Rotation := newRot;
+//  if Abs(newRot - Arrow.Rotation) > 2 then
+    Arrow.Rotation := Lerp(Arrow.Rotation, newRot, 3 * dt)
+//  else
+//    Arrow.Rotation := newRot;
 end;
 
 { TpdGearDisplay }
@@ -107,10 +106,10 @@ begin
   if FOldGearIndex <> GearIndex then
   begin
     FOldGearIndex := GearIndex;
-    if GearIndex < 0 then
+    if GearIndex = 0 then
       GearText.Text := 'R'
     else
-      GearText.Text := 'D' + IntToStr(GearIndex + 1);
+      GearText.Text := 'D' + IntToStr(GearIndex);
   end;
 end;
 

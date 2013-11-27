@@ -3,7 +3,7 @@ unit uGlobal;
 interface
 
 uses
-  glr, glrMath, glrUtils, uSound, uLevel, uBox2DImport;
+  glr, glrMath, glrUtils, uSound, uLevel, uBox2DImport, uTrigger;
 
 const
   GAMEVERSION = '0.03';
@@ -16,6 +16,12 @@ const
   Z_PLAYER = 25;
   Z_HUD = 50;
   Z_INGAMEMENU = 75;
+
+  CAT_PLAYER = $0001;
+  CAT_ENEMY  = $0002;
+  CAT_STATIC = $0004;
+  CAT_BONUS  = $0008;
+  CAT_SENSOR = $0010;
 
 
   MUSIC_INGAME = RES_FOLDER + 'HE-LUX - Essentials.ogg';
@@ -51,6 +57,14 @@ const
   BTN_TEXT_OFFSET_X = -100;
   BTN_TEXT_OFFSET_Y = -15;
 
+type
+  TpdObjectType = (oPlayer, oSensor, oEarth);
+  TpdUserData = record
+    aType: TpdObjectType;
+    aObject: TObject;
+  end;
+  PpdUserData = ^TpdUserData;
+
 var
   //Renderer and scenes
   R: IglrRenderer;
@@ -64,6 +78,7 @@ var
   sound: TpdSoundSystem;
   b2world: Tglrb2World;
   level: TpdLevel;
+  triggers: TpdTriggerFactory;
 
   //Sound & music
   sClick: LongWord;

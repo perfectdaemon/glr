@@ -204,6 +204,8 @@ function ArcSin(const X: Single): Single;
 function Clamp(x, Min, Max: Integer): Integer; overload; inline;
 function Clamp(x, Min, Max: Single): Single; overload; inline;
 function Pow(x, y: Single): Single;
+
+function Lerp(aFrom, aTo, aT: Single): Single;
   
 function dfVec2f(x, y: Single): TdfVec2f; overload; inline;
 function dfVec2f(v: TdfVec3f): TdfVec2f; overload; inline;
@@ -344,6 +346,11 @@ end;
 function Pow(x, y: Single): Single;
 begin
   Result := exp(ln(x) * y);
+end;
+
+function Lerp(aFrom, aTo, aT: Single): Single;
+begin
+  Result := aFrom + (aTo - aFrom) * aT;
 end;
 
 

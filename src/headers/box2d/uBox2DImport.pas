@@ -16,10 +16,30 @@ type
 
   {Класс box2d-мира}
 
+  Tglrb2World = class;
+
   Tglrb2SimulationEvent = procedure (const FixedDeltaTime: Double);
+
+  Tglrb2OnContactEvent   = procedure (var contact: Tb2Contact) of object;
+  Tglrb2OnPreSolveEvent  = procedure (var contact: Tb2Contact; const oldManifold: Tb2Manifold) of object;
+  Tglrb2OnPostSolveEvent = procedure (var contact: Tb2Contact; const impulse: Tb2ContactImpulse) of object;
+
+  Tglrb2ContactListener = class(Tb2ContactListener)
+  private
+    world: Tglrb2World;
+  public
+    procedure BeginContact(var contact: Tb2Contact); override;
+    procedure EndContact(var contact: Tb2Contact); override;
+    procedure PreSolve(var contact: Tb2Contact; const oldManifold: Tb2Manifold); override;
+    procedure PostSolve(var contact: Tb2Contact; const impulse: Tb2ContactImpulse); override;
+  end;
 
   Tglrb2World = class(Tb2World)
   private
+    FContactListener: Tglrb2ContactListener;
+
+    FOnBeginContact, FOnEndContact: array of Tglrb2OnContactEvent;
+
     FBefore, FAfter: Tglrb2SimulationEvent;
     FStep, FPhysicTime, FSimulationTime: Single;
     FIter: Integer;
@@ -31,6 +51,13 @@ type
 
     property OnAfterSimulation: Tglrb2SimulationEvent read FAfter write FAfter;
     property OnBeforeSimulation: Tglrb2SimulationEvent read FBefore write FBefore;
+
+    //todo:  add/remove for pre and post solves
+    procedure AddOnBeginContact(aEvent: Tglrb2OnContactEvent);
+    procedure AddOnEndContact(aEvent: Tglrb2OnContactEvent);
+
+    procedure RemoveOnBeginContact(aEvent: Tglrb2OnContactEvent);
+    procedure RemoveOnEndContact(aEvent: Tglrb2OnContactEvent);
   end;
 
   { box2d }
@@ -50,9 +77,34 @@ type
 
   function dfb2InitChainStatic(b2World: Tb2World; aPos: TdfVec2f; aVertices: array of TdfVec2f; d, f, r: Double; mask, category: UInt16; group: SmallInt): Tb2Body;
 
+  function glrb2InitBoxSensor(b2World: Tb2World; aPos: TdfVec2f; aSize: TdfVec2f; aRot: Single; mask, cat: Word): Tb2Body;
+  function glrb2InitCircleSensor(b2World: Tb2World; aPos: TdfVec2f; aSize: Single): Tb2Body;
+
 implementation
 
 { Tdfb2World }
+
+procedure Tglrb2World.AddOnBeginContact(aEvent: Tglrb2OnContactEvent);
+var
+  l: Integer;
+begin
+  if not Assigned(aEvent) then
+    Exit();
+  l := Length(FOnBeginContact);
+  SetLength(FOnBeginContact, l + 1);
+  FOnBeginContact[l] := aEvent;
+end;
+
+procedure Tglrb2World.AddOnEndContact(aEvent: Tglrb2OnContactEvent);
+var
+  l: Integer;
+begin
+  if not Assigned(aEvent) then
+    Exit();
+  l := Length(FOnEndContact);
+  SetLength(FOnEndContact, l + 1);
+  FOnEndContact[l] := aEvent;
+end;
 
 constructor Tglrb2World.Create(const gravity: TVector2; doSleep: Boolean;
   aStep: Single; aIterations: Integer);
@@ -60,6 +112,41 @@ begin
   inherited Create(gravity{, doSleep});
   FStep := aStep;
   FIter := aIterations;
+  FContactListener := Tglrb2ContactListener.Create();
+  FContactListener.world := Self;
+  Self.SetContactListener(FContactListener);
+end;
+
+procedure Tglrb2World.RemoveOnBeginContact(aEvent: Tglrb2OnContactEvent);
+var
+  i: Integer;
+begin
+  //todo: test it
+  for i := 0 to High(FOnBeginContact) do
+    if @FOnBeginContact[i] = @aEvent then
+    begin
+      FOnBeginContact[i] := nil;
+      if i <> High(FOnBeginContact) then
+        Move(FOnBeginContact[i + 1], FOnBeginContact[i],
+          SizeOf(Tglrb2OnContactEvent) * (Length(FOnBeginContact) - (i + 1)));
+      SetLength(FOnBeginContact, Length(FOnBeginContact) - 1);
+    end;
+end;
+
+procedure Tglrb2World.RemoveOnEndContact(aEvent: Tglrb2OnContactEvent);
+var
+  i: Integer;
+begin
+  //todo: test it
+  for i := 0 to High(FOnEndContact) do
+    if @FOnEndContact[i] = @aEvent then
+    begin
+      FOnEndContact[i] := nil;
+      if i <> High(FOnEndContact) then
+        Move(FOnEndContact[i + 1], FOnEndContact[i],
+          SizeOf(Tglrb2OnContactEvent) * (Length(FOnEndContact) - (i + 1)));
+      SetLength(FOnEndContact, Length(FOnEndContact) - 1);
+    end;
 end;
 
 procedure Tglrb2World.Update(const DeltaTime: Double);
@@ -315,6 +402,108 @@ begin
   Result := b2World.CreateBody(BodyDef);
   Result.CreateFixture(FixtureDef);
   Result.SetSleepingAllowed(True);
+end;
+
+function glrb2InitBoxSensor(b2World: Tb2World; aPos: TdfVec2f; aSize: TdfVec2f; aRot: Single; mask, cat: Word): Tb2Body;
+var
+  BodyDef: Tb2BodyDef;
+  ShapeDef: Tb2PolygonShape;
+  FixtureDef: Tb2FixtureDef;
+begin
+  FixtureDef := Tb2FixtureDef.Create;
+  ShapeDef := Tb2PolygonShape.Create;
+  BodyDef := Tb2BodyDef.Create;
+
+  with BodyDef do
+  begin
+    bodyType := b2_staticBody;
+    position := ConvertGLToB2(aPos * C_COEF);
+    angle := aRot * deg2rad;
+  end;
+
+  with ShapeDef do
+  begin
+    SetAsBox(aSize.x * 0.5 * C_COEF, aSize.y * 0.5 * C_COEF);
+  end;
+
+  with FixtureDef do
+  begin
+    shape := ShapeDef;
+    isSensor := True;
+    filter.maskBits := mask;
+    filter.categoryBits := cat;
+    filter.groupIndex := 16;
+  end;
+
+  Result := b2World.CreateBody(BodyDef);
+  Result.CreateFixture(FixtureDef);
+  Result.SetSleepingAllowed(False);
+end;
+
+function glrb2InitCircleSensor(b2World: Tb2World; aPos: TdfVec2f; aSize: Single): Tb2Body;
+var
+  BodyDef: Tb2BodyDef;
+  ShapeDef: Tb2CircleShape;
+  FixtureDef: Tb2FixtureDef;
+begin
+  FixtureDef := Tb2FixtureDef.Create;
+  ShapeDef := Tb2CircleShape.Create;
+  BodyDef := Tb2BodyDef.Create;
+
+  with BodyDef do
+  begin
+    bodyType := b2_staticBody;
+    position := ConvertGLToB2(aPos * C_COEF);
+  end;
+
+  with ShapeDef do
+  begin
+    m_radius := aSize * C_COEF;
+  end;
+
+  with FixtureDef do
+  begin
+    shape := ShapeDef;
+    isSensor := True;
+  end;
+
+  Result := b2World.CreateBody(BodyDef);
+  Result.CreateFixture(FixtureDef);
+  Result.SetSleepingAllowed(True);
+end;
+
+{ Tglrb2ContactListener }
+
+procedure Tglrb2ContactListener.BeginContact(var contact: Tb2Contact);
+var
+  i: Integer;
+begin
+  inherited;
+  for i := 0 to High(world.FOnBeginContact) do
+    world.FOnBeginContact[i](contact);
+end;
+
+procedure Tglrb2ContactListener.EndContact(var contact: Tb2Contact);
+var
+  i: Integer;
+begin
+  inherited;
+  for i := 0 to High(world.FOnBeginContact) do
+    world.FOnEndContact[i](contact);
+end;
+
+procedure Tglrb2ContactListener.PostSolve(var contact: Tb2Contact;
+  const impulse: Tb2ContactImpulse);
+begin
+  inherited;
+
+end;
+
+procedure Tglrb2ContactListener.PreSolve(var contact: Tb2Contact;
+  const oldManifold: Tb2Manifold);
+begin
+  inherited;
+
 end;
 
 end.

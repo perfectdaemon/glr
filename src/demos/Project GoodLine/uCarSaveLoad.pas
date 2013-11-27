@@ -22,8 +22,9 @@ type
     SuspRearMotorSpeed, SuspRearMaxMotorForce,
     SuspFrontMotorSpeed, SuspFrontMaxMotorForce: Single;
 
-    MaxMotorSpeed, Acceleration,
-    GearR, Gear0, Gear1, Gear2: Single;
+    MaxMotorSpeed, Acceleration: Single;
+    GearCount: Integer;
+    Gears: array of Single;
   end;
 
 
@@ -44,6 +45,7 @@ class function TpdCarInfoSaveLoad.LoadFromFile(
   const aFileName: String): TpdCarInfo;
 var
   f: TextFile;
+  i: Integer;
 
   function GetFloat(): Single;
   var
@@ -52,6 +54,15 @@ var
     Readln(f, tmpStr);
     tmpStr := Copy(tmpStr, 0, Pos(';', tmpStr) - 1);
     Result := StrToFloat(tmpStr);
+  end;
+
+  function GetInt(): Integer;
+  var
+    tmpStr: String;
+  begin
+    Readln(f, tmpStr);
+    tmpStr := Copy(tmpStr, 0, Pos(';', tmpStr) - 1);
+    Result := StrToInt(tmpStr);
   end;
 
   function GetVec(): TdfVec2f;
@@ -99,10 +110,11 @@ begin
 
     MaxMotorSpeed := GetFloat();
     Acceleration := GetFloat();
-    GearR := GetFloat();
-    Gear0 := GetFloat();
-    Gear1 := GetFloat();
-    Gear2 := GetFloat();
+    GearCount := GetInt();
+
+    SetLength(Gears, GearCount);
+    for i := 0 to GearCount - 1 do
+      Gears[i] := GetFloat();
 
     CloseFile(f);
   end;
@@ -112,6 +124,7 @@ class procedure TpdCarInfoSaveLoad.SaveToFile(const aFileName: String;
   aCarInfo: TpdCarInfo);
 var
   f: TextFile;
+  i: Integer;
 begin
   AssignFile(f, aFileName);
   Rewrite(f);
@@ -147,10 +160,9 @@ begin
 
     WriteLn(f, FloatToStr(MaxMotorSpeed) + ';'#9#9'MaxMotorSpeed');
     WriteLn(f, FloatToStr(Acceleration) + ';'#9#9'Acceleration');
-    WriteLn(f, FloatToStr(GearR) + ';'#9#9'GearR');
-    WriteLn(f, FloatToStr(Gear0) + ';'#9#9'Gear0');
-    WriteLn(f, FloatToStr(Gear1) + ';'#9#9'Gear1');
-    WriteLn(f, FloatToStr(Gear2) + ';'#9#9'Gear2');
+    WriteLn(f, FloatToStr(GearCount) + ';'#9#9'GearCount');
+    for i := 0 to GearCount - 1 do
+      WriteLn(f, FloatToStr(Gears[i]) + ';'#9#9'Gear' + IntToStr(i));
   end;
   CloseFile(f);
 end;

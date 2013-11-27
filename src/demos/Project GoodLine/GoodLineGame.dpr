@@ -1,8 +1,12 @@
 {
   TODO:
-    Переключение передач
+  + Переключение передач
   + Перемещение камеры
-    Редактирование ландшафта
+  + Редактирование ландшафта
+
+    Камера
+      Таймаут смены направления
+      Прямое присвоение позиции при малом отклонении
 
     Груз ?
     Таймер доставки
@@ -34,7 +38,8 @@ uses
   uSettingsSaveLoad in 'uSettingsSaveLoad.pas',
   uCarSaveLoad in 'uCarSaveLoad.pas',
   uLevel in 'uLevel.pas',
-  uHud in 'uHud.pas';
+  uHud in 'uHud.pas',
+  uTrigger in 'uTrigger.pas';
 
 var
   gsManager: TpdGSManager;

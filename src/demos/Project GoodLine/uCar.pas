@@ -11,10 +11,10 @@ const
   INITIAL_X = 100;
   INITIAL_Y = 300;
 
-  MIN_MOTOR_SPEED = 5;
+  MIN_MOTOR_SPEED = 2;
 
   //Значение при котором можно переключиться с первой на заднюю и наоборот
-  CHANGE_GEAR_MOTORFORCE_THRESHOLD = 10;//4;
+  CHANGE_GEAR_MOTORFORCE_THRESHOLD = 1;
 
 type
   TpdMoveDirection = (mNoMove, mLeft, mRight);
@@ -27,10 +27,13 @@ type
 
     procedure AutomaticTransmissionUpdate(const dt: Double);
     procedure DefineCarDynamicParams(const dt: Double);
-    procedure AddAccel(const dt: Double);
-    procedure ReduceAccel(const dt: Double);
-    procedure Brake(UseBrake: Boolean);
+    procedure AddAccel(const dt: Double); //Добовление ускорения на колеса
+    procedure ReduceAccel(const dt: Double); //Снижение скорости колес
+    procedure Brake(UseBrake: Boolean); //Торможение
+    procedure CalcMotorSpeed(const dt: Double); //использует обратную связь от колес
   public
+    RearLight, BrakeLight: IglrSprite;
+
     WheelRear, WheelFront, Body, SuspRear, SuspFront: IglrSprite;
     b2WheelRear, b2WheelFront, b2Body, b2SuspRear, b2SuspFront: Tb2Body;
     b2WheelJointRear, b2WheelJointFront: Tb2RevoluteJoint;
@@ -38,11 +41,10 @@ type
 
     CurrentMotorSpeed, MaxMotorSpeed, Acceleration: Single;
     Gear: Integer;
-    Gears: array[-1..2] of Single;
+    Gears: array of Single;
 
     MoveDirection: TpdMoveDirection;
-    BodySpeed: Single;
-    //CurrentWheelSpeed: Single;
+    BodySpeed, WheelSpeed: Single;
 
     constructor Create(const aCarInfo: TpdCarInfo);
     destructor Destroy(); override;
@@ -67,7 +69,7 @@ procedure TpdCar.AutomaticTransmissionUpdate(const dt: Double);
 begin
   if Abs(CurrentMotorSpeed - MaxMotorSpeed) <= cEPS then
   begin
-    if (Gear <> -1) and (Gear < High(Gears)) then
+    if (Gear <> 0) and (Gear < High(Gears)) then
     begin
       Inc(Gear); //Повышаем передачу
       CurrentMotorSpeed := CurrentMotorSpeed * (Gears[Gear - 1] / Gears[Gear]) * 0.7;
@@ -75,10 +77,10 @@ begin
   end
   else if CurrentMotorSpeed < MIN_MOTOR_SPEED then
   begin
-    if Gear > 0 then
+    if Gear > 1 then
     begin
       Dec(Gear);
-      CurrentMotorSpeed := CurrentMotorSpeed * (Gears[Gear + 1] / Gears[Gear]) * 0.7;
+      CurrentMotorSpeed := CurrentMotorSpeed * (Gears[Gear + 1] / Gears[Gear]);
     end;
   end;
 end;
@@ -87,9 +89,18 @@ procedure TpdCar.Brake(UseBrake: Boolean);
 begin
   b2WheelJointFront.SetMotorSpeed(0);
   b2WheelJointFront.EnableMotor(UseBrake);
+  BrakeLight.Visible := UseBrake;
+end;
+
+procedure TpdCar.CalcMotorSpeed(const dt: Double);
+begin
+  if CurrentMotorSpeed > Abs(WheelSpeed / Gears[Gear]) then
+    CurrentMotorSpeed := Lerp(CurrentMotorSpeed, Abs(WheelSpeed / Gears[Gear]), 0.3 * 1 / Abs(Gears[Gear]));
 end;
 
 constructor TpdCar.Create(const aCarInfo: TpdCarInfo);
+var
+  i: Integer;
 begin
   inherited Create();
   InitSprites(aCarInfo);
@@ -98,20 +109,21 @@ begin
 
   MaxMotorSpeed := aCarInfo.MaxMotorSpeed;
   Acceleration := aCarInfo.Acceleration;
-  Gear := 0;
-  Gears[-1] := aCarInfo.GearR;
-  Gears[0] := aCarInfo.Gear0;
-  Gears[1] := aCarInfo.Gear1;
-  Gears[2] := aCarInfo.Gear2;
+  Gear := 1;
+  SetLength(Gears, aCarInfo.GearCount);
+  for i := 0 to aCarInfo.GearCount - 1 do
+    Gears[i] := aCarInfo.Gears[i];
 end;
 
 procedure TpdCar.DefineCarDynamicParams(const dt: Double);
 
 const
-  SPEED_THRESHOLD = 2.0 / C_COEF;
+  SPEED_THRESHOLD = 2.0;// / C_COEF;
 
 begin
-  BodySpeed := b2Body.GetLinearVelocity.x / C_COEF;
+  WheelSpeed := b2WheelRear.GetAngularVelocity;// / C_COEF;
+
+  BodySpeed := b2Body.GetLinearVelocity.x;// / C_COEF;
   if BodySpeed > SPEED_THRESHOLD then
     MoveDirection := mRight
   else if BodySpeed < -SPEED_THRESHOLD then
@@ -131,14 +143,37 @@ begin
 end;
 
 procedure TpdCar.InitBodies(const aCarInfo: TpdCarInfo);
+var
+  mask: Word;
+
+  procedure SetUserData(forBody: Tb2Body);
+  var
+    ud: PpdUserData;
+  begin
+    New(ud);
+    ud^.aType := oPlayer;
+    ud^.aObject := Self;
+    forBody.UserData := ud;
+  end;
+
 begin
+  mask := CAT_STATIC or CAT_BONUS or CAT_ENEMY or CAT_SENSOR;
   with aCarInfo do
   begin
-    b2Body := dfb2InitBox(b2world, Body, BodyD, BodyF, BodyR, $FFFF, $000F, -2);
-    b2WheelRear := dfb2InitCircle(b2world, WheelRear, WheelRearD, WheelRearF, WheelRearR, $FFFF, $000F, -2);
-    b2WheelFront := dfb2InitCircle(b2world, WheelFront, WheelFrontD, WheelFrontF, WheelFrontR, $FFFF, $000F, -2);
-    b2SuspRear := dfb2InitBox(b2world, SuspRear, 2.0, 0, 0, $FFFF, $0000, -2);
-    b2SuspFront := dfb2InitBox(b2world, SuspFront, 2.0, 0, 0, $FFFF, $0000, -2);
+    b2Body := dfb2InitBox(b2world, Body, BodyD, BodyF, BodyR, mask, CAT_PLAYER, -2);
+    b2WheelRear := dfb2InitCircle(b2world, WheelRear, WheelRearD, WheelRearF, WheelRearR, mask, CAT_PLAYER, -2);
+    b2WheelFront := dfb2InitCircle(b2world, WheelFront, WheelFrontD, WheelFrontF, WheelFrontR, mask, CAT_PLAYER, -2);
+    b2SuspRear := dfb2InitBox(b2world, SuspRear, 2.0, 0, 0, mask, CAT_PLAYER, -2);
+    b2SuspFront := dfb2InitBox(b2world, SuspFront, 2.0, 0, 0, mask, CAT_PLAYER, -2);
+
+    SetUserData(b2Body);
+    SetUserData(b2WheelRear);
+    SetUserData(b2WheelFront);
+    SetUserData(b2SuspRear);
+    SetUserData(b2SuspFront);
+
+    b2WheelRear.AngularDamping := 0.2;
+    b2WheelFront.AngularDamping := 0.2;
   end;
 end;
 
@@ -184,7 +219,7 @@ begin
   RevDef.enableMotor := False;
   RevDef.Initialize(b2WheelFront, b2SuspFront, b2WheelFront.GetPosition);
   b2WheelJointFront := Tb2RevoluteJoint(b2World.CreateJoint(RevDef));
-  b2WheelJointFront.SetMaxMotorTorque(200);
+  b2WheelJointFront.SetMaxMotorTorque(100);
 end;
 
 procedure TpdCar.InitSprites(const aCarInfo: TpdCarInfo);
@@ -253,6 +288,30 @@ begin
     Position := Body.Position + dfVec3f(aCarInfo.WheelFrontOfsset, 2);
   end;
   mainScene.RootNode.AddChild(WheelFront);
+
+  RearLight := Factory.NewSprite();
+  with RearLight do
+  begin
+    PivotPoint := ppCenter;
+    Material.Diffuse := colorWhite;
+    Width := 15;
+    Height := Width;
+    Position := dfVec3f(-Body.Width / 2, +10, Body.Position.z + 3);
+    Visible := False;
+  end;
+  Body.AddChild(RearLight);
+
+  BrakeLight := Factory.NewSprite();
+  with BrakeLight do
+  begin
+    PivotPoint := ppCenter;
+    Material.Diffuse := colorRed;
+    Width := 15;
+    Height := Width;
+    Position := dfVec3f(-Body.Width / 2, -10, Body.Position.z + 3);
+    Visible := False;
+  end;
+  Body.AddChild(BrakeLight);
 end;
 
 
@@ -269,12 +328,13 @@ begin
   begin
     b2WheelJointRear.EnableMotor(True);
     //Если включена задняя передача
-    if Gear = -1 then
+    if Gear = 0 then
     begin
-      if BodySpeed < CHANGE_GEAR_MOTORFORCE_THRESHOLD then
+      if Abs(BodySpeed) < CHANGE_GEAR_MOTORFORCE_THRESHOLD then
       begin
         //Можно переключаться на первую
-        Gear := 0;
+        RearLight.Visible := False;
+        Gear := 1;
         CurrentMotorSpeed := 0;
       end
       else
@@ -293,13 +353,14 @@ begin
   else if R.Input.IsKeyDown(VK_DOWN) then
   begin
     b2WheelJointRear.EnableMotor(True);
-    if Gear >= 0 then
+    if Gear > 0 then
     begin
       if BodySpeed < CHANGE_GEAR_MOTORFORCE_THRESHOLD then
       begin
         //Можно переключаться на заднюю
-        Gear := -1;
+        Gear := 0;
         CurrentMotorSpeed := 0;
+        RearLight.Visible := True;
       end
       else
       begin
@@ -320,13 +381,21 @@ begin
   begin
     b2WheelJointRear.EnableMotor(False);
     ReduceAccel(0.5 * dt);
+    CalcMotorSpeed(dt);
     //b2WheelJointRear.EnableMotor(True);
     //b2WheelJointRear.SetMaxMotorTorque(100);
   end;
+
   if b2WheelJointRear.IsMotorEnabled then
     b2WheelJointRear.SetMotorSpeed(-CurrentMotorSpeed * Gears[Gear]);
 
-  //AutomaticTransmissionUpdate(dt);
+  if R.Input.IsKeyDown(VK_SPACE) then
+  begin
+    b2WheelJointRear.EnableMotor(True);
+    b2WheelJointRear.SetMotorSpeed(0);
+  end;
+
+  AutomaticTransmissionUpdate(dt);
   DefineCarDynamicParams(dt);
 
   SyncObjects(b2Body, Body);

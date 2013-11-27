@@ -22,6 +22,7 @@ const
   BTN_CONTINUE_Y = BTN_MENU_Y;
 
   CAM_SMOOTH = 2;
+  CAM_CHANGEDIR_TIMEOUT = 1.0;
 
 type
   TpdGame = class (TpdGameScreen)
@@ -42,11 +43,16 @@ type
     FTaho: TpdTahometer;
     FGearDisplay: TpdGearDisplay;
 
+    FCamChangeDirTimeout: Single;
+    FCamDelta: Integer;
+    FCamTarget: TdfVec2f;
+
     FCamMax, FCamMin: TdfVec2f;
 
     {$IFDEF DEBUG}
     FFPSCounter: TglrFPSCounter;
     FDebug: TglrDebugInfo;
+    iWheelSpeed, iBodySpeed, iMotorSpeed, iMotorSpeedGear: Integer;
     {$ENDIF}
 
     Ft: Single; //Время для расчета анимации fadein/fadeout
@@ -105,6 +111,7 @@ implementation
 
 uses
   uGameScreen.GameOver, uCarSaveLoad, uPhysics2DTypes, uBox2DImport,
+  uTrigger,
   Windows, SysUtils,
   dfTweener, ogl;
 
@@ -142,34 +149,37 @@ end;
 { TpdGame }
 
 procedure TpdGame.CameraControl(const dt: Double);
-
-  function Lerp(aFrom, aTo, aT: Single): Single;
-  begin
-    Result := aFrom + (aTo - aFrom) * aT;
-  end;
-
-var
-  target: TdfVec2f;
-  add: Single;
 begin
-  target := dfVec2f(mainScene.RootNode.Position.NegateVector);
+  FCamTarget := dfVec2f(mainScene.RootNode.Position.NegateVector);
+  FCamChangeDirTimeout := FCamChangeDirTimeout - dt;
 
   case FPlayerCar.MoveDirection of
-    mNoMove: add := 0;
-    mLeft:   add := -400;
-    mRight:  add := 400;
+    mNoMove:
+      if (FCamDelta <> 0) and (FCamChangeDirTimeout <= 0) then
+      begin
+        FCamDelta := 0;
+        FCamChangeDirTimeout := CAM_CHANGEDIR_TIMEOUT;
+      end;
+
+    mLeft:
+      if (FCamDelta <> -400) and (FCamChangeDirTimeout <= 0) then
+      begin
+        FCamDelta := -400;
+        FCamChangeDirTimeout := CAM_CHANGEDIR_TIMEOUT;
+      end;
+    mRight:
+      if (FCamDelta <> 400) and (FCamChangeDirTimeout <= 0) then
+      begin
+        FCamDelta := 400;
+        FCamChangeDirTimeout := CAM_CHANGEDIR_TIMEOUT;
+      end;
   end;
 
-//  add := 300;
+  FCamTarget.x := Lerp(FCamTarget.x, FPlayerCar.Body.Position.x + FCamDelta - R.WindowWidth div 2, CAM_SMOOTH * dt);
+  FCamTarget.y := Lerp(FCamTarget.y, FPlayerCar.Body.Position.y             - R.WindowHeight div 2, CAM_SMOOTH * dt);
+  FCamTarget := FCamTarget.Clamp(FCamMin, FCamMax);
 
-  target.x := Lerp(target.x, FPlayerCar.Body.Position.x + add - R.WindowWidth div 2, CAM_SMOOTH * dt);
-  target.y := Lerp(target.y, FPlayerCar.Body.Position.y       - R.WindowHeight div 2, CAM_SMOOTH * dt);
-
-//  target := FPlayerCar.Body.Position2D + dfVec2f(add, -300) - dfVec2f (R.WindowWidth div 2, R.WindowHeight div 2);
-
-  target := target.Clamp(FCamMin, FCamMax);
-
-  mainScene.RootNode.Position := dfVec3f(target.NegateVector, mainScene.RootNode.Position.z);
+  mainScene.RootNode.Position := dfVec3f(FCamTarget.NegateVector, mainScene.RootNode.Position.z);
 end;
 
 constructor TpdGame.Create;
@@ -203,6 +213,13 @@ begin
     FFPSCounter.TextObject.Visible := not FFPSCounter.TextObject.Visible;
   end;
   FFpsCounter.Update(dt);
+  with FDebug, FPlayerCar do
+  begin
+    UpdateParam(iWheelSpeed, Round(WheelSpeed));
+    UpdateParam(iBodySpeed, Round(BodySpeed));
+    UpdateParam(iMotorSpeed, Round(CurrentMotorSpeed));
+    UpdateParam(iMotorSpeedGear, Round(CurrentMotorSpeed * Gears[Gear]));
+  end;
   {$ENDIF}
 
   if R.Input.IsKeyPressed(VK_ESCAPE) then
@@ -308,6 +325,9 @@ end;
 
 procedure TpdGame.FreePhysics;
 begin
+  if Assigned(triggers) then
+    FreeAndNil(triggers);
+
   if Assigned(b2world) then
     FreeAndNil(b2world);
 end;
@@ -339,6 +359,13 @@ begin
   //Load here
   LoadPlayer();
 
+  {$IFDEF DEBUG}
+  iWheelSpeed := FDebug.AddNewString('Wheel Speed');
+  iBodySpeed := FDebug.AddNewString('Body Speed');
+  iMotorSpeed := FDebug.AddNewString('Motor Speed');
+  iMotorSpeedGear := FDebug.AddNewString('Motor Speed * Gear');
+  {$ENDIF}
+
   FFakeBackground := Factory.NewHudSprite();
   with FFakeBackground do
   begin
@@ -360,11 +387,11 @@ procedure TpdGame.LoadHUD;
 begin
   {$IFDEF DEBUG}
   FFPSCounter := TglrFPSCounter.Create(FHUDScene, 'FPS:', 1, nil);
-  FFPSCounter.TextObject.Material.Diffuse := dfVec4f(0, 0, 0, 1);
+  FFPSCounter.TextObject.Material.Diffuse := colorWhite;
   FFPSCounter.TextObject.Visible := False;
 
   FDebug := TglrDebugInfo.Create(FHUDScene.RootNode);
-  FDebug.FText.Material.Diffuse := dfVec4f(0, 0, 0, 1);
+  FDebug.FText.Material.Diffuse := colorWhite;
   FDebug.FText.Visible := False;
   FDebug.FText.PPosition.y := 20;
   {$ENDIF}
@@ -484,6 +511,8 @@ begin
     b2world.Free();
 
   b2world := Tglrb2World.Create(TVector2.From(0, 10), True, 1 / 60, 8);
+
+  triggers := TpdTriggerFactory.Create();
 end;
 
 procedure TpdGame.LoadPlayer;
@@ -568,7 +597,8 @@ end;
 procedure TpdGame.OnGameOver;
 begin
   //todo - что-то посчитать
-  OnNotify(FScrGameOver, naShowModal);
+  LoadPlayer();
+  //OnNotify(FScrGameOver, naShowModal);
 end;
 
 procedure TpdGame.OnMouseMove(X, Y: Integer; Shift: TglrMouseShiftState);
