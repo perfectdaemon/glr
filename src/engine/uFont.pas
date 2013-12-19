@@ -324,6 +324,9 @@ begin
     if FTable[aText.Text[i]] <> nil then
       with FTable[aText.Text[i]]^ do
       begin
+        if (Result.y < 1) and (h > 0) then
+          Result.y := h;
+
         if ID = #10 then
         begin
           Result.y := Result.y + h + 1;

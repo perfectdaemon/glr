@@ -232,7 +232,7 @@ begin
   if (not f1.IsSensor) and f2.IsSensor then
   begin
     p := TpdUserData(f2.GetBody.UserData^);
-    TpdTrigger(p.aObject).SetTrigger(True, f1);  !!!! //move it to afterupdate
+    TpdTrigger(p.aObject).SetTrigger(True, f1);  //!!!! //move it to afterupdate
   end;
 end;
 

@@ -94,7 +94,7 @@ end;
 
 procedure TpdCar.CalcMotorSpeed(const dt: Double);
 begin
-  if CurrentMotorSpeed > Abs(WheelSpeed / Gears[Gear]) then
+//  if CurrentMotorSpeed > Abs(WheelSpeed / Gears[Gear]) then
     CurrentMotorSpeed := Lerp(CurrentMotorSpeed, Abs(WheelSpeed / Gears[Gear]), 0.3 * 1 / Abs(Gears[Gear]));
 end;
 
@@ -161,10 +161,10 @@ begin
   with aCarInfo do
   begin
     b2Body := dfb2InitBox(b2world, Body, BodyD, BodyF, BodyR, mask, CAT_PLAYER, -2);
-    b2WheelRear := dfb2InitCircle(b2world, WheelRear, WheelRearD, WheelRearF, WheelRearR, mask, CAT_PLAYER, -2);
-    b2WheelFront := dfb2InitCircle(b2world, WheelFront, WheelFrontD, WheelFrontF, WheelFrontR, mask, CAT_PLAYER, -2);
-    b2SuspRear := dfb2InitBox(b2world, SuspRear, 2.0, 0, 0, mask, CAT_PLAYER, -2);
-    b2SuspFront := dfb2InitBox(b2world, SuspFront, 2.0, 0, 0, mask, CAT_PLAYER, -2);
+    b2WheelRear := dfb2InitCircle(b2world, WheelRear, WheelRearD, WheelRearF, WheelRearR, mask, CAT_WHEELS, -2);
+    b2WheelFront := dfb2InitCircle(b2world, WheelFront, WheelFrontD, WheelFrontF, WheelFrontR, mask, CAT_WHEELS, -2);
+    b2SuspRear := dfb2InitBox(b2world, SuspRear, 2.0, 0, 0, mask, CAT_WHEELS, -2);
+    b2SuspFront := dfb2InitBox(b2world, SuspFront, 2.0, 0, 0, mask, CAT_WHEELS, -2);
 
     SetUserData(b2Body);
     SetUserData(b2WheelRear);

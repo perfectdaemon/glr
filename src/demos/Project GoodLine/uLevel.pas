@@ -157,7 +157,7 @@ end;
 
 procedure TpdLevel.OnLevelEnd(Trigger: TpdTrigger; Catched: Tb2Fixture);
 begin
-  game.OnGameOver();
+//  game.OnGameOver();
 end;
 
 procedure TpdLevel.RebuildLevel;
@@ -177,7 +177,7 @@ begin
     b2world.DestroyBody(b2EarthBlocks[0]);
 
   b2EarthBlocks[0] := dfb2InitChainStatic(b2world, dfVec2f(0, 0), Points,
-      1.0, 0.8, 0.1, CAT_PLAYER or CAT_ENEMY, CAT_STATIC, -5);
+      1.0, 0.8, 0.1, CAT_PLAYER or CAT_ENEMY or CAT_WHEELS, CAT_STATIC, -5);
   SetUserData(b2EarthBlocks[0]);
 end;
 

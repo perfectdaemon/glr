@@ -62,7 +62,7 @@ type
 
   { box2d }
 
-  procedure SyncObjects(b2Body: Tb2Body; renderObject: IglrSprite);
+  procedure SyncObjects(b2Body: Tb2Body; renderObject: Iglr2DRenderable);
   function ConvertB2ToGL(aVec: TVector2): TdfVec2f;
   function ConvertGLToB2(aVec: TdfVec2f): TVector2;
 
@@ -168,7 +168,7 @@ end;
 
 
 
-procedure SyncObjects(b2Body: Tb2Body; renderObject: IglrSprite);
+procedure SyncObjects(b2Body: Tb2Body; renderObject: Iglr2DRenderable);
 begin
   renderObject.Position2D := dfVec2f(b2Body.GetPosition.x, b2Body.GetPosition.y) * (1 / C_COEF);
   renderObject.Rotation := b2Body.GetAngle * rad2deg;

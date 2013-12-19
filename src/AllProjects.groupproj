@@ -33,6 +33,9 @@
 			<Projects Include="demos\Project GoodLine\GoodLineGame.dproj">
 				<Dependencies/>
 			</Projects>
+			<Projects Include="demos\Project Technological\technological.dproj">
+				<Dependencies/>
+			</Projects>
 		</ItemGroup>
 		<ProjectExtensions>
 			<Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -131,14 +134,23 @@
 		<Target Name="GoodLineGame:Make">
 			<MSBuild Targets="Make" Projects="demos\Project GoodLine\GoodLineGame.dproj"/>
 		</Target>
+		<Target Name="technological">
+			<MSBuild Projects="demos\Project Technological\technological.dproj"/>
+		</Target>
+		<Target Name="technological:Clean">
+			<MSBuild Targets="Clean" Projects="demos\Project Technological\technological.dproj"/>
+		</Target>
+		<Target Name="technological:Make">
+			<MSBuild Targets="Make" Projects="demos\Project Technological\technological.dproj"/>
+		</Target>
 		<Target Name="Build">
-			<CallTarget Targets="glRenderer;Checker1;Checker2;Checker5_GUI;Checker6;survive;RagdollSport;RagdollFighting;multitetris;GoodLineGame"/>
+			<CallTarget Targets="glRenderer;Checker1;Checker2;Checker5_GUI;Checker6;survive;RagdollSport;RagdollFighting;multitetris;GoodLineGame;technological"/>
 		</Target>
 		<Target Name="Clean">
-			<CallTarget Targets="glRenderer:Clean;Checker1:Clean;Checker2:Clean;Checker5_GUI:Clean;Checker6:Clean;survive:Clean;RagdollSport:Clean;RagdollFighting:Clean;multitetris:Clean;GoodLineGame:Clean"/>
+			<CallTarget Targets="glRenderer:Clean;Checker1:Clean;Checker2:Clean;Checker5_GUI:Clean;Checker6:Clean;survive:Clean;RagdollSport:Clean;RagdollFighting:Clean;multitetris:Clean;GoodLineGame:Clean;technological:Clean"/>
 		</Target>
 		<Target Name="Make">
-			<CallTarget Targets="glRenderer:Make;Checker1:Make;Checker2:Make;Checker5_GUI:Make;Checker6:Make;survive:Make;RagdollSport:Make;RagdollFighting:Make;multitetris:Make;GoodLineGame:Make"/>
+			<CallTarget Targets="glRenderer:Make;Checker1:Make;Checker2:Make;Checker5_GUI:Make;Checker6:Make;survive:Make;RagdollSport:Make;RagdollFighting:Make;multitetris:Make;GoodLineGame:Make;technological:Make"/>
 		</Target>
 		<Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 	</Project>
