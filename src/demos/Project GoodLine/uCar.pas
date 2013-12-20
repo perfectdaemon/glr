@@ -213,13 +213,13 @@ begin
   RevDef.enableMotor := True;
   RevDef.Initialize(b2WheelRear, b2SuspRear, b2WheelRear.GetPosition);
   b2WheelJointRear := Tb2RevoluteJoint(b2World.CreateJoint(RevDef));
-  b2WheelJointRear.SetMaxMotorTorque(100);
+  b2WheelJointRear.SetMaxMotorTorque(5);
 
   RevDef := Tb2RevoluteJointDef.Create;
   RevDef.enableMotor := False;
   RevDef.Initialize(b2WheelFront, b2SuspFront, b2WheelFront.GetPosition);
   b2WheelJointFront := Tb2RevoluteJoint(b2World.CreateJoint(RevDef));
-  b2WheelJointFront.SetMaxMotorTorque(100);
+  b2WheelJointFront.SetMaxMotorTorque(10);
 end;
 
 procedure TpdCar.InitSprites(const aCarInfo: TpdCarInfo);

@@ -29,6 +29,8 @@ const
   BTN_OVER_TEXTURE    = 'btn_over.png';
   BTN_CLICK_TEXTURE   = 'btn_click.png';
 
+  CIRCLE_TEXTURE = 'circle.png';
+
   BTN_TEXT_OFFSET_X = -100;
   BTN_TEXT_OFFSET_Y = -12;
 
@@ -39,7 +41,7 @@ var
   mainScene, hudScene{, globalScene}: Iglr2DScene;
 
   //Game objects
-
+  cursor: IglrSprite;
 
   //Game systems
   sound: TpdSoundSystem;
@@ -77,6 +79,18 @@ begin
 
   mainScene := Factory.New2DScene();
   hudScene := Factory.New2DScene();
+  cursor := Factory.NewHudSprite();
+  with cursor do
+  begin
+    Width := 40;
+    Height := Width;
+    Material.Texture := atlasMain.LoadTexture(CIRCLE_TEXTURE);
+    Material.Diffuse := colorOrange;
+    UpdateTexCoords();
+    PivotPoint := ppCenter;
+    Position := dfVec3f(0, 0 , 100);
+  end;
+  hudScene.RootNode.AddChild(cursor);
 
   R.RegisterScene(mainScene);
   R.RegisterScene(hudScene);

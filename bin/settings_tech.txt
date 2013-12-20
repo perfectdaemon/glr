@@ -3,7 +3,7 @@ decimalseparator .
 rendermode window
 resolution 1000 600
 windowPos 200 100
-backgroundColor 0.40 0.40 0.40
+backgroundColor 0.20 0.20 0.20
 caption ''
 axes false
 vsync true

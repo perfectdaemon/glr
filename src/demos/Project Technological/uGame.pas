@@ -43,10 +43,9 @@ type
     property Text: String read GetText;
   end;
 
-
   TpdGame = class
   private
-    t: Double;
+    t, period: Double;
     FBlocks: TObjectList;
     procedure InitPhysics();
   public
@@ -71,6 +70,7 @@ begin
   inherited;
   FBlocks := TObjectList.Create();
   InitPhysics();
+  period := 2;
 end;
 
 destructor TpdGame.Destroy;
@@ -100,7 +100,7 @@ end;
 procedure TpdGame.OnMouseDown(X, Y: Integer; MouseButton: TglrMouseButton;
   Shift: TglrMouseShiftState);
 begin
-  FBlocks.Add(TpdBlock.InitBlock(WORDS[Random(Length(Words))], dfVec2f(100 + Random(700), 30), -90 + Random(180)));
+
 end;
 
 procedure TpdGame.OnMouseMove(X, Y: Integer; Shift: TglrMouseShiftState);
@@ -121,6 +121,14 @@ begin
   b2world.Update(dt);
   for i := 0 to FBlocks.Count - 1 do
     (FBlocks[i] as TpdBlock).Update(dt);
+
+  t := t + dt;
+  if t > period then
+  begin
+    t := 0;
+    FBlocks.Add(TpdBlock.InitBlock(WORDS[Random(Length(Words))], dfVec2f(100 + Random(700), 30), -90 + Random(180)));
+  end;
+
 end;
 
 { TpdBlock }
@@ -145,6 +153,8 @@ end;
 
 class function TpdBlock.InitBlock(aText: String; aPos: TdfVec2f;
   aRot: Single): TpdBlock;
+var
+  color: TdfVec4f;
 begin
   Result := TpdBlock.Create();
   with Result do
@@ -153,7 +163,10 @@ begin
     begin
       Font := fontBaltica;
       Text := aText;
-      Material.Diffuse := colors[Random(Length(colors))];
+      color := dfVec4f(Random(360), 90 + Random(10), 90 + Random(10) ,1);
+      color := Hsva2Rgba(color);
+//      Material.Diffuse := colors[Random(Length(colors))];
+      Material.Diffuse := color;
       PivotPoint := ppCenter;
       Position := dfVec3f(aPos, Z_BLOCKS);
     end;

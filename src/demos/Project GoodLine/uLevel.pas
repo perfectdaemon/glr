@@ -27,7 +27,8 @@ type
     function GetLevelMin(): TdfVec2f;
 
     function GetPointIndexAt(aPos: TdfVec2f; aThreshold: TdfVec2f): Integer;
-    procedure AddPoint(atPos: TdfVec2f; atIndex: Integer);
+    procedure AddPoint(atPos: TdfVec2f; atIndex: Integer); overload;
+    procedure AddPoint(atPos: TdfVec2f); overload;
 
     procedure RebuildLevel();
   end;
@@ -47,7 +48,8 @@ begin
   gl.Disable(TGLConst.GL_LIGHTING);
   gl.Enable(TGLConst.GL_BLEND);
   gl.Beginp(TGLConst.GL_LINE_STRIP);
-    with colorGreen do
+    gl.LineWidth(5);
+    with colorOrange do
       gl.Color4f(x, y, z, 1);
     for i := 0 to High(level.Points) do
       gl.Vertex3fv(dfVec3f(level.Points[i], Z_LEVEL));
@@ -74,6 +76,19 @@ begin
     Points[L] := atPos;
   end;
 
+end;
+
+procedure TpdLevel.AddPoint(atPos: TdfVec2f);
+var
+  i: Integer;
+begin
+  for i := 0 to High(Points) - 1 do
+    if (atPos.x > Points[i].x) and (atPos.x < Points[i + 1].x) then
+    begin
+      AddPoint(atPos, i + 1);
+      Exit();                              !!!
+    end;
+  AddPoint(atPos, High(Points) + 1);
 end;
 
 constructor TpdLevel.Create;

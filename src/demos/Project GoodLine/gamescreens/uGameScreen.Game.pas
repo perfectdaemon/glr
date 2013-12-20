@@ -625,8 +625,7 @@ begin
     if MouseButton = mbLeft then
       FCurrentEarthIndex := FLevel.GetPointIndexAt(dfVec2f(X, Y) - dfVec2f(mainScene.RootNode.Position), dfVec2f(10, 10));
     if MouseButton = mbRight then
-      FLevel.AddPoint(mousePos - dfVec2f(mainScene.RootNode.Position),
-        High(FLevel.Points) + 1);
+      FLevel.AddPoint(mousePos - dfVec2f(mainScene.RootNode.Position){, High(FLevel.Points) + 1});
   end;
 end;
 

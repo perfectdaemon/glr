@@ -51,6 +51,7 @@ type
     class operator Subtract(const v1, v2: TdfVec2f): TdfVec2f;
     class operator Multiply(const v1, v2: TdfVec2f): TdfVec2f;
     class operator Multiply(const v: TdfVec2f; a: Single): TdfVec2f;
+    class operator Multiply(const a: Single; const v: TdfVec2f): TdfVec2f;
     function Dot(const v: TdfVec2f): Single;
     function Reflect(const n: TdfVec2f): TdfVec2f;
     function Refract(const n: TdfVec2f; Factor: Single): TdfVec2f;
@@ -76,6 +77,7 @@ type
     class operator Subtract(const v1, v2: TdfVec3f): TdfVec3f;
     class operator Multiply(const v1, v2: TdfVec3f): TdfVec3f;
     class operator Multiply(const v: TdfVec3f; a: Single): TdfVec3f;
+    class operator Multiply(const a: Single; const v: TdfVec3f): TdfVec3f;
     function Lerp(const v: TdfVec3f; t: Single): TdfVec3f;
     function Dot(const v: TdfVec3f): Single;
     function Cross(const v: TdfVec3f): TdfVec3f;
@@ -206,6 +208,9 @@ function Clamp(x, Min, Max: Single): Single; overload; inline;
 function Pow(x, y: Single): Single;
 
 function Lerp(aFrom, aTo, aT: Single): Single;
+
+function Hsv2Rgb(hsv: TdfVec3f): TdfVec3f;
+function Hsva2Rgba(hsva: TdfVec4f): TdfVec4f;
   
 function dfVec2f(x, y: Single): TdfVec2f; overload; inline;
 function dfVec2f(v: TdfVec3f): TdfVec2f; overload; inline;
@@ -353,6 +358,40 @@ begin
   Result := aFrom + (aTo - aFrom) * aT;
 end;
 
+{Hue: 0-360, Sat: 0-100, Value: 0-100}
+{R, G, B: 0-1}
+function Hsv2Rgb(hsv: TdfVec3f): TdfVec3f;
+var
+  Hi: Integer;
+  Vmin, Vinc, Vdec, a: Single;
+begin
+  Hi := Round(hsv.x) div 60;
+  if Hi > 5 then
+    Hi := 5;
+  Vmin := ((100 - hsv.y) * hsv.z) / 100;
+  a := (hsv.z - Vmin) * (Round(hsv.x) mod 60) / 60;
+  Vinc := Vmin + a;
+  Vdec := hsv.z - a;
+  case Hi of
+    0: Exit(dfVec3f(hsv.z, Vinc, Vmin) * 0.01);
+    1: Exit(dfVec3f(Vdec, hsv.z, Vmin) * 0.01);
+    2: Exit(dfVec3f(Vmin, hsv.z, Vinc) * 0.01);
+    3: Exit(dfVec3f(Vmin, Vdec, hsv.z) * 0.01);
+    4: Exit(dfVec3f(Vinc, Vmin, hsv.z) * 0.01);
+    5: Exit(dfVec3f(hsv.z, Vmin, Vdec) * 0.01);
+  end;
+end;
+
+function Hsva2Rgba(hsva: TdfVec4f): TdfVec4f;
+begin
+  Result := dfVec4f(Hsv2Rgb(dfVec3f(hsva)), hsva.w);
+end;
+
+function Rgb2Hsv(rgb: TdfVec3f): TdfVec3f;
+begin
+
+end;
+
 
 function dfVec2f(x, y: Single): TdfVec2f;
 begin
@@ -450,6 +489,11 @@ class operator TdfVec2f.Multiply(const v: TdfVec2f; a: Single): TdfVec2f;
 begin
   Result.x := v.x * a;
   Result.y := v.y * a;
+end;
+
+class operator TdfVec2f.Multiply(const a: Single; const v: TdfVec2f): TdfVec2f;
+begin
+  Result := v * a;
 end;
 
 function TdfVec2f.Dot(const v: TdfVec2f): Single;
@@ -590,6 +634,11 @@ begin
   Result.x := a * v.x;
   Result.y := a * v.y;
   Result.z := a * v.z;
+end;
+
+class operator TdfVec3f.Multiply(const a: Single; const v: TdfVec3f): TdfVec3f;
+begin
+  Result := v * a;
 end;
 
 function TdfVec3f.Lerp(const v: TdfVec3f; t: Single): TdfVec3f;

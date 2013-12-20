@@ -109,7 +109,7 @@ var
         Text := 'Продолжить';
         PivotPoint := ppTopLeft;
         Position2D := dfVec2f(BTN_TEXT_OFFSET_X, BTN_TEXT_OFFSET_Y);
-        Material.Diffuse := colorWhite;
+        Material.Diffuse := colorOrange;
       end;
       TextureNormal := atlasMain.LoadTexture(BTN_NORMAL_TEXTURE);
       TextureOver := atlasMain.LoadTexture(BTN_OVER_TEXTURE);
@@ -127,10 +127,10 @@ var
       with TextObject do
       begin
         Font := fontBaltica;
-        Text := 'Заново';
+        Text := 'Еще раз';
         PivotPoint := ppTopLeft;
         Position2D := dfVec2f(BTN_TEXT_OFFSET_X, BTN_TEXT_OFFSET_Y);
-        Material.Diffuse := colorWhite;
+        Material.Diffuse := colorOrange;
       end;
       TextureNormal := atlasMain.LoadTexture(BTN_NORMAL_TEXTURE);
       TextureOver := atlasMain.LoadTexture(BTN_OVER_TEXTURE);
@@ -151,7 +151,7 @@ var
         Text := 'Выход';
         PivotPoint := ppTopLeft;
         Position2D := dfVec2f(BTN_TEXT_OFFSET_X, BTN_TEXT_OFFSET_Y);
-        Material.Diffuse := colorWhite;
+        Material.Diffuse := colorOrange;
       end;
       TextureNormal := atlasMain.LoadTexture(BTN_NORMAL_TEXTURE);
       TextureOver := atlasMain.LoadTexture(BTN_OVER_TEXTURE);
@@ -185,6 +185,9 @@ var
 
   procedure OnUpdate(const dt: Double);
   begin
+    cursor.Rotation := cursor.Rotation + 200 * dt;
+    if cursor.Rotation > 360 then
+      cursor.Rotation := 0;
     if R.Input.IsKeyPressed(VK_PAUSE) then
       bigPause := not bigPause;
 
@@ -209,6 +212,7 @@ var
 
   procedure OnMouseMove(X, Y: Integer; Shift: TglrMouseShiftState);
   begin
+    cursor.Position2D := dfVec2f(X, Y);
     if (not pause) then
       game.OnMouseMove(X, Y, Shift);
   end;
