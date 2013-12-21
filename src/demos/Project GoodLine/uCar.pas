@@ -89,6 +89,7 @@ procedure TpdCar.Brake(UseBrake: Boolean);
 begin
   b2WheelJointFront.SetMotorSpeed(0);
   b2WheelJointFront.EnableMotor(UseBrake);
+  b2WheelJointFront.SetMaxMotorTorque(3);
   BrakeLight.Visible := UseBrake;
 end;
 
@@ -143,8 +144,6 @@ begin
 end;
 
 procedure TpdCar.InitBodies(const aCarInfo: TpdCarInfo);
-var
-  mask: Word;
 
   procedure SetUserData(forBody: Tb2Body);
   var
@@ -157,14 +156,13 @@ var
   end;
 
 begin
-  mask := CAT_STATIC or CAT_BONUS or CAT_ENEMY or CAT_SENSOR;
   with aCarInfo do
   begin
-    b2Body := dfb2InitBox(b2world, Body, BodyD, BodyF, BodyR, mask, CAT_PLAYER, -2);
-    b2WheelRear := dfb2InitCircle(b2world, WheelRear, WheelRearD, WheelRearF, WheelRearR, mask, CAT_WHEELS, -2);
-    b2WheelFront := dfb2InitCircle(b2world, WheelFront, WheelFrontD, WheelFrontF, WheelFrontR, mask, CAT_WHEELS, -2);
-    b2SuspRear := dfb2InitBox(b2world, SuspRear, 2.0, 0, 0, mask, CAT_WHEELS, -2);
-    b2SuspFront := dfb2InitBox(b2world, SuspFront, 2.0, 0, 0, mask, CAT_WHEELS, -2);
+    b2Body := dfb2InitBox(b2world, Body, BodyD, BodyF, BodyR, MASK_PLAYER, CAT_PLAYER, -2);
+    b2WheelRear := dfb2InitCircle(b2world, WheelRear, WheelRearD, WheelRearF, WheelRearR, MASK_PLAYER_WHEELS, CAT_WHEELS, -2);
+    b2WheelFront := dfb2InitCircle(b2world, WheelFront, WheelFrontD, WheelFrontF, WheelFrontR, MASK_PLAYER_WHEELS, CAT_WHEELS, -2);
+    b2SuspRear := dfb2InitBox(b2world, SuspRear, 2.0, 0, 0, MASK_PLAYER_WHEELS, CAT_WHEELS, -2);
+    b2SuspFront := dfb2InitBox(b2world, SuspFront, 2.0, 0, 0, MASK_PLAYER_WHEELS, CAT_WHEELS, -2);
 
     SetUserData(b2Body);
     SetUserData(b2WheelRear);
@@ -213,7 +211,7 @@ begin
   RevDef.enableMotor := True;
   RevDef.Initialize(b2WheelRear, b2SuspRear, b2WheelRear.GetPosition);
   b2WheelJointRear := Tb2RevoluteJoint(b2World.CreateJoint(RevDef));
-  b2WheelJointRear.SetMaxMotorTorque(5);
+  b2WheelJointRear.SetMaxMotorTorque(10);
 
   RevDef := Tb2RevoluteJointDef.Create;
   RevDef.enableMotor := False;
@@ -321,6 +319,8 @@ begin
 end;
 
 procedure TpdCar.Update(const dt: Double);
+var
+  IsAccelerating: Boolean;
 begin
   Brake(False);
 
@@ -342,11 +342,13 @@ begin
         //Просот снижаем скорость
         ReduceAccel(2 * dt);
         Brake(True);
+        IsAccelerating := False;
       end;
     end
     else
     begin
       AddAccel(dt);
+      IsAccelerating := True;
     end;
   end
 
@@ -367,12 +369,14 @@ begin
         //Прост снижаем скорость
         ReduceAccel(2 * dt);
         Brake(True);
+        IsAccelerating := False;
       end;
 
     end
     else
     begin
       AddAccel(dt);
+      IsAccelerating := True;
     end;
   end
 
@@ -380,14 +384,17 @@ begin
   else
   begin
     b2WheelJointRear.EnableMotor(False);
+    IsAccelerating := False;
     ReduceAccel(0.5 * dt);
     CalcMotorSpeed(dt);
-    //b2WheelJointRear.EnableMotor(True);
-    //b2WheelJointRear.SetMaxMotorTorque(100);
   end;
 
-  if b2WheelJointRear.IsMotorEnabled then
+
+  if IsAccelerating then
+  begin
     b2WheelJointRear.SetMotorSpeed(-CurrentMotorSpeed * Gears[Gear]);
+    b2WheelJointRear.SetMaxMotorTorque(10 / Abs(Gears[Gear]));
+  end;
 
   if R.Input.IsKeyDown(VK_SPACE) then
   begin

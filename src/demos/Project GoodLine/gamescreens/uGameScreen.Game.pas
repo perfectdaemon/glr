@@ -175,8 +175,15 @@ begin
       end;
   end;
 
-  FCamTarget.x := Lerp(FCamTarget.x, FPlayerCar.Body.Position.x + FCamDelta - R.WindowWidth div 2, CAM_SMOOTH * dt);
-  FCamTarget.y := Lerp(FCamTarget.y, FPlayerCar.Body.Position.y             - R.WindowHeight div 2, CAM_SMOOTH * dt);
+  if Abs(FCamTarget.x - FPlayerCar.Body.Position.x + FCamDelta) < 1 then
+    FCamTarget.x := FPlayerCar.Body.Position.x + FCamDelta
+  else
+    FCamTarget.x := Lerp(FCamTarget.x, FPlayerCar.Body.Position.x + FCamDelta - R.WindowWidth div 2, CAM_SMOOTH * dt);
+  if Abs(FCamTarget.y - FPlayerCar.Body.Position.y) < 1 then
+    FCamTarget.y := FPlayerCar.Body.Position.y
+  else
+    FCamTarget.y := Lerp(FCamTarget.y, FPlayerCar.Body.Position.y             - R.WindowHeight div 2, CAM_SMOOTH * dt);
+
   FCamTarget := FCamTarget.Clamp(FCamMin, FCamMax);
 
   mainScene.RootNode.Position := dfVec3f(FCamTarget.NegateVector, mainScene.RootNode.Position.z);
@@ -234,7 +241,11 @@ begin
     FCurrentEarthIndex := -1;
     FEarthPointRenderer.Visible := FEditorMode;
     if not FEditorMode then
+    begin
       FLevel.RebuildLevel();
+      FCamMax := FLevel.GetLevelMax;
+      FCamMin := FLevel.GetLevelMin;
+    end;
   end;
 
   if FEditorMode then
@@ -248,12 +259,16 @@ begin
       mainScene.RootNode.PPosition.x := mainScene.RootNode.PPosition.x - dt * 180;
     if R.Input.IsKeyDown(VK_NUMPAD4) then
       mainScene.RootNode.PPosition.x := mainScene.RootNode.PPosition.x + dt * 180;
+
+    if R.Input.IsKeyPressed(VK_1) then
+      level.AddBlock(mousePos - dfVec2f(mainScene.RootNode.Position));
   end
   else
   begin
     //code here
     b2world.Update(dt);
     FPlayerCar.Update(dt);
+    FLevel.Update(dt);
     FTaho.TahoValue := Abs(FPlayerCar.CurrentMotorSpeed / FPlayerCar.MaxMotorSpeed);
     FTaho.Update(dt);
     FGearDisplay.SetGear(FPlayerCar.Gear);

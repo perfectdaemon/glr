@@ -12,6 +12,8 @@ type
     procedure OnLevelEnd(Trigger: TpdTrigger; Catched: Tb2Fixture);
   public
     b2EarthBlocks: array of Tb2Body;
+    b2DynBlocks: array of Tb2Body;
+    DynBlocks: array of IglrSprite;
     EarthRenderer: IglrUserRenderable;
     Points: array of TdfVec2f;
 
@@ -30,7 +32,12 @@ type
     procedure AddPoint(atPos: TdfVec2f; atIndex: Integer); overload;
     procedure AddPoint(atPos: TdfVec2f); overload;
 
+    function GetDynBlocksIndexAt(aPos, aThreshold: TdfVec2f): Integer;
+    procedure AddBlock(atPos: TdfVec2f);
+
     procedure RebuildLevel();
+
+    procedure Update(const dt: Double);
   end;
 
 implementation
@@ -66,16 +73,39 @@ var
 begin
   L := Length(Points);
   SetLength(Points, L + 1);
-  if atIndex = 0 then
+  if (atIndex < L) and (atIndex >= 0) then
   begin
-    Move(Points[0], Points[1], SizeOf(TdfVec2f) * (L - 1));
-    Points[0] := atPos;
+    Move(Points[atIndex], Points[atIndex + 1], SizeOf(TdfVec2f) * (L - atIndex));
+    Points[atIndex] := atPos;
   end    //*
   else if atIndex = L then
   begin
     Points[L] := atPos;
   end;
 
+end;
+
+procedure TpdLevel.AddBlock(atPos: TdfVec2f);
+var
+  L: Integer;
+begin
+  L := Length(DynBlocks);
+  SetLength(DynBlocks, L + 1);
+  SetLength(b2DynBlocks, L + 1);
+  DynBlocks[L] := Factory.NewSprite();
+  with DynBlocks[L] do
+  begin
+    Material.Texture := atlasMain.LoadTexture(CUBE_TEXTURE);
+    Material.Diffuse := colorYellow;
+    UpdateTexCoords();
+    Width := 32;
+    Height := Width;
+    PivotPoint := ppCenter;
+    Position := dfVec3f(atPos, Z_BLOCKS);
+  end;
+  mainScene.RootNode.AddChild(DynBlocks[L]);
+
+  b2DynBlocks[L] := dfb2InitBox(b2world, DynBlocks[L], 0.05, 0.1, 0.4, MASK_DYNAMIC, CAT_DYNAMIC, 0);
 end;
 
 procedure TpdLevel.AddPoint(atPos: TdfVec2f);
@@ -86,32 +116,17 @@ begin
     if (atPos.x > Points[i].x) and (atPos.x < Points[i + 1].x) then
     begin
       AddPoint(atPos, i + 1);
-      Exit();                              !!!
+      Exit();
     end;
   AddPoint(atPos, High(Points) + 1);
 end;
 
 constructor TpdLevel.Create;
-var
-  i: Integer;
 begin
   inherited;
   EarthRenderer := Factory.NewUserRender();
   EarthRenderer.OnRender := OnEarthRender;
   mainScene.RootNode.AddChild(EarthRenderer);
-
-//  Earth := Factory.NewSprite();
-//  with Earth do
-//  begin
-//    Position := dfVec3f(500, 400, Z_LEVEL);
-//    Width := 1000;
-//    Height := 20;
-//    Material.Diffuse := colorGreen;
-//    PivotPoint := ppCenter;
-//  end;
-//  mainScene.RootNode.AddChild(Earth);
-//
-//  dfb2InitBoxStatic(b2world, Earth, 1.0, 0.5, 0.2, $FFFF, $0001, 1);
 end;
 
 destructor TpdLevel.Destroy;
@@ -121,10 +136,15 @@ begin
   inherited;
 end;
 
+function TpdLevel.GetDynBlocksIndexAt(aPos, aThreshold: TdfVec2f): Integer;
+begin
+
+end;
+
 function TpdLevel.GetLevelMax: TdfVec2f;
 begin
   Result.x := Points[High(Points)].x - 300;
-  Result.y := 0;
+  Result.y := Points[High(Points)].y;
 end;
 
 function TpdLevel.GetLevelMin: TdfVec2f;
@@ -164,7 +184,7 @@ begin
   begin
     SetLength(b2EarthBlocks, 1);
     RebuildLevel();
-    tLevelEnd := triggers.AddBoxTrigger(Points[Low(Points)+1], 150, 130, CAT_PLAYER);
+    tLevelEnd := triggers.AddBoxTrigger(Points[High(Points)], 250, 230, MASK_SENSOR);
     tLevelEnd.Visible := True;
     tLevelEnd.OnEnter := OnLevelEnd;
   end;
@@ -192,7 +212,7 @@ begin
     b2world.DestroyBody(b2EarthBlocks[0]);
 
   b2EarthBlocks[0] := dfb2InitChainStatic(b2world, dfVec2f(0, 0), Points,
-      1.0, 0.8, 0.1, CAT_PLAYER or CAT_ENEMY or CAT_WHEELS, CAT_STATIC, -5);
+      1.0, 0.8, 0.1, MASK_EARTH, CAT_STATIC, 0);
   SetUserData(b2EarthBlocks[0]);
 end;
 
@@ -208,6 +228,14 @@ begin
   BlockWrite(f, Count, SizeOf(Word));
   BlockWrite(f, Points[0], SizeOf(TdfVec2f) * Count);
   CloseFile(f);
+end;
+
+procedure TpdLevel.Update(const dt: Double);
+var
+  i: Integer;
+begin
+  for i := 0 to High(DynBlocks) do
+    SyncObjects(b2DynBlocks[i], DynBlocks[i]);
 end;
 
 end.
