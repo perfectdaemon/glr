@@ -73,10 +73,7 @@ var
   newRot: Single;
 begin
   newRot := ARROW_ROTATION_ZERO + (ARROW_ROTATION_MAX - ARROW_ROTATION_ZERO) * TahoValue;
-//  if Abs(newRot - Arrow.Rotation) > 2 then
-    Arrow.Rotation := Lerp(Arrow.Rotation, newRot, 3 * dt)
-//  else
-//    Arrow.Rotation := newRot;
+  Arrow.Rotation := Clamp(Lerp(Arrow.Rotation, newRot, 3 * dt), ARROW_ROTATION_MAX, ARROW_ROTATION_ZERO);
 end;
 
 { TpdGearDisplay }

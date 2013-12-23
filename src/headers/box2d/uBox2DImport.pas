@@ -77,8 +77,8 @@ type
 
   function dfb2InitChainStatic(b2World: Tb2World; aPos: TdfVec2f; aVertices: array of TdfVec2f; d, f, r: Double; mask, category: UInt16; group: SmallInt): Tb2Body;
 
-  function glrb2InitBoxSensor(b2World: Tb2World; aPos: TdfVec2f; aSize: TdfVec2f; aRot: Single; mask, cat: Word): Tb2Body;
-  function glrb2InitCircleSensor(b2World: Tb2World; aPos: TdfVec2f; aSize: Single): Tb2Body;
+  function glrb2InitBoxSensor(b2World: Tb2World; aPos: TdfVec2f; aSize: TdfVec2f; aRot: Single; mask, cat: Word; IsStatic: Boolean): Tb2Body;
+  function glrb2InitCircleSensor(b2World: Tb2World; aPos: TdfVec2f; aSize: Single; mask, cat: Word; IsStatic: Boolean): Tb2Body;
 
 implementation
 
@@ -404,7 +404,8 @@ begin
   Result.SetSleepingAllowed(True);
 end;
 
-function glrb2InitBoxSensor(b2World: Tb2World; aPos: TdfVec2f; aSize: TdfVec2f; aRot: Single; mask, cat: Word): Tb2Body;
+function glrb2InitBoxSensor(b2World: Tb2World; aPos: TdfVec2f; aSize: TdfVec2f;
+  aRot: Single; mask, cat: Word; IsStatic: Boolean): Tb2Body;
 var
   BodyDef: Tb2BodyDef;
   ShapeDef: Tb2PolygonShape;
@@ -416,7 +417,10 @@ begin
 
   with BodyDef do
   begin
-    bodyType := b2_staticBody;
+    if IsStatic then
+      bodyType := b2_staticBody
+    else
+      bodyType := b2_dynamicBody;
     position := ConvertGLToB2(aPos * C_COEF);
     angle := aRot * deg2rad;
   end;
@@ -432,7 +436,6 @@ begin
     isSensor := True;
     filter.maskBits := mask;
     filter.categoryBits := cat;
-    filter.groupIndex := 16;
   end;
 
   Result := b2World.CreateBody(BodyDef);
@@ -440,7 +443,8 @@ begin
   Result.SetSleepingAllowed(False);
 end;
 
-function glrb2InitCircleSensor(b2World: Tb2World; aPos: TdfVec2f; aSize: Single): Tb2Body;
+function glrb2InitCircleSensor(b2World: Tb2World; aPos: TdfVec2f; aSize: Single;
+  mask, cat: Word; IsStatic: Boolean): Tb2Body;
 var
   BodyDef: Tb2BodyDef;
   ShapeDef: Tb2CircleShape;
@@ -452,7 +456,10 @@ begin
 
   with BodyDef do
   begin
-    bodyType := b2_staticBody;
+    if IsStatic then
+      bodyType := b2_staticBody
+    else
+      bodyType := b2_dynamicBody;
     position := ConvertGLToB2(aPos * C_COEF);
   end;
 
@@ -465,6 +472,8 @@ begin
   begin
     shape := ShapeDef;
     isSensor := True;
+    filter.maskBits := mask;
+    filter.categoryBits := cat;
   end;
 
   Result := b2World.CreateBody(BodyDef);

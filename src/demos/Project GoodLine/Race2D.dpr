@@ -14,12 +14,11 @@
 
 }
 
-program GoodLineGame;
+program Race2D;
 uses
   ShareMem,
   Windows,
   uGlobal in 'uGlobal.pas',
-  uSound in 'uSound.pas',
   uGameScreen.Game in 'gamescreens\uGameScreen.Game.pas',
   uGameScreen.GameOver in 'gamescreens\uGameScreen.GameOver.pas',
   uGameScreen.MainMenu in 'gamescreens\uGameScreen.MainMenu.pas',
@@ -39,7 +38,8 @@ uses
   uCarSaveLoad in 'uCarSaveLoad.pas',
   uLevel in 'uLevel.pas',
   uHud in 'uHud.pas',
-  uTrigger in 'uTrigger.pas';
+  uTrigger in 'uTrigger.pas',
+  glrSound in '..\..\headers\glrSound.pas';
 
 var
   gsManager: TpdGSManager;

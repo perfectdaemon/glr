@@ -30,7 +30,7 @@
 			<Projects Include="demos\Project MutilTetris\multitetris.dproj">
 				<Dependencies/>
 			</Projects>
-			<Projects Include="demos\Project GoodLine\GoodLineGame.dproj">
+			<Projects Include="demos\Project GoodLine\Race2D.dproj">
 				<Dependencies/>
 			</Projects>
 			<Projects Include="demos\Project Technological\technological.dproj">
@@ -125,14 +125,14 @@
 		<Target Name="multitetris:Make">
 			<MSBuild Targets="Make" Projects="demos\Project MutilTetris\multitetris.dproj"/>
 		</Target>
-		<Target Name="GoodLineGame">
-			<MSBuild Projects="demos\Project GoodLine\GoodLineGame.dproj"/>
+		<Target Name="Race2D">
+			<MSBuild Projects="demos\Project GoodLine\Race2D.dproj"/>
 		</Target>
-		<Target Name="GoodLineGame:Clean">
-			<MSBuild Targets="Clean" Projects="demos\Project GoodLine\GoodLineGame.dproj"/>
+		<Target Name="Race2D:Clean">
+			<MSBuild Targets="Clean" Projects="demos\Project GoodLine\Race2D.dproj"/>
 		</Target>
-		<Target Name="GoodLineGame:Make">
-			<MSBuild Targets="Make" Projects="demos\Project GoodLine\GoodLineGame.dproj"/>
+		<Target Name="Race2D:Make">
+			<MSBuild Targets="Make" Projects="demos\Project GoodLine\Race2D.dproj"/>
 		</Target>
 		<Target Name="technological">
 			<MSBuild Projects="demos\Project Technological\technological.dproj"/>
@@ -144,13 +144,13 @@
 			<MSBuild Targets="Make" Projects="demos\Project Technological\technological.dproj"/>
 		</Target>
 		<Target Name="Build">
-			<CallTarget Targets="glRenderer;Checker1;Checker2;Checker5_GUI;Checker6;survive;RagdollSport;RagdollFighting;multitetris;GoodLineGame;technological"/>
+			<CallTarget Targets="glRenderer;Checker1;Checker2;Checker5_GUI;Checker6;survive;RagdollSport;RagdollFighting;multitetris;Race2D;technological"/>
 		</Target>
 		<Target Name="Clean">
-			<CallTarget Targets="glRenderer:Clean;Checker1:Clean;Checker2:Clean;Checker5_GUI:Clean;Checker6:Clean;survive:Clean;RagdollSport:Clean;RagdollFighting:Clean;multitetris:Clean;GoodLineGame:Clean;technological:Clean"/>
+			<CallTarget Targets="glRenderer:Clean;Checker1:Clean;Checker2:Clean;Checker5_GUI:Clean;Checker6:Clean;survive:Clean;RagdollSport:Clean;RagdollFighting:Clean;multitetris:Clean;Race2D:Clean;technological:Clean"/>
 		</Target>
 		<Target Name="Make">
-			<CallTarget Targets="glRenderer:Make;Checker1:Make;Checker2:Make;Checker5_GUI:Make;Checker6:Make;survive:Make;RagdollSport:Make;RagdollFighting:Make;multitetris:Make;GoodLineGame:Make;technological:Make"/>
+			<CallTarget Targets="glRenderer:Make;Checker1:Make;Checker2:Make;Checker5_GUI:Make;Checker6:Make;survive:Make;RagdollSport:Make;RagdollFighting:Make;multitetris:Make;Race2D:Make;technological:Make"/>
 		</Target>
 		<Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 	</Project>

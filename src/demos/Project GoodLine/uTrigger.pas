@@ -21,8 +21,8 @@ type
     procedure SetPos(const Value: TdfVec2f);
     procedure SetSize(const Value: TdfVec2f);
     procedure SetVisible(const Value: Boolean);
-    class function CreateBoxTrigger(aPos: TdfVec2f;  W, H: Single; mask: Word): TpdTrigger;
-    class function CreateCircleTrigger(aPos: TdfVec2f; Rad: Single; mask: Word): TpdTrigger;
+    class function CreateBoxTrigger(aPos: TdfVec2f;  W, H: Single; mask: Word; IsStatic: Boolean): TpdTrigger;
+    class function CreateCircleTrigger(aPos: TdfVec2f; Rad: Single; mask: Word; IsStatic: Boolean): TpdTrigger;
   public
     Sprite: IglrSprite;
     Body: Tb2Body;
@@ -49,8 +49,8 @@ type
     constructor Create();
     destructor Destroy(); override;
 
-    function AddBoxTrigger(aPos: TdfVec2f;  W, H: Single; mask: Word): TpdTrigger;
-    function AddCircleTrigger(aPos: TdfVec2f; Rad: Single; mask: Word): TpdTrigger;
+    function AddBoxTrigger(aPos: TdfVec2f;  W, H: Single; mask: Word; IsStatic: Boolean): TpdTrigger;
+    function AddCircleTrigger(aPos: TdfVec2f; Rad: Single; mask: Word; IsStatic: Boolean): TpdTrigger;
   end;
 
 
@@ -81,7 +81,7 @@ begin
 end;
 
 class function TpdTrigger.CreateBoxTrigger(aPos: TdfVec2f; W,
-  H: Single; mask: Word): TpdTrigger;
+  H: Single; mask: Word; IsStatic: Boolean): TpdTrigger;
 var
   f: Tb2Filter;
   userData: PpdUserData;
@@ -92,19 +92,16 @@ begin
     Sprite.Width := W;
     Sprite.Height := H;
     Sprite.Position2D := aPos;
-    Body := glrb2InitBoxSensor(b2world, aPos, dfVec2f(W, H), 0, mask, CAT_SENSOR);
+    Body := glrb2InitBoxSensor(b2world, aPos, dfVec2f(W, H), 0, mask, CAT_SENSOR, IsStatic);
     New(userData);
     userData^.aType := oSensor;
     userData^.aObject := Result;
     Body.UserData := userData;
-//    f.categoryBits := CAT_SENSOR;
-//    f.maskBits := mask;
-//    Body.GetFixtureList.SetFilterData(f);
   end;
 end;
 
 class function TpdTrigger.CreateCircleTrigger(aPos: TdfVec2f;
-  Rad: Single; mask: Word): TpdTrigger;
+  Rad: Single; mask: Word; IsStatic: Boolean): TpdTrigger;
 var
   f: Tb2Filter;
 begin
@@ -114,7 +111,7 @@ begin
     Sprite.Width := Rad;
     Sprite.Height := Rad;
     Sprite.Position2D := aPos;
-    Body := glrb2InitCircleSensor(b2world, aPos, Rad);
+    Body := glrb2InitCircleSensor(b2world, aPos, Rad, mask, CAT_SENSOR, IsStatic);
     Body.UserData := @Result;
     f.categoryBits := CAT_SENSOR;
     f.maskBits := mask;
@@ -125,6 +122,7 @@ end;
 destructor TpdTrigger.Destroy;
 begin
   mainScene.RootNode.RemoveChild(Sprite);
+  b2world.DestroyBody(Body);
   inherited;
 end;
 
@@ -192,15 +190,15 @@ end;
 { TpdTriggerFactory }
 
 function TpdTriggerFactory.AddBoxTrigger(aPos: TdfVec2f; W, H: Single;
-  mask: Word): TpdTrigger;
+  mask: Word; IsStatic: Boolean): TpdTrigger;
 begin
-  Result := TpdTrigger.CreateBoxTrigger(aPos, W, H, mask);
+  Result := TpdTrigger.CreateBoxTrigger(aPos, W, H, mask, IsStatic);
 end;
 
 function TpdTriggerFactory.AddCircleTrigger(aPos: TdfVec2f; Rad: Single;
-  mask: Word): TpdTrigger;
+  mask: Word; IsStatic: Boolean): TpdTrigger;
 begin
-  Result := TpdTrigger.CreateCircleTrigger(aPos, Rad, mask);
+  Result := TpdTrigger.CreateCircleTrigger(aPos, Rad, mask, IsStatic);
 end;
 
 constructor TpdTriggerFactory.Create;

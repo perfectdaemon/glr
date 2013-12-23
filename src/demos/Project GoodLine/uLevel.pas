@@ -6,18 +6,27 @@ uses
   glr, glrMath, uPhysics2D,
   uTrigger;
 
+const
+  TEXT_LEVEL = 'Up, Down Ч ехать'#13#10'Space Ч ручной тормоз'#13#10'ƒовези до финиша как можно больше €щиков';
+  TEXT_LEVEL2 = 'M - режим трансмиссии'#13#10'A/Z Ч переключение передач в ручном режиме';
+
 type
   TpdLevel = class
   private
-    procedure OnLevelEnd(Trigger: TpdTrigger; Catched: Tb2Fixture);
+    procedure OnBoxIn(Trigger: TpdTrigger; Catched: Tb2Fixture);
+    procedure OnBoxOut(Trigger: TpdTrigger; Catched: Tb2Fixture);
   public
+    BoxesIn: Integer;
+
     b2EarthBlocks: array of Tb2Body;
     b2DynBlocks: array of Tb2Body;
     DynBlocks: array of IglrSprite;
     EarthRenderer: IglrUserRenderable;
     Points: array of TdfVec2f;
 
-    tLevelEnd: TpdTrigger;
+    tBoxCounter: TpdTrigger;
+
+    ExplainText, ExplainText2: IglrText;
 
     constructor Create();
     destructor Destroy(); override;
@@ -38,6 +47,8 @@ type
     procedure RebuildLevel();
 
     procedure Update(const dt: Double);
+
+    procedure RemoveAllBlocks();
   end;
 
 implementation
@@ -98,14 +109,14 @@ begin
     Material.Texture := atlasMain.LoadTexture(CUBE_TEXTURE);
     Material.Diffuse := colorYellow;
     UpdateTexCoords();
-    Width := 32;
+    Width := 24;
     Height := Width;
     PivotPoint := ppCenter;
     Position := dfVec3f(atPos, Z_BLOCKS);
   end;
   mainScene.RootNode.AddChild(DynBlocks[L]);
 
-  b2DynBlocks[L] := dfb2InitBox(b2world, DynBlocks[L], 0.05, 0.1, 0.4, MASK_DYNAMIC, CAT_DYNAMIC, 0);
+  b2DynBlocks[L] := dfb2InitBox(b2world, DynBlocks[L], 0.02, 0.4, 0.4, MASK_DYNAMIC, CAT_DYNAMIC, 0);
 end;
 
 procedure TpdLevel.AddPoint(atPos: TdfVec2f);
@@ -127,6 +138,28 @@ begin
   EarthRenderer := Factory.NewUserRender();
   EarthRenderer.OnRender := OnEarthRender;
   mainScene.RootNode.AddChild(EarthRenderer);
+
+  ExplainText := Factory.NewText();
+  ExplainText2 := Factory.NewText();
+
+  with ExplainText do
+  begin
+    Font := fontSouvenir;
+    Material.Diffuse := colorWhite;
+    Text := TEXT_LEVEL;
+    Position := dfVec3f(400, 200, Z_BACKGROUND + 5);
+  end;
+
+  with ExplainText2 do
+  begin
+    Font := fontSouvenir;
+    Material.Diffuse := colorWhite;
+    Text := TEXT_LEVEL2;
+    Position := dfVec3f(1200, 200, Z_BACKGROUND + 5);
+  end;
+
+  mainScene.RootNode.AddChild(ExplainText);
+  mainScene.RootNode.AddChild(ExplainText2);
 end;
 
 destructor TpdLevel.Destroy;
@@ -171,6 +204,7 @@ var
   f: File;
   Count: Word;
   i: Integer;
+  dyn: array of TdfVec2f;
 begin
   Result := TpdLevel.Create();
   AssignFile(f, aFileName);
@@ -178,21 +212,33 @@ begin
   BlockRead(f, Count, SizeOf(Word));
   SetLength(Result.Points, Count);
   BlockRead(f, Result.Points[0], SizeOf(TdfVec2f) * Count);
+
+  BlockRead(f, Count, SizeOf(Word));
+  SetLength(dyn, Count);
+  BlockRead(f, Dyn[0], SizeOf(TdfVec2f) * Count);
   CloseFile(f);
 
   with Result do
   begin
     SetLength(b2EarthBlocks, 1);
     RebuildLevel();
-    tLevelEnd := triggers.AddBoxTrigger(Points[High(Points)], 250, 230, MASK_SENSOR);
-    tLevelEnd.Visible := True;
-    tLevelEnd.OnEnter := OnLevelEnd;
+    tBoxCounter := triggers.AddBoxTrigger(Points[High(Points)] + dfVec2f(-130, 110), 250, 220, MASK_SENSOR, True);
+    tBoxCounter.Visible := True;
+    tBoxCounter.OnEnter := OnBoxIn;
+    tBoxCounter.OnLeave := OnBoxOut;
+    for i := 0 to Count - 1 do
+      AddBlock(dyn[i]);
   end;
 end;
 
-procedure TpdLevel.OnLevelEnd(Trigger: TpdTrigger; Catched: Tb2Fixture);
+procedure TpdLevel.OnBoxIn(Trigger: TpdTrigger; Catched: Tb2Fixture);
 begin
-//  game.OnGameOver();
+  Inc(BoxesIn);
+end;
+
+procedure TpdLevel.OnBoxOut(Trigger: TpdTrigger; Catched: Tb2Fixture);
+begin
+  Dec(BoxesIn);
 end;
 
 procedure TpdLevel.RebuildLevel;
@@ -216,17 +262,37 @@ begin
   SetUserData(b2EarthBlocks[0]);
 end;
 
+procedure TpdLevel.RemoveAllBlocks;
+var
+  i: Integer;
+begin
+  for i := 0 to High(DynBlocks) do
+  begin
+    mainScene.RootNode.RemoveChild(DynBlocks[i]);
+    b2world.DestroyBody(b2DynBlocks[i]);
+  end;
+  SetLength(DynBlocks, 0);
+  SetLength(b2DynBlocks, 0);
+end;
+
 procedure TpdLevel.SaveToFile(const aFileName: String);
 var
   f: File;
-  Count: Word;
+  Count, DynCount: Word;
   i: Integer;
+  dyn: array of TdfVec2f;
 begin
   Count := Length(Points);
+  DynCount := Length(DynBlocks);
+  SetLength(dyn, DynCount);
+  for i := 0 to DynCount - 1 do
+    dyn[i] := DynBlocks[i].Position2D;
   AssignFile(f, aFileName);
   Rewrite(f, 1);
   BlockWrite(f, Count, SizeOf(Word));
   BlockWrite(f, Points[0], SizeOf(TdfVec2f) * Count);
+  BlockWrite(f, DynCount, SizeOf(Word));
+//  BlockWrite(f, dyn[0], SizeOf(TdfVec2f) * DynCount);
   CloseFile(f);
 end;
 

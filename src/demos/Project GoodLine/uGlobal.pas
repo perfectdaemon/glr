@@ -3,7 +3,7 @@ unit uGlobal;
 interface
 
 uses
-  glr, glrMath, glrUtils, uSound, uLevel, uBox2DImport, uTrigger;
+  glr, glrMath, glrUtils, glrSound, uLevel, uBox2DImport, uTrigger;
 
 const
   GAMEVERSION = '0.03';
@@ -29,12 +29,12 @@ const
   MASK_PLAYER = CAT_ENEMY or CAT_STATIC or CAT_BONUS or CAT_SENSOR or CAT_DYNAMIC;
   MASK_PLAYER_WHEELS = CAT_ENEMY or CAT_STATIC or CAT_BONUS or CAT_DYNAMIC;
   MASK_ENEMY  = CAT_PLAYER or CAT_WHEELS or CAT_STATIC or CAT_DYNAMIC;
-  MASK_SENSOR = CAT_PLAYER;
-  MASK_DYNAMIC = CAT_PLAYER or CAT_WHEELS or CAT_ENEMY or CAT_STATIC or CAT_DYNAMIC;
-  MASK_EARTH = CAT_PLAYER or CAT_WHEELS or CAT_ENEMY or CAT_DYNAMIC;
+  MASK_SENSOR = CAT_DYNAMIC;
+  MASK_DYNAMIC = CAT_PLAYER or CAT_WHEELS or CAT_ENEMY or CAT_STATIC or CAT_DYNAMIC or CAT_SENSOR;
+  MASK_EARTH = CAT_PLAYER or CAT_WHEELS or CAT_ENEMY or CAT_DYNAMIC or CAT_SENSOR;
 
 
-  MUSIC_INGAME = RES_FOLDER + 'HE-LUX - Essentials.ogg';
+  MUSIC_INGAME = RES_FOLDER + 'BRD - Teleport Prokg.ogg';
   MUSIC_MENU   = RES_FOLDER + 'Misha Mishenko - Sol.ogg';
 
   SOUND_CLICK   = RES_FOLDER + 'click.ogg';
@@ -63,6 +63,8 @@ const
 
   //PARTICLE_TEXTURE  = 'particle.png';
   //PARTICLE_TEXTURE2 = 'particle2.png';
+
+  SHOVEL_TEXTURE = 'shovel.png';
 
   BTN_TEXT_OFFSET_X = -100;
   BTN_TEXT_OFFSET_Y = -15;
@@ -101,8 +103,10 @@ var
   fontSouvenir: IglrFont;
 
   //Colors
-  colorRed: TdfVec4f    = (x: 255/255; y: 30/255;   z: 0.0;   w: 1.0);
   colorWhite: TdfVec4f  = (x: 1.0; y: 1.0;  z: 1.0; w: 1.0);
+  colorBlack: TdfVec4f  = (x: 0.0; y: 0.0; z: 0.0; w: 1.0);
+
+  colorRed: TdfVec4f    = (x: 255/255; y: 30/255;   z: 0.0;   w: 1.0);
   colorGreen: TdfVec4f  = (x: 55/255;  y: 160/255;  z: 0.0;   w: 1.0);
   colorOrange: TdfVec4f = (x: 255/255; y: 125/255;  z: 8/255; w: 1.0);
   colorYellow: TdfVec4f = (x: 0.9;     y: 0.93;     z: 0.1;   w: 1.0);

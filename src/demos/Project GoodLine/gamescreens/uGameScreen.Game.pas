@@ -52,7 +52,8 @@ type
     {$IFDEF DEBUG}
     FFPSCounter: TglrFPSCounter;
     FDebug: TglrDebugInfo;
-    iWheelSpeed, iBodySpeed, iMotorSpeed, iMotorSpeedGear: Integer;
+    iWheelSpeed, iBodySpeed, iMotorSpeed, iMotorSpeedGear, iTransmission, iWheelContacts: Integer;
+
     {$ENDIF}
 
     Ft: Single; //Время для расчета анимации fadein/fadeout
@@ -175,7 +176,7 @@ begin
       end;
   end;
 
-  if Abs(FCamTarget.x - FPlayerCar.Body.Position.x + FCamDelta) < 1 then
+  if Abs(FCamTarget.x - (FPlayerCar.Body.Position.x + FCamDelta)) < 1 then
     FCamTarget.x := FPlayerCar.Body.Position.x + FCamDelta
   else
     FCamTarget.x := Lerp(FCamTarget.x, FPlayerCar.Body.Position.x + FCamDelta - R.WindowWidth div 2, CAM_SMOOTH * dt);
@@ -226,6 +227,12 @@ begin
     UpdateParam(iBodySpeed, Round(BodySpeed));
     UpdateParam(iMotorSpeed, Round(CurrentMotorSpeed));
     UpdateParam(iMotorSpeedGear, Round(CurrentMotorSpeed * Gears[Gear]));
+    if FPlayerCar.AutomaticTransmission then
+      UpdateParam(iTransmission, 'Auto')
+    else
+      UpdateParam(iTransmission, 'Manual');
+
+    UpdateParam(iWheelContacts, FPlayerCar.WheelPoints);
   end;
   {$ENDIF}
 
@@ -256,12 +263,15 @@ begin
       LoadLevelFromFile();
 
     if R.Input.IsKeyDown(VK_NUMPAD6) then
-      mainScene.RootNode.PPosition.x := mainScene.RootNode.PPosition.x - dt * 180;
+      mainScene.RootNode.PPosition.x := mainScene.RootNode.PPosition.x - dt * 450;
     if R.Input.IsKeyDown(VK_NUMPAD4) then
-      mainScene.RootNode.PPosition.x := mainScene.RootNode.PPosition.x + dt * 180;
+      mainScene.RootNode.PPosition.x := mainScene.RootNode.PPosition.x + dt * 450;
 
     if R.Input.IsKeyPressed(VK_1) then
       level.AddBlock(mousePos - dfVec2f(mainScene.RootNode.Position));
+
+    if R.Input.IsKeyPressed(VK_DELETE) then
+      level.RemoveAllBlocks();
   end
   else
   begin
@@ -376,9 +386,11 @@ begin
 
   {$IFDEF DEBUG}
   iWheelSpeed := FDebug.AddNewString('Wheel Speed');
+  iMotorSpeedGear := FDebug.AddNewString('Motor Speed * Gear');
   iBodySpeed := FDebug.AddNewString('Body Speed');
   iMotorSpeed := FDebug.AddNewString('Motor Speed');
-  iMotorSpeedGear := FDebug.AddNewString('Motor Speed * Gear');
+  iTransmission := FDebug.AddNewString('Transmission');
+  iWheelContacts := FDebug.AddNewString('Wheel sensor contacts');
   {$ENDIF}
 
   FFakeBackground := Factory.NewHudSprite();
@@ -441,7 +453,7 @@ begin
       Text := 'Вернуться в меню';
       PivotPoint := ppTopLeft;
       Position2D := dfVec2f(BTN_TEXT_OFFSET_X, BTN_TEXT_OFFSET_Y);
-      Material.Diffuse := colorWhite;
+      Material.Diffuse := colorBlack;
     end;
     TextureNormal := atlasMain.LoadTexture(BTN_NORMAL_TEXTURE);
     TextureOver := atlasMain.LoadTexture(BTN_OVER_TEXTURE);
@@ -467,7 +479,7 @@ begin
       Text := 'Продолжить';
       PivotPoint := ppTopLeft;
       Position2D := dfVec2f(BTN_TEXT_OFFSET_X, BTN_TEXT_OFFSET_Y);
-      Material.Diffuse := colorWhite;
+      Material.Diffuse := colorBlack;
     end;
     TextureNormal := atlasMain.LoadTexture(BTN_NORMAL_TEXTURE);
     TextureOver := atlasMain.LoadTexture(BTN_OVER_TEXTURE);

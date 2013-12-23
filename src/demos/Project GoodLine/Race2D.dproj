@@ -2,7 +2,7 @@
 		<PropertyGroup>
 			<ProjectGuid>{E4425EB2-06C3-4C9B-979F-3FCE0BADC1E0}</ProjectGuid>
 			<ProjectVersion>12.0</ProjectVersion>
-			<MainSource>GoodLineGame.dpr</MainSource>
+			<MainSource>Race2D.dpr</MainSource>
 			<Config Condition="'$(Config)'==''">Debug</Config>
 			<DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
 		</PropertyGroup>
@@ -22,7 +22,7 @@
 		<PropertyGroup Condition="'$(Base)'!=''">
 			<DCC_DcuOutput>..\..\..\dcu\</DCC_DcuOutput>
 			<DCC_ExeOutput>..\..\..\bin\</DCC_ExeOutput>
-			<DCC_DependencyCheckOutputName>..\..\..\bin\GoodLineGame.exe</DCC_DependencyCheckOutputName>
+			<DCC_DependencyCheckOutputName>..\..\..\bin\Race2D.exe</DCC_DependencyCheckOutputName>
 			<DCC_ImageBase>00400000</DCC_ImageBase>
 			<DCC_UnitAlias>WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;$(DCC_UnitAlias)</DCC_UnitAlias>
 			<DCC_Platform>x86</DCC_Platform>
@@ -42,11 +42,10 @@
 			<DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
 		</PropertyGroup>
 		<ItemGroup>
-			<DelphiCompile Include="GoodLineGame.dpr">
+			<DelphiCompile Include="Race2D.dpr">
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
 			<DCCReference Include="uGlobal.pas"/>
-			<DCCReference Include="uSound.pas"/>
 			<DCCReference Include="gamescreens\uGameScreen.Game.pas"/>
 			<DCCReference Include="gamescreens\uGameScreen.GameOver.pas"/>
 			<DCCReference Include="gamescreens\uGameScreen.MainMenu.pas"/>
@@ -67,6 +66,7 @@
 			<DCCReference Include="uLevel.pas"/>
 			<DCCReference Include="uHud.pas"/>
 			<DCCReference Include="uTrigger.pas"/>
+			<DCCReference Include="..\..\headers\glrSound.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>
@@ -86,7 +86,7 @@
 			<BorlandProject>
 				<Delphi.Personality>
 					<Source>
-						<Source Name="MainSource">GoodLineGame.dpr</Source>
+						<Source Name="MainSource">Race2D.dpr</Source>
 					</Source>
 					<Parameters>
 						<Parameters Name="UseLauncher">False</Parameters>

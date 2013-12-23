@@ -450,7 +450,7 @@ begin
   with FAboutText do
   begin
     Font := fontSouvenir;
-    Text := 'дл€ четвертой областной'#13#10'IT-олимпиады GoodLine'#13#10#13#10'Ч perfect.daemon Ч'#13#10'   но€брь 2013';
+    Text := 'Ч perfect.daemon Ч'#13#10'   но€брь 2013';
     PivotPoint := ppBottomCenter;
     Position := dfVec3f(R.WindowWidth div 2, R.WindowHeight + ABOUT_OFFSET_Y, Z_MAINMENU);
   end;
@@ -458,8 +458,7 @@ begin
   with FGameText do
   begin
     Font := fontSouvenir;
-    Text := 'ќписание игры на олимпиаду'
-        +#13#10'продолжаетс€ здесь';
+    Text := '2D-гонка';
     PivotPoint := ppTopCenter;
     Position := dfVec3f(R.WindowWidth div 2, GAMETEXT_OFFSET_Y, Z_MAINMENU);
   end;
