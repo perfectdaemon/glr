@@ -340,7 +340,7 @@ begin
     SetSizeToTextureSize;
     UpdateTexCoords();
     PivotPoint := ppCenter;
-    Position := Body.Position + dfVec3f(75, 15, 0);
+    Position := Body.Position + dfVec3f(77, 15, 0);
   end;
   mainScene.RootNode.AddChild(Shovel);
 
@@ -463,7 +463,7 @@ var
 begin
   Brake(False);
 
-  if R.Input.IsKeyDown(VK_UP) then
+  if R.Input.IsKeyDown(VK_RIGHT) then
   begin
     b2WheelJointRear.EnableMotor(True);
     //Если включена задняя передача
@@ -479,7 +479,7 @@ begin
       else
       begin
         //Просот снижаем скорость
-        ReduceAccel(2 * dt);
+        ReduceAccel(3 * dt);
         Brake(True);
         IsAccelerating := False;
         b2WheelJointRear.EnableMotor(False);
@@ -492,7 +492,7 @@ begin
     end;
   end
 
-  else if R.Input.IsKeyDown(VK_DOWN) then
+  else if R.Input.IsKeyDown(VK_LEFT) then
   begin
     b2WheelJointRear.EnableMotor(True);
     if Gear > 0 then
@@ -535,7 +535,7 @@ begin
   begin
     b2WheelJointRear.SetMotorSpeed(-CurrentMotorSpeed * Gears[Gear]);
     b2WheelJointRear.SetMaxMotorTorque(5 / Abs(Gears[Gear]));
-    if (WheelPoints > 0) and (Gear > 0) then
+    if (WheelPoints > 0){ and (Gear > 0)} then
       AddDownForce(dt);
   end;
 

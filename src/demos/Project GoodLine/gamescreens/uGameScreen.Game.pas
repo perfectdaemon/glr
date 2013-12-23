@@ -15,11 +15,14 @@ const
   PAUSE_TEXT_X = 500;
   PAUSE_TEXT_Y = 10;
 
-  BTN_MENU_X = PAUSE_TEXT_X + 130;
-  BTN_MENU_Y = PAUSE_TEXT_Y + 70;
+  BTN_CONTINUE_X = PAUSE_TEXT_X - 230;
+  BTN_CONTINUE_Y = PAUSE_TEXT_Y + 70;
 
-  BTN_CONTINUE_X = PAUSE_TEXT_X - 130;
-  BTN_CONTINUE_Y = BTN_MENU_Y;
+  BTN_REPLAY_X = PAUSE_TEXT_X;
+  BTN_REPLAY_Y = BTN_CONTINUE_Y;
+
+  BTN_MENU_X = PAUSE_TEXT_X + 230;
+  BTN_MENU_Y = BTN_REPLAY_Y;
 
   CAM_SMOOTH = 2;
   CAM_CHANGEDIR_TIMEOUT = 1.0;
@@ -32,7 +35,7 @@ type
 
     FPause: Boolean;
     FPauseText: IglrText;
-    FBtnMenu, FBtnContinue: IglrGUITextButton;
+    FBtnMenu, FBtnContinue, FBtnReplay: IglrGUITextButton;
 
     //Edtor
     FEditorMode: Boolean;
@@ -42,6 +45,7 @@ type
 
     FTaho: TpdTahometer;
     FGearDisplay: TpdGearDisplay;
+    FTimer, FBoxCount: IglrText;
 
     FCamChangeDirTimeout: Single;
     FCamDelta: Integer;
@@ -125,7 +129,13 @@ begin
     if Sender = (FBtnMenu as IglrGUIElement) then
       OnNotify(FScrMenu, naSwitchTo)
     else if Sender = (FBtnContinue as IglrGUIElement) then
-      PauseOrContinue();
+      PauseOrContinue()
+    else if Sender = (FBtnReplay as IglrGUIElement) then
+    begin
+      Status := gssNone;
+      Unload();
+      OnNotify(game, naSwitchTo);
+    end;
 end;
 
 procedure EarthPointRender(); stdcall;
@@ -284,6 +294,9 @@ begin
     FGearDisplay.SetGear(FPlayerCar.Gear);
     CameraControl(dt);
 
+    FTimer.Text := 'Время: ' + IntToStr(Round(level.TimeLeft)) + ' сек';
+    FBoxCount.Text := 'Ящиков: ' + IntToStr(level.BoxesIn);
+
     if R.Input.IsKeyPressed(VK_TAB) then
     begin
       LoadPlayer();
@@ -373,7 +386,7 @@ begin
 
   FPause := False;
 
-  gl.ClearColor(0, 30 / 255, 60 / 250, 1.0);
+  gl.ClearColor(0 / 255, 30 / 255, 60 / 250, 1.0);
   FMainScene.RootNode.RemoveAllChilds();
   FMainScene.RootNode.Position := dfVec3f(0, 0, 0);
   FHudScene.RootNode.RemoveAllChilds();
@@ -450,10 +463,10 @@ begin
     with TextObject do
     begin
       Font := fontSouvenir;
-      Text := 'Вернуться в меню';
+      Text := 'В меню';
       PivotPoint := ppTopLeft;
       Position2D := dfVec2f(BTN_TEXT_OFFSET_X, BTN_TEXT_OFFSET_Y);
-      Material.Diffuse := colorBlack;
+      Material.Diffuse := colorGray;
     end;
     TextureNormal := atlasMain.LoadTexture(BTN_NORMAL_TEXTURE);
     TextureOver := atlasMain.LoadTexture(BTN_OVER_TEXTURE);
@@ -479,7 +492,7 @@ begin
       Text := 'Продолжить';
       PivotPoint := ppTopLeft;
       Position2D := dfVec2f(BTN_TEXT_OFFSET_X, BTN_TEXT_OFFSET_Y);
-      Material.Diffuse := colorBlack;
+      Material.Diffuse := colorGray;
     end;
     TextureNormal := atlasMain.LoadTexture(BTN_NORMAL_TEXTURE);
     TextureOver := atlasMain.LoadTexture(BTN_OVER_TEXTURE);
@@ -493,6 +506,32 @@ begin
   end;
   FHUDScene.RootNode.AddChild(FBtnContinue);
 
+  FBtnReplay := Factory.NewGUITextButton();
+  with FBtnReplay do
+  begin
+    PivotPoint := ppCenter;
+    Position := dfVec3f(BTN_REPLAY_X, BTN_REPLAY_Y, Z_HUD);
+
+    with TextObject do
+    begin
+      Font := fontSouvenir;
+      Text := 'Еще раз';
+      PivotPoint := ppTopLeft;
+      Position2D := dfVec2f(BTN_TEXT_OFFSET_X, BTN_TEXT_OFFSET_Y);
+      Material.Diffuse := colorGray;
+    end;
+    TextureNormal := atlasMain.LoadTexture(BTN_NORMAL_TEXTURE);
+    TextureOver := atlasMain.LoadTexture(BTN_OVER_TEXTURE);
+    TextureClick := atlasMain.LoadTexture(BTN_CLICK_TEXTURE);
+
+    UpdateTexCoords();
+    SetSizeToTextureSize();
+
+    Visible := False;
+    OnMouseClick := MouseClick;
+  end;
+  FHUDScene.RootNode.AddChild(FBtnReplay);
+
   FPauseText := Factory.NewText();
   with FPauseText do
   begin
@@ -505,6 +544,29 @@ begin
   end;
   FHUDScene.RootNode.AddChild(FPauseText);
 
+  FTimer := Factory.NewText();
+  with FTimer do
+  begin
+    Font := fontSouvenir;
+    Text := 'Время: ' + IntToStr(uLevel.TIMER);
+    Material.Diffuse := colorWhite;
+    PivotPoint := ppBottomLeft;
+    Position := dfVec3f(250, R.WindowHeight - 35, Z_HUD);
+  end;
+  FHUDScene.RootNode.AddChild(FTimer);
+
+  FBoxCount := Factory.NewText();
+  with FBoxCount do
+  begin
+    Font := fontSouvenir;
+    Text := 'Ящиков: 0';
+    Material.Diffuse := colorWhite;
+    PivotPoint := ppBottomRight;
+    Position := dfVec3f(R.WindowWidth - 250, R.WindowHeight - 35, Z_HUD);
+  end;
+  FHUDScene.RootNode.AddChild(FBoxCount);
+
+
   FTaho := TpdTahometer.Create();
   FGearDisplay := TpdGearDisplay.Create();
 end;
@@ -514,13 +576,10 @@ begin
   if Assigned(FLevel) then
     FLevel.Free();
 
-//  FLevel := TpdLevel.Create();
-//  SetLength(Points, 20);
-//  for i := 0 to High(Points) do
-//    Points[i] := dfVec2f(30 + 70 * i, 500 +Random(100));
   FLevel := TpdLevel.LoadFromFile(LEVEL_CONF_FILE);
-  FCamMax := FLevel.GetLevelMax;// + dfVec2f(R.WindowWidth div 2, R.WindowHeight div 2);
-  FCamMin := FLevel.GetLevelMin;// - dfVec2f(R.WindowWidth div 2, R.WindowHeight div 2);
+  FCamMax := FLevel.GetLevelMax;
+  FCamMin := FLevel.GetLevelMin;
+  gameOver.BoxesAll := Length(FLevel.DynBlocks);
 
   uGlobal.level := FLevel;
 end;
@@ -603,6 +662,8 @@ begin
   FreeLevel();
   FreePhysics();
 
+  R.GUIManager.UnregisterElement(FBtnReplay);
+  R.GUIManager.UnregisterElement(FBtnContinue);
   R.GUIManager.UnregisterElement(FBtnMenu);
 
   R.UnregisterScene(FMainScene);
@@ -623,9 +684,8 @@ end;
 
 procedure TpdGame.OnGameOver;
 begin
-  //todo - что-то посчитать
-  LoadPlayer();
-  //OnNotify(FScrGameOver, naShowModal);
+  gameOver.BoxesIn := level.BoxesIn;
+  OnNotify(gameOver, naShowModal);
 end;
 
 procedure TpdGame.OnMouseMove(X, Y: Integer; Shift: TglrMouseShiftState);
@@ -674,14 +734,17 @@ begin
   FPauseText.Visible := FPause;
   FBtnMenu.Visible := FPause;
   FBtnContinue.Visible := FPause;
+  FBtnReplay.Visible := FPause;
   if FPause then
   begin
     R.GUIManager.RegisterElement(FBtnMenu);
+    R.GUIManager.RegisterElement(FBtnReplay);
     R.GUIManager.RegisterElement(FBtnContinue);
   end
   else
   begin
     R.GUIManager.UnregisterElement(FBtnMenu);
+    R.GUIManager.UnregisterElement(FBtnReplay);
     R.GUIManager.UnregisterElement(FBtnContinue);
   end;
 end;

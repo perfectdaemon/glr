@@ -66,8 +66,8 @@ const
 
   SHOVEL_TEXTURE = 'shovel.png';
 
-  BTN_TEXT_OFFSET_X = -100;
-  BTN_TEXT_OFFSET_Y = -15;
+  BTN_TEXT_OFFSET_X = -85;
+  BTN_TEXT_OFFSET_Y = -12;
 
 type
   TpdObjectType = (oPlayer, oSensor, oEarth);
@@ -105,6 +105,7 @@ var
   //Colors
   colorWhite: TdfVec4f  = (x: 1.0; y: 1.0;  z: 1.0; w: 1.0);
   colorBlack: TdfVec4f  = (x: 0.0; y: 0.0; z: 0.0; w: 1.0);
+  colorGray: TdfVec4f   = (x: 0.15; y: 0.15; z: 0.25; w: 1.0);
 
   colorRed: TdfVec4f    = (x: 255/255; y: 30/255;   z: 0.0;   w: 1.0);
   colorGreen: TdfVec4f  = (x: 55/255;  y: 160/255;  z: 0.0;   w: 1.0);
@@ -130,7 +131,7 @@ begin
   with fontSouvenir do
   begin
     AddSymbols(FONT_USUAL_CHARS);
-    FontSize := 18;
+    FontSize := 16;
     GenerateFromTTF(RES_FOLDER + 'Souvenir Regular.ttf', 'Souvenir');
   end;
 

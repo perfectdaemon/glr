@@ -72,8 +72,8 @@ procedure TpdTahometer.Update(dt: Double);
 var
   newRot: Single;
 begin
-  newRot := ARROW_ROTATION_ZERO + (ARROW_ROTATION_MAX - ARROW_ROTATION_ZERO) * TahoValue;
-  Arrow.Rotation := Clamp(Lerp(Arrow.Rotation, newRot, 3 * dt), ARROW_ROTATION_MAX, ARROW_ROTATION_ZERO);
+  newRot := Clamp(ARROW_ROTATION_ZERO + (ARROW_ROTATION_MAX - ARROW_ROTATION_ZERO) * TahoValue, ARROW_ROTATION_MAX, ARROW_ROTATION_ZERO);
+  Arrow.Rotation := Lerp(Arrow.Rotation, newRot, 3 * dt);
 end;
 
 { TpdGearDisplay }

@@ -5,11 +5,11 @@
   + Редактирование ландшафта
 
     Камера
-      Таймаут смены направления
-      Прямое присвоение позиции при малом отклонении
+    + Таймаут смены направления
+    + Прямое присвоение позиции при малом отклонении
 
     Груз ?
-    Таймер доставки
+  + Таймер доставки
     Звуки
 
 }
@@ -92,7 +92,7 @@ begin
   R.OnMouseDown := OnMouseDown;
   R.OnMouseUp := OnMouseUp;
   R.Camera.ProjectionMode := pmOrtho;
-  R.WindowCaption := PWideChar('GoodLine Game Версия '
+  R.WindowCaption := PWideChar('2D Game '
     + GAMEVERSION + ' [glRenderer ' + R.VersionText + ']');
   Factory := glrGetObjectFactory();
 
@@ -109,11 +109,11 @@ begin
   gsManager.Add(mainMenu);
   gsManager.Add(game);
   gsManager.Add(gameOver);
-  {$IFDEF DEBUG}
-  gsManager.Notify(game, naSwitchTo);
-  {$ELSE}
+//  {$IFDEF DEBUG}
+//  gsManager.Notify(game, naSwitchTo);
+//  {$ELSE}
   gsManager.Notify(mainMenu, naSwitchTo);
-  {$ENDIF}
+//  {$ENDIF}
 
   R.Start();
 

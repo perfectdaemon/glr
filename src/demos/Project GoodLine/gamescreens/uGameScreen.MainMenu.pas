@@ -254,7 +254,7 @@ begin
       Text := '»гра';
       PivotPoint := ppTopLeft;
       Position2D := dfVec2f(BTN_TEXT_OFFSET_X, BTN_TEXT_OFFSET_Y);
-      Material.Diffuse := colorWhite;
+      Material.Diffuse := colorGray;
     end;
     TextureNormal := atlasMain.LoadTexture(BTN_NORMAL_TEXTURE);
     TextureOver := atlasMain.LoadTexture(BTN_OVER_TEXTURE);
@@ -275,7 +275,7 @@ begin
       Text := 'Ќастройки';
       PivotPoint := ppTopLeft;
       Position2D := dfVec2f(BTN_TEXT_OFFSET_X, BTN_TEXT_OFFSET_Y);
-      Material.Diffuse := colorWhite;
+      Material.Diffuse := colorGray;
     end;
 
     TextureNormal := atlasMain.LoadTexture(BTN_NORMAL_TEXTURE);
@@ -297,7 +297,7 @@ begin
       Text := '¬ыход';
       PivotPoint := ppTopLeft;
       Position2D := dfVec2f(BTN_TEXT_OFFSET_X, BTN_TEXT_OFFSET_Y);
-      Material.Diffuse := colorWhite;
+      Material.Diffuse := colorGray;
     end;
 
     TextureNormal := atlasMain.LoadTexture(BTN_NORMAL_TEXTURE);
@@ -403,7 +403,7 @@ begin
       Text := 'ѕрименить';
       PivotPoint := ppTopLeft;
       Position2D := dfVec2f(BTN_TEXT_OFFSET_X, BTN_TEXT_OFFSET_Y);
-      Material.Diffuse := colorWhite;
+      Material.Diffuse := colorGray;
     end;
 
     TextureNormal := atlasMain.LoadTexture(BTN_NORMAL_TEXTURE);
@@ -427,7 +427,7 @@ procedure TpdMainMenu.Load;
 begin
   inherited;
   //”станавливаем цвет фона при переключении окон
-  gl.ClearColor(0, 30 / 255, 60 / 250, 1.0);
+  gl.ClearColor(20 / 255, 60 / 255, 100 / 250, 1.0);
 //  gl.ClearColor(255/255, 125/255, 8/255, 1.0); //orange
 
   FMusicVol.Value := 30;
@@ -450,7 +450,7 @@ begin
   with FAboutText do
   begin
     Font := fontSouvenir;
-    Text := 'Ч perfect.daemon Ч'#13#10'   но€брь 2013';
+    Text := 'Ч perfect.daemon Ч'#13#10'   декабрь 2013';
     PivotPoint := ppBottomCenter;
     Position := dfVec3f(R.WindowWidth div 2, R.WindowHeight + ABOUT_OFFSET_Y, Z_MAINMENU);
   end;

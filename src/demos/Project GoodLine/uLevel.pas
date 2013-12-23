@@ -7,15 +7,30 @@ uses
   uTrigger;
 
 const
-  TEXT_LEVEL = 'Up, Down Ч ехать'#13#10'Space Ч ручной тормоз'#13#10'ƒовези до финиша как можно больше €щиков';
-  TEXT_LEVEL2 = 'M - режим трансмиссии'#13#10'A/Z Ч переключение передач в ручном режиме';
+  TIMER = 130;
+
+  TEXT_LEVEL = 'Left, Right Ч ехать или тормозить'#13#10 +
+    'Space Ч ручной тормоз (заднее колесо)'#13#10 +
+    'Tab Ч Ђ—броситьї машину у старта'#13#10#13#10 +
+
+    'ƒотолкай до финиша как можно больше €щиков'#13#10'за отведенное врем€';
+
+  TEXT_LEVEL2 = 'M Ч режим трансмиссии'#13#10 +
+    'A/Z Ч переключение передач в ручном режиме';
+
+  TEXT_LEVEL3 = 'ћожно сделать несколько заходов,'#13#10 +
+    'пока есть врем€.'#13#10 +
+    'Tab Ч Ђ—броситьї машину у старта';
 
 type
   TpdLevel = class
   private
     procedure OnBoxIn(Trigger: TpdTrigger; Catched: Tb2Fixture);
     procedure OnBoxOut(Trigger: TpdTrigger; Catched: Tb2Fixture);
+    procedure OnTimerEnter(Trigger: TpdTrigger; Catched: Tb2Fixture);
   public
+    IsTimerStarted, FirstTime: Boolean;
+    TimeLeft: Double;
     BoxesIn: Integer;
 
     b2EarthBlocks: array of Tb2Body;
@@ -24,9 +39,9 @@ type
     EarthRenderer: IglrUserRenderable;
     Points: array of TdfVec2f;
 
-    tBoxCounter: TpdTrigger;
+    tBoxCounter, tTimerStart: TpdTrigger;
 
-    ExplainText, ExplainText2: IglrText;
+    ExplainText, ExplainText2, ExplainText3, StartText: IglrText;
 
     constructor Create();
     destructor Destroy(); override;
@@ -37,18 +52,20 @@ type
     function GetLevelMax(): TdfVec2f;
     function GetLevelMin(): TdfVec2f;
 
+    //Editor features
     function GetPointIndexAt(aPos: TdfVec2f; aThreshold: TdfVec2f): Integer;
     procedure AddPoint(atPos: TdfVec2f; atIndex: Integer); overload;
     procedure AddPoint(atPos: TdfVec2f); overload;
-
     function GetDynBlocksIndexAt(aPos, aThreshold: TdfVec2f): Integer;
     procedure AddBlock(atPos: TdfVec2f);
+    procedure RemoveAllBlocks();
 
     procedure RebuildLevel();
 
     procedure Update(const dt: Double);
 
-    procedure RemoveAllBlocks();
+    procedure TimerStart();
+    procedure TimerEnd();
   end;
 
 implementation
@@ -66,7 +83,6 @@ begin
   gl.Disable(TGLConst.GL_LIGHTING);
   gl.Enable(TGLConst.GL_BLEND);
   gl.Beginp(TGLConst.GL_LINE_STRIP);
-    gl.LineWidth(5);
     with colorOrange do
       gl.Color4f(x, y, z, 1);
     for i := 0 to High(level.Points) do
@@ -129,7 +145,10 @@ begin
       AddPoint(atPos, i + 1);
       Exit();
     end;
-  AddPoint(atPos, High(Points) + 1);
+  if atPos.x > Points[High(Points)].x then
+    AddPoint(atPos, High(Points) + 1)
+  else
+    AddPoint(atPos, 0);
 end;
 
 constructor TpdLevel.Create;
@@ -141,13 +160,15 @@ begin
 
   ExplainText := Factory.NewText();
   ExplainText2 := Factory.NewText();
+  ExplainText3 := Factory.NewText();
+  StartText := Factory.NewText();
 
   with ExplainText do
   begin
     Font := fontSouvenir;
     Material.Diffuse := colorWhite;
     Text := TEXT_LEVEL;
-    Position := dfVec3f(400, 200, Z_BACKGROUND + 5);
+    Position := dfVec3f(400, 250, Z_BACKGROUND + 5);
   end;
 
   with ExplainText2 do
@@ -155,17 +176,43 @@ begin
     Font := fontSouvenir;
     Material.Diffuse := colorWhite;
     Text := TEXT_LEVEL2;
-    Position := dfVec3f(1200, 200, Z_BACKGROUND + 5);
+    Position := dfVec3f(1200, 250, Z_BACKGROUND + 5);
+  end;
+
+  with ExplainText3 do
+  begin
+    Font := fontSouvenir;
+    Material.Diffuse := colorWhite;
+    Text := TEXT_LEVEL3;
+    PivotPoint := ppCenter;
+    //Set position after load level
+    //Position := dfVec3f(1200, 250, Z_BACKGROUND + 5);
+  end;
+
+  with StartText do
+  begin
+    Font := fontSouvenir;
+    Material.Diffuse := colorWhite;
+    Text := '—тарт';
+    Position := dfVec3f(350, 540, Z_BACKGROUND + 5);
   end;
 
   mainScene.RootNode.AddChild(ExplainText);
   mainScene.RootNode.AddChild(ExplainText2);
+  mainScene.RootNode.AddChild(ExplainText3);
+  mainScene.RootNode.AddChild(StartText);
+
+  IsTimerStarted := False;
+  FirstTime := True;
 end;
 
 destructor TpdLevel.Destroy;
 begin
-//  mainScene.RootNode.RemoveChild(Earth);
   mainScene.RootNode.RemoveChild(EarthRenderer);
+  tBoxCounter.Free();
+  tTimerStart.Free();
+  b2world.DestroyBody(b2EarthBlocks[0]);
+  RemoveAllBlocks();
   inherited;
 end;
 
@@ -226,8 +273,14 @@ begin
     tBoxCounter.Visible := True;
     tBoxCounter.OnEnter := OnBoxIn;
     tBoxCounter.OnLeave := OnBoxOut;
+
+    tTimerStart := triggers.AddBoxTrigger(Points[6] - dfVec2f(0, 50), 10, 100, CAT_PLAYER, True);
+    tTimerStart.Visible := True;
+    tTimerStart.OnEnter := OnTimerEnter;
     for i := 0 to Count - 1 do
       AddBlock(dyn[i]);
+
+    ExplainText3.Position := dfVec3f(tBoxCounter.Sprite.Position2D + dfVec2f(0, -310), Z_BACKGROUND - 5);
   end;
 end;
 
@@ -239,6 +292,15 @@ end;
 procedure TpdLevel.OnBoxOut(Trigger: TpdTrigger; Catched: Tb2Fixture);
 begin
   Dec(BoxesIn);
+end;
+
+procedure TpdLevel.OnTimerEnter(Trigger: TpdTrigger; Catched: Tb2Fixture);
+begin
+  if FirstTime then
+  begin
+    TimerStart();
+    FirstTime := False;
+  end;
 end;
 
 procedure TpdLevel.RebuildLevel;
@@ -267,10 +329,11 @@ var
   i: Integer;
 begin
   for i := 0 to High(DynBlocks) do
-  begin
-    mainScene.RootNode.RemoveChild(DynBlocks[i]);
-    b2world.DestroyBody(b2DynBlocks[i]);
-  end;
+    if Assigned(b2DynBlocks[i]) then
+    begin
+      mainScene.RootNode.RemoveChild(DynBlocks[i]);
+      b2world.DestroyBody(b2DynBlocks[i]);
+    end;
   SetLength(DynBlocks, 0);
   SetLength(b2DynBlocks, 0);
 end;
@@ -292,16 +355,45 @@ begin
   BlockWrite(f, Count, SizeOf(Word));
   BlockWrite(f, Points[0], SizeOf(TdfVec2f) * Count);
   BlockWrite(f, DynCount, SizeOf(Word));
-//  BlockWrite(f, dyn[0], SizeOf(TdfVec2f) * DynCount);
+  BlockWrite(f, dyn[0], SizeOf(TdfVec2f) * DynCount);
   CloseFile(f);
+end;
+
+procedure TpdLevel.TimerEnd;
+begin
+  IsTimerStarted := False;
+  game.OnGameOver();
+end;
+
+procedure TpdLevel.TimerStart;
+begin
+  TimeLeft := TIMER;
+  IsTimerStarted := True;
 end;
 
 procedure TpdLevel.Update(const dt: Double);
 var
   i: Integer;
 begin
+  if IsTimerStarted then
+  begin
+    TimeLeft := TimeLeft - dt;
+    if TimeLeft <= 0 then
+      TimerEnd();
+  end;
+
   for i := 0 to High(DynBlocks) do
-    SyncObjects(b2DynBlocks[i], DynBlocks[i]);
+    if Assigned(b2DynBlocks[i]) then
+    begin
+      SyncObjects(b2DynBlocks[i], DynBlocks[i]);
+      if DynBlocks[i].Position.y > 1000 then
+      begin
+        b2world.DestroyBody(b2DynBlocks[i]);
+        b2DynBlocks[i] := nil;
+        mainScene.RootNode.RemoveChild(DynBlocks[i]);
+      end;
+    end;
+
 end;
 
 end.

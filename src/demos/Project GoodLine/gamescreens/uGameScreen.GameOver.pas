@@ -36,7 +36,7 @@ type
     procedure FadeInComplete();
     procedure FadeOutComplete();
   public
-    Scores: Integer;
+    BoxesIn, BoxesAll: Integer;
 
     constructor Create(); override;
     destructor Destroy; override;
@@ -187,10 +187,10 @@ begin
     with TextObject do
     begin
       Font := fontSouvenir;
-      Text := 'Играть снова!';
+      Text := 'Еще раз!';
       PivotPoint := ppTopLeft;
       Position2D := dfVec2f(BTN_TEXT_OFFSET_X, BTN_TEXT_OFFSET_Y);
-      Material.Diffuse := colorWhite;
+      Material.Diffuse := colorGray;
     end;
 
     TextureNormal := atlasMain.LoadTexture(BTN_NORMAL_TEXTURE);
@@ -211,10 +211,10 @@ begin
     with TextObject do
     begin
       Font := fontSouvenir;
-      Text := 'Меню';
+      Text := 'В меню';
       PivotPoint := ppTopLeft;
       Position2D := dfVec2f(BTN_TEXT_OFFSET_X, BTN_TEXT_OFFSET_Y);
-      Material.Diffuse := colorWhite;
+      Material.Diffuse := colorGray;
     end;
 
     TextureNormal := atlasMain.LoadTexture(BTN_NORMAL_TEXTURE);
@@ -253,7 +253,7 @@ begin
   inherited;
   R.RegisterScene(FScene);
 
-  FGameOverText.Text := 'Увы, для следующей фигуры нет места...'#13#10'Очки: ' + IntToStr(Scores);
+  FGameOverText.Text := 'Вы доставили ' + IntToStr(BoxesIn) + ' ящиков из ' + IntToStr(BoxesAll);
 end;
 
 procedure TpdGameOver.SetGameScreenLinks(aMainMenu, aGame: TpdGameScreen);
