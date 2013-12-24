@@ -596,7 +596,7 @@ begin
   if Assigned(b2world) then
     b2world.Free();
 
-  b2world := Tglrb2World.Create(TVector2.From(0, 10), True, 1 / 60, 8);
+  b2world := Tglrb2World.Create(TVector2.From(0, 10), True, 1 / 60, 24);
 
   triggers := TpdTriggerFactory.Create();
 end;
