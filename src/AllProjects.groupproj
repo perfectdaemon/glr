@@ -33,9 +33,6 @@
 			<Projects Include="demos\Project GoodLine\Race2D.dproj">
 				<Dependencies/>
 			</Projects>
-			<Projects Include="demos\Project Technological\technological.dproj">
-				<Dependencies/>
-			</Projects>
 		</ItemGroup>
 		<ProjectExtensions>
 			<Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -134,23 +131,14 @@
 		<Target Name="Race2D:Make">
 			<MSBuild Targets="Make" Projects="demos\Project GoodLine\Race2D.dproj"/>
 		</Target>
-		<Target Name="technological">
-			<MSBuild Projects="demos\Project Technological\technological.dproj"/>
-		</Target>
-		<Target Name="technological:Clean">
-			<MSBuild Targets="Clean" Projects="demos\Project Technological\technological.dproj"/>
-		</Target>
-		<Target Name="technological:Make">
-			<MSBuild Targets="Make" Projects="demos\Project Technological\technological.dproj"/>
-		</Target>
 		<Target Name="Build">
-			<CallTarget Targets="glRenderer;Checker1;Checker2;Checker5_GUI;Checker6;survive;RagdollSport;RagdollFighting;multitetris;Race2D;technological"/>
+			<CallTarget Targets="glRenderer;Checker1;Checker2;Checker5_GUI;Checker6;survive;RagdollSport;RagdollFighting;multitetris;Race2D"/>
 		</Target>
 		<Target Name="Clean">
-			<CallTarget Targets="glRenderer:Clean;Checker1:Clean;Checker2:Clean;Checker5_GUI:Clean;Checker6:Clean;survive:Clean;RagdollSport:Clean;RagdollFighting:Clean;multitetris:Clean;Race2D:Clean;technological:Clean"/>
+			<CallTarget Targets="glRenderer:Clean;Checker1:Clean;Checker2:Clean;Checker5_GUI:Clean;Checker6:Clean;survive:Clean;RagdollSport:Clean;RagdollFighting:Clean;multitetris:Clean;Race2D:Clean"/>
 		</Target>
 		<Target Name="Make">
-			<CallTarget Targets="glRenderer:Make;Checker1:Make;Checker2:Make;Checker5_GUI:Make;Checker6:Make;survive:Make;RagdollSport:Make;RagdollFighting:Make;multitetris:Make;Race2D:Make;technological:Make"/>
+			<CallTarget Targets="glRenderer:Make;Checker1:Make;Checker2:Make;Checker5_GUI:Make;Checker6:Make;survive:Make;RagdollSport:Make;RagdollFighting:Make;multitetris:Make;Race2D:Make"/>
 		</Target>
 		<Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 	</Project>
