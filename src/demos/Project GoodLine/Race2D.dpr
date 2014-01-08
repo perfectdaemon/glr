@@ -109,11 +109,11 @@ begin
   gsManager.Add(mainMenu);
   gsManager.Add(game);
   gsManager.Add(gameOver);
-//  {$IFDEF DEBUG}
-//  gsManager.Notify(game, naSwitchTo);
-//  {$ELSE}
+  {$IFDEF DEBUG}
+  gsManager.Notify(game, naSwitchTo);
+  {$ELSE}
   gsManager.Notify(mainMenu, naSwitchTo);
-//  {$ENDIF}
+  {$ENDIF}
 
   R.Start();
 

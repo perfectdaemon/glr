@@ -298,18 +298,21 @@ begin
     position := ConvertGLToB2(aSprite.Position2D * C_COEF);
   end;
 
-  SetLength(vertices, 5);
+  SetLength(vertices, 8);
   with aSprite do
   begin
-    vertices[0] := TVector2.From(-0.5 * Width, - 0.5 * Height) * C_COEF;
-    vertices[1] := TVector2.From(-0.5 * Width,   0.5 * Height) * C_COEF;
-    vertices[2] := TVector2.From( 0.5 * Width,   0.5 * Height) * C_COEF;
-    vertices[3] := TVector2.From( 0, 0);
-    vertices[4] := vertices[0];
+    vertices[0] := TVector2.From(-0.5 * Width, -0.5  * Height) * C_COEF;
+    vertices[1] := TVector2.From(-0.5 * Width,  0.5  * Height) * C_COEF;
+    vertices[2] := TVector2.From( 0.5 * Width,  0.5  * Height) * C_COEF;
+    vertices[3] := TVector2.From( 0.5 * Width,  0.45 * Height) * C_COEF;
+    vertices[4] := TVector2.From(-0.2 * Width,  0.1  * Height) * C_COEF;
+    vertices[5] := TVector2.From(-0.4 * Width, -  1  * Height) * C_COEF;
+    vertices[6] := TVector2.From(-0.2 * Width, -1.5  * Height) * C_COEF;
+    vertices[7] := vertices[0];
   end;
   with ShapeDef do
   begin
-    SetVertices(@vertices[0], 5);
+    SetVertices(@vertices[0], 8);
   end;
 
   with FixtureDef do

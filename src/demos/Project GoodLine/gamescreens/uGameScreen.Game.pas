@@ -382,7 +382,9 @@ begin
   if FLoaded then
     Exit();
 
+  {$IFNDEF DEBUG}
   sound.PlayMusic(musicIngame);
+  {$ENDIF}
 
   FPause := False;
 
