@@ -2,9 +2,7 @@ glr — glrenderer
 ===
 
 glrenderer — Delphi 2D game development framework (OpenGL, Bass, Box2D) for Windows platform.
-
 **Status: frozen due to author's PL preferences changed**
-
 Delphi 2007 or higher is supported. 
 Delphi 7 **is not** supported due to operator overloading used in Math unit.
 
