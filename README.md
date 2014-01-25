@@ -14,11 +14,11 @@ Delphi 2007 or higher is supported. Delphi 7 **is not** supported due to operato
 * DLL, export interfaces
 
 **Graphics 2D**
+* Scene graph
 * Sprites (position, scale, rotation, textures, color tint)
 * Blending
-* Scene-based "parent-child" renderer
 * Bitmap fonts with runtime generation from .otf and .ttf files
-* Pivot point change for sprites and texts
+* Pivot points support including custom position
 * Texture atlas support
 * BMP 24/32, TGA 24/32 support (no PNG, sorry)
 
@@ -26,7 +26,7 @@ Delphi 2007 or higher is supported. Delphi 7 **is not** supported due to operato
 * Almost removed
 
 **GUI**
-* Selfmade simple GUI-system
+* Selfmade simple GUI-system with:
 * Buttons and TextButtons
 * Checkboxes
 * Sliders
@@ -51,3 +51,4 @@ Delphi 2007 or higher is supported. Delphi 7 **is not** supported due to operato
 * No documentation and lack of comments in source code
 * Bitmap font generation uses fixed texture size due to laziness
 * Text has not alignment support
+* Particles was under development
