@@ -5,13 +5,19 @@ glrenderer — Delphi 2D game development framework (OpenGL, Bass, Box2D) for Wi
 
 **Status: frozen due to author's PL preferences changed**
 
+###Showcase###
+[screenshots will be soon]
+All screenshots made from demos which are provided with full source code and assets
+
 Delphi 2007 or higher is supported. Delphi 7 **is not** supported due to operator overloading used in Math unit.
 
 ###Features###
 
-**Main**
-* No VCL, win32 api
-* DLL, export interfaces
+**Main + and -**
+* No VCL, win32 api — Windows only
+* DLL with interfaces exported
+* OpenGL 1.1+, fixed function pipeline (yes, glBegin/glEnd. It's all about my laziness)
+* Lightweight
 
 **Graphics 2D**
 * Scene graph
@@ -51,4 +57,4 @@ Delphi 2007 or higher is supported. Delphi 7 **is not** supported due to operato
 * No documentation and lack of comments in source code
 * Bitmap font generation uses fixed texture size due to laziness
 * Text has not alignment support
-* Particles was under development
+* Particles were under development and located in utils module apart from engine library (in theory it's mean performance troubles, in practice you will have no real troubles with it)
