@@ -1,0 +1,12 @@
+textures: atlas.tga
+btn_normal.png	0	0	221	40	0	0	221	40	
+btn_click.png	0	41	221	40	0	0	221	40	
+btn_over.png	0	82	221	40	0	0	221	40	
+shovel.png	0	123	51	36	0	0	51	36	
+block.png	52	123	96	32	0	0	96	32	
+cube.png	222	0	32	32	0	0	32	32	
+circle.png	222	33	32	32	0	0	32	32	
+slider_btn.png	222	66	15	24	0	0	15	24	
+particle.png	222	91	24	23	0	0	24	23	
+slider_back.png	0	160	225	15	0	0	225	15	
+slider_over.png	0	176	224	14	0	0	224	14	
