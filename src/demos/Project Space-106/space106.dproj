@@ -53,6 +53,9 @@
 			<DCCReference Include="..\..\headers\glrUtils.pas"/>
 			<DCCReference Include="..\..\headers\ogl.pas"/>
 			<DCCReference Include="uGlobal.pas"/>
+			<DCCReference Include="uShip.pas"/>
+			<DCCReference Include="uPause.pas"/>
+			<DCCReference Include="uSpace.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

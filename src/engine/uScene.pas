@@ -84,7 +84,7 @@ begin
       gl.Ortho(X, W, H, Y, FNear, FFar);
     gl.MatrixMode(GL_MODELVIEW);
     gl.PushMatrix();
-      gl.LoadIdentity();
+      //gl.LoadIdentity();
       FRoot.Render();
     gl.PopMatrix();
   gl.MatrixMode(GL_PROJECTION);

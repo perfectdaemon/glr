@@ -438,7 +438,7 @@ type
     {$ENDREGION}
     procedure Viewport(x, y, w, h: Integer; FOV, ZNear, ZFar: Single);
     procedure ViewportOnly(x, y, w, h: Integer);
-    procedure Pan(X, Y: Single);
+    procedure Translate(alongUpVector, alongRightVector: Single);
     procedure Scale(aScale: Single);
     procedure Rotate(delta: Single; Axis: TdfVec3f);
     procedure SetCamera(Pos, TargetPos, Up: TdfVec3f);

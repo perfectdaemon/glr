@@ -60,7 +60,8 @@ type
     function Normal: TdfVec2f;
     function Dist(const v: TdfVec2f): Single;
     function Lerp(const v: TdfVec2f; t: Single): TdfVec2f;
-    function Clamp(const Min, Max: TdfVec2f): TdfVec2f;
+    function Clamp(const Min, Max: TdfVec2f): TdfVec2f; overload;
+    function Clamp(const Min, Max: Single): TdfVec2f; overload;
     function Rotate(Angle: Single): TdfVec2f;
     function Angle(const v: TdfVec2f): Single;
     function NegateVector(): TdfVec2f;
@@ -208,6 +209,7 @@ function Clamp(x, Min, Max: Single): Single; overload; inline;
 function Pow(x, y: Single): Single;
 
 function Lerp(aFrom, aTo, aT: Single): Single;
+function LerpAngles(aFrom, aTo, t: Single): Single;
 
 function Hsv2Rgb(hsv: TdfVec3f): TdfVec3f;
 function Hsva2Rgba(hsva: TdfVec4f): TdfVec4f;
@@ -356,6 +358,39 @@ end;
 function Lerp(aFrom, aTo, aT: Single): Single;
 begin
   Result := aFrom + (aTo - aFrom) * aT;
+end;
+
+
+function LerpAngles(aFrom, aTo, t: Single): Single;
+begin
+    // Ensure that 0 <= angle < 2pi for both "from" and "to"
+  while (aFrom < 0) do
+    aFrom := aFrom + twopi * rad2deg;
+  while (aFrom >= twopi * rad2deg) do
+    aFrom := aFrom - twopi * rad2deg;
+
+  while (aTo < 0) do
+    aTo := aTo + twopi * rad2deg;
+  while (aTo >= twopi * rad2deg) do
+    aTo := aTo - twopi * rad2deg;
+
+  if (Abs(aFrom - aTo) < pi * rad2deg) then
+  begin
+    Exit(Lerp(aFrom, aTo, t));
+  end;
+
+  // If we get here we have the more complex case.
+  // First, increment the lesser value to be greater.
+  if (aFrom < aTo) then
+    aFrom := aFrom + twopi * rad2deg
+  else
+    aTo := aTo + twopi * rad2deg;
+
+  Result := Lerp(aFrom, aTo, t);
+
+  // Now ensure the return value is between 0 and 2pi
+  if (Result >= twopi * rad2deg) then
+    Result := Result - twopi * rad2deg;
 end;
 
 {Hue: 0-360, Sat: 0-100, Value: 0-100}
@@ -552,6 +587,16 @@ end;
 function TdfVec2f.Clamp(const Min, Max: TdfVec2f): TdfVec2f;
 begin
   Result := dfVec2f(glrMath.Clamp(x, Min.x, Max.x), glrMath.Clamp(y, Min.y, Max.y));
+end;
+
+function TdfVec2f.Clamp(const Min, Max: Single): TdfVec2f;
+begin
+  if LengthQ < Sqr(Min) then
+    Result := Self.Normal * Min
+  else if LengthQ > Sqr(Max) then
+    Result := Self.Normal * Max
+  else
+    Result := Self;
 end;
 
 function TdfVec2f.Rotate(Angle: Single): TdfVec2f;
