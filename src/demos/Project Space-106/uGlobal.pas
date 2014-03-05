@@ -3,9 +3,9 @@ unit uGlobal;
 interface
 
 uses
-  SysUtils,
+  SysUtils, Contnrs,
   glr, glrMath, glrUtils, glrSound,
-  uShip, uPause, uSpace;
+  uShip, uPause, uSpace, uProjectiles;
 
 const
   GAMEVERSION = '0.01';
@@ -35,6 +35,7 @@ const
   PARTICLE_TEXTURE  = 'particle.png';
   SHIP_TEXTURE = 'player.png';
   FLAME_TEXTURE = 'flame.png';
+  ROCKET_TEXTURE = 'rocket.png';
 
   BTN_TEXT_OFFSET_X = -50;
   BTN_TEXT_OFFSET_Y = -15;
@@ -49,11 +50,18 @@ var
 
   //Game objects
   player: TpdPlayer;
+  playerOffset: TdfVec3f;
   space: TpdSpace;
+
+  ships: TObjectList;
 
   //Game systems
   sound: TpdSoundSystem;
   pauseMenu: TpdPauseMenu;
+  projectiles: TpdProjectilesAccum;
+  projectilesDummy: IglrNode;
+
+  UseNewtonDynamics: Boolean = True;
 
   //Sound & music
   musicIngame, musicMenu: LongWord;
@@ -81,6 +89,8 @@ var
   scolorBlue:  TdfVec4f = (x: 74/255; y: 151/255;  z: 215/255; w: 1.0);
   scolorRed:   TdfVec4f = (x: 215/255; y: 109/255;  z: 74/255; w: 1.0);
 
+  turretsPositions: array[0..2] of TdfVec2f = ((x: 100; y: 100), (x: 800; y: 200), (x: 600; y: 500));
+
 procedure InitializeGlobal();
 procedure FinalizeGlobal();
 
@@ -92,6 +102,13 @@ implementation
 
 procedure InitializeGlobal();
 begin
+  playerOffset := dfVec3f(R.WindowWidth div 2, R.WindowHeight div 2, Z_PLAYER);
+
+  ships := TObjectList.Create(True);
+
+  projectilesDummy := Factory.NewNode();
+  projectiles := TpdProjectilesAccum.Create(128);
+
   atlasMain := TglrAtlas.InitCheetahAtlas(FILE_MAIN_TEXTURE_ATLAS);
 
   //--Font
@@ -111,6 +128,7 @@ begin
 
   mainScene := Factory.New2DScene();
   hudScene := Factory.New2DScene();
+  hudScene.IsCameraIndependent := True;
   R.RegisterScene(mainScene);
   R.RegisterScene(hudScene);
 
@@ -119,6 +137,9 @@ end;
 
 procedure FinalizeGlobal();
 begin
+  projectiles.Free();
+  projectilesDummy := nil;
+  ships.Free();
   sound.Free();
   atlasMain.Free();
   pauseMenu.Free();
@@ -129,22 +150,38 @@ begin
 end;
 
 procedure GameStart();
+var
+  i: Integer;
+  turret: TpdEnemyTurret;
 begin
-  if Assigned(player) then
-    FreeAndNil(player);
+  ships.Clear();
+  //if Assigned(player) then
+  //  FreeAndNil(player);
   if Assigned(space) then
     FreeAndNil(space);
   mainScene.RootNode.RemoveAllChilds();
 
   player := TpdPlayer.Create();
-  player.Body.Position2D := dfVec2f(R.WindowWidth div 2, R.WindowHeight div 2);
+  ships.Add(player);
+  player.Body.Position := playerOffset;
 
   space := TpdSpace.Create(3);
+
+  mainScene.RootNode.AddChild(projectilesDummy);
+
+  for i := 0 to Length(turretsPositions) - 1 do
+  begin
+    turret := TpdEnemyTurret.Create();
+    turret.Body.Position2D := turretsPositions[i];
+    ships.Add(turret);
+  end;
 end;
 
 procedure GameEnd();
 begin
-  FreeAndNil(player);
+  ships.Clear();
+  projectiles.Clear();
+  //FreeAndNil(player);
   FreeAndNil(space);
 end;
 

@@ -12,7 +12,9 @@ uses
   uGlobal in 'uGlobal.pas',
   uShip in 'uShip.pas',
   uPause in 'uPause.pas',
-  uSpace in 'uSpace.pas';
+  uSpace in 'uSpace.pas',
+  uProjectiles in 'uProjectiles.pas',
+  uAccum in 'uAccum.pas';
 
 var
   bigPause, pause: Boolean;
@@ -20,10 +22,12 @@ var
 
   procedure CameraUpdate(const dt: Double);
   begin
-    //mainScene.RootNode.Position := player.Body.Position - dfVec3f(R.WindowWidth div 2, R.WindowHeight div 2, 0);
+    R.Camera.Position := player.Body.Position - playerOffset;
   end;
 
   procedure OnUpdate(const dt: Double);
+var
+  i: Integer;
   begin
     if R.Input.IsKeyPressed(VK_ESCAPE) then
     begin
@@ -36,30 +40,25 @@ var
 
     if not bigPause then
     begin
+      mousePosAtScene := mousePos + dfVec2f(R.Camera.Position);
       Tweener.Update(dt);
 
       if not pause then
       begin
         //Main code here
-        player.Update(dt);
+        for i := 0 to ships.Count - 1 do
+          TpdShip(ships[i]).Update(dt);
         pauseMenu.Update(dt);
-        debug.Text := FloatToStr(R.Camera.Position.x) + ':' + FloatToStr(R.Camera.Position.y);
         space.Update(dt);
-
         CameraUpdate(dt);
+        projectiles.Update(dt);
 
-        if R.Input.IsKeyDown(VK_LEFT) then
-          R.Camera.Translate(0, 200 * dt)
-          //mainScene.RootNode.PPosition.x := mainScene.RootNode.PPosition.x + 200 * dt
-        else if R.Input.IsKeyDown(VK_RIGHT) then
-          R.Camera.Translate(0, -200 * dt);
-          //mainScene.RootNode.PPosition.x := mainScene.RootNode.PPosition.x - 200 * dt;
-        if R.Input.IsKeyDown(VK_UP) then
-          R.Camera.Translate(200 * dt, 0)
-          //mainScene.RootNode.PPosition.y := mainScene.RootNode.PPosition.y + 200 * dt
-        else if R.Input.IsKeyDown(VK_DOWN) then
-          R.Camera.Translate(-200 * dt, 0);
-          //mainScene.RootNode.PPosition.y := mainScene.RootNode.PPosition.y - 200 * dt;
+        if R.Input.IsKeyPressed(VK_N) then
+        begin
+          UseNewtonDynamics := not UseNewtonDynamics;
+          debug.Text := 'Ньютоновская физика: ' + BoolToStr(UseNewtonDynamics, True);
+        end;
+
       end;
     end;
   end;
@@ -67,13 +66,15 @@ var
   procedure OnMouseMove(X, Y: Integer; Shift: TglrMouseShiftState);
   begin
     mousePos := dfVec2f(X, Y);
-    mousePosAtScene := mousePos - dfVec2f(mainScene.RootNode.Position);
   end;
 
   procedure OnMouseDown(X, Y: Integer; MouseButton: TglrMouseButton;
     Shift: TglrMouseShiftState);
   begin
-
+    if MouseButton = TglrMouseButton.mbLeft then
+      player.FireBlaster()
+    else if MouseButton = TglrMouseButton.mbRight then
+      player.FireLaserBeam();
   end;
 
   procedure OnMouseUp(X, Y: Integer; MouseButton: TglrMouseButton;
@@ -94,7 +95,7 @@ begin
   R.OnMouseDown := OnMouseDown;
   R.OnMouseUp := OnMouseUp;
   R.Camera.ProjectionMode := pmOrtho;
-  R.WindowCaption := PWideChar('Космосим для конкурса igdc#106 '
+  R.WindowCaption := PWideChar('Космосим для конкурса igdc#106. Версия '
     + GAMEVERSION + ' [glRenderer ' + R.VersionText + ']');
   Factory := glrGetObjectFactory();
 

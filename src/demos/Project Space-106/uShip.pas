@@ -6,8 +6,11 @@ uses
   glr, glrMath;
 
 const
-  VELOCITY_MAX = 1000;
-  ACCEL = 400;
+  VELOCITY_MAX = 400;
+  ACCEL = 300;
+
+  NOT_NEWTON_SPEED_FADE = 0.5;
+  HANDBRAKE_SPEED_FADE = 1.0;
 
 type
   TpdShip = class
@@ -15,7 +18,9 @@ type
     procedure Control(const dt: Double); virtual; abstract;
   public
     Enabled: Boolean;
+    FixedPosition: Boolean;
     Body, Flame: IglrSprite;
+    Direction, Left: TdfVec2f;
 
     Velocity: TdfVec2f;
 
@@ -23,6 +28,9 @@ type
     destructor Destroy(); override;
 
     procedure Update(const dt: Double); virtual;
+
+    procedure FireBlaster();
+    procedure FireLaserBeam();
   end;
 
 
@@ -33,9 +41,18 @@ type
     constructor Create(); override;
   end;
 
+  TpdEnemyTurret = class (TpdShip)
+  protected
+    procedure Control(const dt: Double); override;
+  public
+    constructor Create(); override;
+  end;
+
 implementation
 
 uses
+  Windows,
+  uProjectiles,
   uGlobal;
 
 { TpdShip }
@@ -44,6 +61,7 @@ constructor TpdShip.Create;
 begin
   inherited;
   Enabled := True;
+  FixedPosition := False;
   Body := Factory.NewSprite();
   Flame := Factory.NewSprite();
 
@@ -54,7 +72,7 @@ begin
     Material.Diffuse := scolorWhite;
     UpdateTexCoords();
     SetSizeToTextureSize();
-    Position := dfVec3f(0, 0, Z_PLAYER);
+    Position := dfVec3f(0, 0, 0);
     AddChild(Flame);
   end;
 
@@ -65,7 +83,7 @@ begin
     Material.Diffuse := scolorWhite;
     UpdateTexCoords();
     SetSizeToTextureSize();
-    Position := dfVec3f(0, 45, Z_PLAYER - 1);
+    Position := dfVec3f(0, 45, -1);
 
     Visible := False;
   end;
@@ -79,33 +97,91 @@ begin
   inherited;
 end;
 
+procedure TpdShip.FireBlaster;
+begin
+  with projectiles.GetItem() do
+  begin
+    SetType(ptLaserBullet);
+    InitialPosition := Body.Position2D;
+    Sprite.Position2D := InitialPosition;
+    Velocity := Direction * LASER_BULLET_VELOCITY_MAGNITUDE;
+    Sprite.Rotation := Direction.GetRotationAngle();
+  end;
+end;
+
+procedure TpdShip.FireLaserBeam;
+begin
+  with projectiles.GetItem() do
+  begin
+    SetType(ptLaserBeam);
+    InitialPosition := Body.Position2D;
+    Sprite.Position2D := InitialPosition;
+//    Velocity := Direction * LASER_BULLET_VELOCITY_MAGNITUDE;
+    Sprite.Rotation := Direction.GetRotationAngle();
+  end;
+end;
+
 procedure TpdShip.Update(const dt: Double);
 begin
-  if Enabled then
-    Control(dt);
+  if not Enabled then
+    Exit();
+
+  Control(dt);
+
+  Direction := dfVec2f(Body.Rotation - 90);
+  Left := dfVec2f(Direction.y, -Direction.x);
+
+  if not FixedPosition then
+  begin
+    Velocity := Velocity.Clamp(0, VELOCITY_MAX);
+    Body.Position2D := Body.Position2D + Velocity * dt;
+  end;
 end;
 
 { TpdPlayer }
 
 procedure TpdPlayer.Control(const dt: Double);
 begin
-  Body.Rotation := LerpAngles(Body.Rotation, (uGlobal.mousePosAtScene - Body.Position2D).GetRotationAngle(), 0.1);
+  Body.Rotation := LerpAngles(Body.Rotation, (uGlobal.mousePosAtScene - Body.Position2D).GetRotationAngle(), dt * 10);
 
   if R.Input.IsKeyDown(VK_W) then
-    Velocity := Velocity + dfVec2f(Body.Rotation - 90) * dt * ACCEL;
+    Velocity := Velocity + Direction * dt * ACCEL
+  else if R.Input.IsKeyDown(VK_S) then
+    Velocity := Velocity - Direction * dt * ACCEL;
+  if R.Input.IsKeyDown(VK_D) then
+    Velocity := Velocity - Left * dt * ACCEL
+  else if R.Input.IsKeyDown(VK_A) then
+    Velocity := Velocity + Left * dt * ACCEL;
+
+  if R.Input.IsKeyDown(VK_SPACE) then
+    Velocity := Velocity * (1 - HANDBRAKE_SPEED_FADE * dt);
 
   with R.Input do
     Flame.Visible := IsKeyDown(VK_W) or IsKeyDown(VK_S) or IsKeyDown(VK_D) or IsKeyDown(VK_A);
 
-  Velocity := Velocity.Clamp(0, VELOCITY_MAX);
-
-  Body.Position2D := Body.Position2D + Velocity * dt;
+  if not UseNewtonDynamics and not Flame.Visible then
+    Velocity := Velocity * (1 - NOT_NEWTON_SPEED_FADE * dt);
 end;
 
 constructor TpdPlayer.Create;
 begin
   inherited;
   Body.Material.Diffuse := scolorBlue;
+end;
+
+{ TpdEnemyTurret }
+
+procedure TpdEnemyTurret.Control(const dt: Double);
+begin
+  Body.Rotation := LerpAngles(Body.Rotation, (uGlobal.player.Body.Position2D - Body.Position2D).GetRotationAngle(), dt * 1);
+end;
+
+constructor TpdEnemyTurret.Create;
+begin
+  inherited;
+  FixedPosition := True;
+  Body.Material.Diffuse := scolorRed;
+  Body.PPosition.z := Z_ENEMY;
 end;
 
 end.

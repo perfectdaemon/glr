@@ -29,25 +29,31 @@ uses
 
 { TpdSpace }
 
+var
+  p: TdfVec2f;
+
 procedure Render(); stdcall;
 var
   i: Integer;
 begin
-  gl.Disable(GL_DEPTH_TEST);
+  //gl.Disable(GL_DEPTH_TEST);
   gl.Disable(GL_LIGHTING);
+  gl.Enable(GL_BLEND);
   gl.PointSize(1);
 
   gl.Beginp(GL_POINTS);
     with space do
       for i := 0 to High(FStars) do
       begin
+        p := dfVec2f(FStars[i].initial - FStars[i].initial.z * (R.Camera.Position));
         gl.Color4fv(FStars[i].color);
-        gl.Vertex2fv(dfVec2f(FStars[i].initial - FStars[i].initial.z * (R.Camera.Position)));
+        gl.Vertex3fv(dfVec3f(p, Z_BACKGROUND + 1));
       end;
   gl.Endp();
 
   gl.Enable(GL_LIGHTING);
-  gl.Enable(GL_DEPTH_TEST);
+  gl.Disable(GL_BLEND);
+  //gl.Enable(GL_DEPTH_TEST);
 end;
 
 constructor TpdSpace.Create(const aLayerCount: Integer);
@@ -64,7 +70,14 @@ begin
   begin
     z := ((i + 1) div STARS_PER_LAYER) / aLayerCount;
     FStars[i].initial := dfVec3f(Random(R.WindowWidth), Random(R.WindowHeight), z);
-    FStars[i].color := scolorBlue;
+    z := Random();
+    if z < 0.3 then
+      FStars[i].color := scolorBlue
+    else if z < 0.6 then         
+      FStars[i].color := scolorRed
+    else
+      FStars[i].color := scolorWhite;
+    FStars[i].color.w := FStars[i].initial.z + 0.2;
   end;
 
   hudScene.RootNode.AddChild(FRenderer);
