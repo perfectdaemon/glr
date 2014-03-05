@@ -404,12 +404,16 @@ type
     {$REGION '[private]'}
     function GetNear(): Single;
     function GetFar(): Single;
+    function GetCamInd(): Boolean;
     procedure SetNear(const aNear: Single);
     procedure SetFar(const aFar: Single);
+    procedure SetCamInd(const aValue: Boolean);
     {$ENDREGION}
     procedure SortFarthestFirst();
     property ZNear: Single read GetNear write SetNear;
     property ZFar: Single read GetFar write SetFar;
+
+    property IsCameraIndependent: Boolean read GetCamInd write SetCamInd;
   end;
 
   { Iglr3DScene - идентифицирует игровую сцену, иерархию рендер-узлов с привязанными
