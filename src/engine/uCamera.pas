@@ -106,6 +106,7 @@ begin
   v := Up * alongUpVector;
   v := v + (Right * alongRightVector);
   FModelMatrix.Translate(v);
+  FPos := FModelMatrix.Pos.NegateVector;
 end;
 
 procedure TglrCamera.Scale(aScale: Single);
@@ -115,8 +116,8 @@ end;
 
 procedure TglrCamera.Update();
 begin
-//  gl.MatrixMode(GL_PROJECTION);
-//  gl.LoadMatrixf(FProjMatrix);
+  FModelMatrix.Pos := dfVec3f(0, 0, 0);
+  FModelMatrix.Pos := FModelMatrix * FPos.NegateVector;
   gl.MatrixMode(GL_MODELVIEW);
   gl.LoadMatrixf(FModelMatrix);
 end;
@@ -125,28 +126,6 @@ procedure TglrCamera.Rotate(delta: Single; Axis: TdfVec3f);
 begin
   FModelMatrix.Rotate(Delta, Axis);
 end;
-{
-function CreateLookAtMatrix(const eye, center, normUp: TVector): TMatrix;
-var
-  XAxis, YAxis, ZAxis, negEye: TVector;
-begin
-  ZAxis := VectorSubtract(center, eye);
-  NormalizeVector(ZAxis);
-  XAxis := VectorCrossProduct(ZAxis, normUp);
-  NormalizeVector(XAxis);
-  YAxis := VectorCrossProduct(XAxis, ZAxis);
-  Result.V[0] := XAxis;
-  Result.V[1] := YAxis;
-  Result.V[2] := ZAxis;
-  NegateVector(Result.V[2]);
-  Result.V[3] := NullHmgPoint;
-  TransposeMatrix(Result);
-  negEye := eye;
-  NegateVector(negEye);
-  negEye.V[3] := 1;
-  negEye := VectorTransform(negEye, Result);
-  Result.V[3] := negEye;
-end;                 }
 
 procedure TglrCamera.SetCamera(aPos, aTargetPos, aUp: TdfVec3f);
 var

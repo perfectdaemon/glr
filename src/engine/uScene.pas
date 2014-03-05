@@ -31,10 +31,13 @@ type
   protected
     vp: TglrViewportParams;
     FNear, FFar: Single;
+    FIsCameraIndependent: Boolean;
     function GetNear(): Single;
     function GetFar(): Single;
+    function GetCamInd(): Boolean;
     procedure SetNear(const aNear: Single);
     procedure SetFar(const aFar: Single);
+    procedure SetCamInd(const aValue: Boolean);
   public
     procedure SortFarthestFirst();
     procedure Render(); override;
@@ -60,6 +63,12 @@ begin
   inherited;
   FNear := -1000;
   FFar := 1000;
+  FIsCameraIndependent := False;
+end;
+
+function Tglr2DScene.GetCamInd: Boolean;
+begin
+  Result := FIsCameraIndependent;
 end;
 
 function Tglr2DScene.GetFar: Single;
@@ -84,12 +93,18 @@ begin
       gl.Ortho(X, W, H, Y, FNear, FFar);
     gl.MatrixMode(GL_MODELVIEW);
     gl.PushMatrix();
-      //gl.LoadIdentity();
+      if FIsCameraIndependent then
+        gl.LoadIdentity();
       FRoot.Render();
     gl.PopMatrix();
   gl.MatrixMode(GL_PROJECTION);
   gl.PopMatrix();
   gl.MatrixMode(GL_MODELVIEW);
+end;
+
+procedure Tglr2DScene.SetCamInd(const aValue: Boolean);
+begin
+  FIsCameraIndependent := aValue;
 end;
 
 procedure Tglr2DScene.SetFar(const aFar: Single);
