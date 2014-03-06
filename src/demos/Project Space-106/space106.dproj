@@ -58,6 +58,8 @@
 			<DCCReference Include="uSpace.pas"/>
 			<DCCReference Include="uProjectiles.pas"/>
 			<DCCReference Include="uAccum.pas"/>
+			<DCCReference Include="uHud.pas"/>
+			<DCCReference Include="uParticles.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

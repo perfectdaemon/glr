@@ -5,7 +5,7 @@ interface
 uses
   SysUtils, Contnrs,
   glr, glrMath, glrUtils, glrSound,
-  uShip, uPause, uSpace, uProjectiles;
+  uShip, uPause, uSpace, uProjectiles, uHud, uParticles;
 
 const
   GAMEVERSION = '0.01';
@@ -16,6 +16,7 @@ const
   Z_STARS = -50;
   Z_PLAYER = 0;
   Z_ENEMY = 10;
+  Z_PARTICLES = 25;
   Z_HUD = 75;
   Z_INGAMEMENU = 90;
 
@@ -36,6 +37,10 @@ const
   SHIP_TEXTURE = 'player.png';
   FLAME_TEXTURE = 'flame.png';
   ROCKET_TEXTURE = 'rocket.png';
+  HEALTH_TEXTURE = 'health.png';
+  FRAME_RECT_TEXTURE = 'frame_rect.png';
+  FRAME_LONG_TEXTURE = 'frame_long.png';
+  AMMO_TEXTURE = 'bullets.png';
 
   BTN_TEXT_OFFSET_X = -50;
   BTN_TEXT_OFFSET_Y = -15;
@@ -60,6 +65,9 @@ var
   pauseMenu: TpdPauseMenu;
   projectiles: TpdProjectilesAccum;
   projectilesDummy: IglrNode;
+  hud: TpdHud;
+  particles: TpdParticles;
+  particlesDummy: IglrNode;
 
   UseNewtonDynamics: Boolean = True;
 
@@ -91,6 +99,8 @@ var
 
   turretsPositions: array[0..2] of TdfVec2f = ((x: 100; y: 100), (x: 800; y: 200), (x: 600; y: 500));
 
+  texParticle: IglrTexture;
+
 procedure InitializeGlobal();
 procedure FinalizeGlobal();
 
@@ -110,6 +120,7 @@ begin
   projectiles := TpdProjectilesAccum.Create(128);
 
   atlasMain := TglrAtlas.InitCheetahAtlas(FILE_MAIN_TEXTURE_ATLAS);
+  texParticle := atlasMain.LoadTexture(PARTICLE_TEXTURE);
 
   //--Font
   fontSouvenir := Factory.NewFont();
@@ -133,11 +144,19 @@ begin
   R.RegisterScene(hudScene);
 
   pauseMenu := TpdPauseMenu.Create();
+
+  hud := TpdHud.Create();
+
+  particlesInternalZ := 0;
+  particlesDummy := Factory.NewNode();
+  particles := TpdParticles.Create(32);
 end;
 
 procedure FinalizeGlobal();
 begin
+  FreeAndNil(hud);
   projectiles.Free();
+  particles.Free();
   projectilesDummy := nil;
   ships.Free();
   sound.Free();
@@ -154,13 +173,6 @@ var
   i: Integer;
   turret: TpdEnemyTurret;
 begin
-  ships.Clear();
-  //if Assigned(player) then
-  //  FreeAndNil(player);
-  if Assigned(space) then
-    FreeAndNil(space);
-  mainScene.RootNode.RemoveAllChilds();
-
   player := TpdPlayer.Create();
   ships.Add(player);
   player.Body.Position := playerOffset;
@@ -168,6 +180,7 @@ begin
   space := TpdSpace.Create(3);
 
   mainScene.RootNode.AddChild(projectilesDummy);
+  mainScene.RootNode.AddChild(particlesDummy);
 
   for i := 0 to Length(turretsPositions) - 1 do
   begin
@@ -179,9 +192,12 @@ end;
 
 procedure GameEnd();
 begin
+  mainScene.RootNode.RemoveAllChilds();
   ships.Clear();
+  projectilesDummy.RemoveAllChilds();
   projectiles.Clear();
-  //FreeAndNil(player);
+  particlesDummy.RemoveAllChilds();
+  particles.Clear();
   FreeAndNil(space);
 end;
 

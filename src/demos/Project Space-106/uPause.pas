@@ -12,7 +12,9 @@ type
     FPauseText: IglrText;
     FBtnContinue, FBtnReplay, FBtnExit: IglrGUITextButton;
     procedure InitializeButton(var Button: IglrGUITextButton; aText: WideString; X, Y: Single);
+    function GetActive(): Boolean;
   public
+    property IsActive: Boolean read GetActive;
     constructor Create(); virtual;
     destructor Destroy(); override;
 
@@ -37,6 +39,7 @@ begin
     else if Sender = (FBtnReplay as IglrGUIElement) then
     begin
       ShowOrHide();
+      GameEnd();
       GameStart();
     end
     else if Sender = (FBtnExit as IglrGUIElement) then
@@ -152,6 +155,11 @@ begin
   FCont.RemoveAllChilds();
   hudScene.RootNode.RemoveChild(FCont);
   inherited;
+end;
+
+function TpdPauseMenu.GetActive: Boolean;
+begin
+  Result := FCont.Visible;
 end;
 
 procedure TpdPauseMenu.Update(const dt: Double);

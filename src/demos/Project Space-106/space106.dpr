@@ -14,10 +14,12 @@ uses
   uPause in 'uPause.pas',
   uSpace in 'uSpace.pas',
   uProjectiles in 'uProjectiles.pas',
-  uAccum in 'uAccum.pas';
+  uAccum in 'uAccum.pas',
+  uHud in 'uHud.pas',
+  uParticles in 'uParticles.pas';
 
 var
-  bigPause, pause: Boolean;
+  bigPause{, pause}: Boolean;
   debug: IglrText;
 
   procedure CameraUpdate(const dt: Double);
@@ -26,13 +28,13 @@ var
   end;
 
   procedure OnUpdate(const dt: Double);
-var
-  i: Integer;
+  var
+    i: Integer;
   begin
     if R.Input.IsKeyPressed(VK_ESCAPE) then
     begin
       pauseMenu.ShowOrHide();
-      pause := True;
+      //pause := True;
     end;
 
     if R.Input.IsKeyPressed(VK_PAUSE) then
@@ -43,7 +45,7 @@ var
       mousePosAtScene := mousePos + dfVec2f(R.Camera.Position);
       Tweener.Update(dt);
 
-      if not pause then
+      if not pauseMenu.IsActive then
       begin
         //Main code here
         for i := 0 to ships.Count - 1 do
@@ -52,6 +54,7 @@ var
         space.Update(dt);
         CameraUpdate(dt);
         projectiles.Update(dt);
+        particles.Update(dt);
 
         if R.Input.IsKeyPressed(VK_N) then
         begin
@@ -71,10 +74,13 @@ var
   procedure OnMouseDown(X, Y: Integer; MouseButton: TglrMouseButton;
     Shift: TglrMouseShiftState);
   begin
-    if MouseButton = TglrMouseButton.mbLeft then
-      player.FireBlaster()
-    else if MouseButton = TglrMouseButton.mbRight then
-      player.FireLaserBeam();
+    if not pauseMenu.IsActive then
+    begin
+      if MouseButton = TglrMouseButton.mbLeft then
+        player.FireBlaster()
+      else if MouseButton = TglrMouseButton.mbRight then
+        player.FireLaserBeam();
+    end;
   end;
 
   procedure OnMouseUp(X, Y: Integer; MouseButton: TglrMouseButton;

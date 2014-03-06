@@ -11,10 +11,12 @@ const
 
   NOT_NEWTON_SPEED_FADE = 0.5;
   HANDBRAKE_SPEED_FADE = 1.0;
+  EXHAUST_PARTICLES_TIMEOUT = 0.1;
 
 type
   TpdShip = class
   protected
+    tExhaustParticles1, tExhaustParticles2: Single;
     ForwardMovement, SideMovement: ShortInt;
     procedure Control(const dt: Double); virtual; abstract;
   public
@@ -32,6 +34,7 @@ type
 
     procedure FireBlaster();
     procedure FireLaserBeam();
+    procedure FireRocket(aTarget: TpdShip);
   end;
 
 
@@ -84,6 +87,7 @@ begin
     PivotPoint := ppCenter;
     Material.Texture := atlasMain.LoadTexture(FLAME_TEXTURE);
     Material.Diffuse := scolorWhite;
+//    Material.PDiffuse.w := 0.7;
     UpdateTexCoords();
     SetSizeToTextureSize();
     Position := dfVec3f(-45, 0, -1);
@@ -96,6 +100,7 @@ begin
     PivotPoint := ppCenter;
     Material.Texture := atlasMain.LoadTexture(FLAME_TEXTURE);
     Material.Diffuse := scolorWhite;
+//    Material.PDiffuse.w := 0.7;
     UpdateTexCoords();
     SetSizeToTextureSize();
     Position := dfVec3f(-15, 55, -1);
@@ -135,6 +140,11 @@ begin
   end;
 end;
 
+procedure TpdShip.FireRocket(aTarget: TpdShip);
+begin
+
+end;
+
 procedure TpdShip.Update(const dt: Double);
 begin
   if not Enabled then
@@ -163,6 +173,20 @@ begin
       FlameSide.Rotation := 90
     else
       FlameSide.Rotation := 270;
+
+    tExhaustParticles1 := tExhaustParticles1 - dt;
+    tExhaustParticles2 := tExhaustParticles2 - dt;
+    if (ForwardMovement <> 0) and (tExhaustParticles1 <= 0) then
+    begin
+      tExhaustParticles1 := EXHAUST_PARTICLES_TIMEOUT;
+      particles.AddEngineExhaust(dfVec2f(Body.ModelMatrix * FlameForward.Position), Direction * ForwardMovement);
+    end;
+
+    if (SideMovement <> 0) and (tExhaustParticles2 <= 0) then
+    begin
+      tExhaustParticles2 := EXHAUST_PARTICLES_TIMEOUT;
+      particles.AddEngineExhaust(dfVec2f(Body.ModelMatrix * FlameSide.Position), Left * SideMovement);
+    end;
 
     if not UseNewtonDynamics and (ForwardMovement = 0) and (SideMovement = 0) then
       Velocity := Velocity * (1 - NOT_NEWTON_SPEED_FADE * dt);

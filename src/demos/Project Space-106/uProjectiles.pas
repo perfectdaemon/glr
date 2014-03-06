@@ -19,6 +19,7 @@ type
   private
     lbCounter: Single; //—четчик времени до исчезани€ луча (laser beam)
   protected
+    FTarget: TpdShip;
     FPrType: TpdProjectileType;
     FInitialPosition: TdfVec2f;
     FVelocity: TdfVec2f;
@@ -27,6 +28,7 @@ type
     procedure SetVelocity(const aValue: TdfVec2f);
     procedure SetType(const aType: TpdProjectileType);
     procedure SetMaxRange(const aValue: Single);
+    procedure SetTarget(const aValue: TpdShip);
   public
     Sprite: IglrSprite;
 
@@ -43,6 +45,8 @@ type
     property InitialPosition: TdfVec2f read FInitialPosition write SetInitialPosition;
     property Velocity: TdfVec2f read FVelocity write SetVelocity;
     property MaxRange: Single read FMaxRange write SetMaxRange;
+
+    property Target: TpdShip read FTarget write SetTarget;
   end;
 
   TpdProjectilesAccum = class (TpdAccum)
@@ -95,6 +99,11 @@ begin
   FMaxRange := aValue;
 end;
 
+procedure TpdProjectile.SetTarget(const aValue: TpdShip);
+begin
+  FTarget := aValue;
+end;
+
 procedure TpdProjectile.SetType(const aType: TpdProjectileType);
 begin
   FPrType := aType;
@@ -109,7 +118,12 @@ begin
       end;
       MaxRange := LASER_BULLET_RANGE;
     end;
-    ptRocket: ;
+
+    ptRocket:
+    begin
+
+    end;
+
     ptLaserBeam:
     begin
       lbCounter := LASER_BEAM_TIME;
