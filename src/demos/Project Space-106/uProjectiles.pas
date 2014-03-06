@@ -3,7 +3,7 @@ unit uProjectiles;
 interface
 
 uses
-  glr, glrMath,
+  glr, glrMath, uShip,
   uAccum;
 
 const
@@ -19,12 +19,18 @@ type
   private
     lbCounter: Single; //Счетчик времени до исчезания луча (laser beam)
   protected
+    FPrType: TpdProjectileType;
+    FInitialPosition: TdfVec2f;
+    FVelocity: TdfVec2f;
+    FMaxRange: Single;
+    procedure SetInitialPosition(const aValue: TdfVec2f);
+    procedure SetVelocity(const aValue: TdfVec2f);
+    procedure SetType(const aType: TpdProjectileType);
+    procedure SetMaxRange(const aValue: Single);
   public
-    PrType: TpdProjectileType;
     Sprite: IglrSprite;
-    InitialPosition: TdfVec2f;
-    Velocity: TdfVec2f;
-    MaxRange: Single;
+
+    FromShip: TpdShip;
 
     {Процедура вызывается после создания нового объекта, т. е. один раз за все время}
     procedure OnCreate(); override;
@@ -33,7 +39,10 @@ type
     {Процедура вызывается, когда обект помещают в аккумулятор}
     procedure OnFree(); override;
 
-    procedure SetType(aType: TpdProjectileType);
+    property ProjectileType: TpdProjectileType read FPrType write SetType;
+    property InitialPosition: TdfVec2f read FInitialPosition write SetInitialPosition;
+    property Velocity: TdfVec2f read FVelocity write SetVelocity;
+    property MaxRange: Single read FMaxRange write SetMaxRange;
   end;
 
   TpdProjectilesAccum = class (TpdAccum)
@@ -48,6 +57,7 @@ type
 implementation
 
 uses
+  dfTweener,
   uGlobal;
 
 { TpdProjectile }
@@ -56,7 +66,7 @@ procedure TpdProjectile.OnCreate;
 begin
   inherited;
   Sprite := Factory.NewSprite();
-  Sprite.SetCustomPivotPoint(0.5, 1.0);
+  Sprite.SetCustomPivotPoint(0.0, 0.5);
   projectilesDummy.AddChild(Sprite);
   OnFree();
 end;
@@ -70,21 +80,31 @@ end;
 procedure TpdProjectile.OnGet;
 begin
   inherited;
-  PrType := ptLaserBullet;
-
+  ProjectileType := ptLaserBullet;
   Sprite.Visible := True;
 end;
 
-procedure TpdProjectile.SetType(aType: TpdProjectileType);
+procedure TpdProjectile.SetInitialPosition(const aValue: TdfVec2f);
 begin
-  PrType := aType;
+  FInitialPosition := aValue;
+  Sprite.Position2D := InitialPosition;
+end;
+
+procedure TpdProjectile.SetMaxRange(const aValue: Single);
+begin
+  FMaxRange := aValue;
+end;
+
+procedure TpdProjectile.SetType(const aType: TpdProjectileType);
+begin
+  FPrType := aType;
   case aType of
     ptLaserBullet:
     begin
       with Sprite do
       begin
-        Width := 3;
-        Height := 21;
+        Width := 21;
+        Height := 3;
         Material.Diffuse := scolorRed;
       end;
       MaxRange := LASER_BULLET_RANGE;
@@ -95,13 +115,19 @@ begin
       lbCounter := LASER_BEAM_TIME;
       with Sprite do
       begin
-        Width := 3;
-        Height := LASER_BEAM_RANGE;
+        Width := LASER_BEAM_RANGE;
+        Height := 3;
         Material.Diffuse := scolorBlue;
         Material.Texture.BlendingMode := tbmTransparency;
       end;
     end;
   end;
+end;
+
+procedure TpdProjectile.SetVelocity(const aValue: TdfVec2f);
+begin
+  FVelocity := aValue;
+  Sprite.Rotation := Velocity.GetRotationAngle();
 end;
 
 { TpdProjectilesAccum }
@@ -118,18 +144,26 @@ end;
 
 procedure TpdProjectilesAccum.Update(const dt: Single);
 var
-  i: Integer;
+  i, j: Integer;
 begin
   for i := 0 to Length(Items) - 1 do
     if Items[i].Used then
       with TpdProjectile(Items[i]) do
       begin
-        if PrType = ptLaserBeam then
+        if ProjectileType = ptLaserBeam then
         begin
           lbCounter := lbCounter - dt;
           Sprite.Material.PDiffuse.w := lbCounter / LASER_BEAM_TIME;
           if lbCounter <= 0 then
             FreeItem(Items[i]);
+
+          for j := 0 to ships.Count - 1 do
+            if FromShip = TpdShip(ships[j]) then
+              continue
+            else
+              if LineCircleIntersect(InitialPosition, Velocity, TpdShip(ships[j]).Body.Position2D, TpdShip(ships[j]).Body.Width / 2 + 5) then
+                Tweener.AddTweenPSingle(@TpdShip(ships[j]).Body.Material.PDiffuse.w, tsElasticEaseIn, 0.2, 1.0, 2.0, 0.2);
+
         end
         else
         begin

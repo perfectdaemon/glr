@@ -15,11 +15,12 @@ const
 type
   TpdShip = class
   protected
+    ForwardMovement, SideMovement: ShortInt;
     procedure Control(const dt: Double); virtual; abstract;
   public
     Enabled: Boolean;
     FixedPosition: Boolean;
-    Body, Flame: IglrSprite;
+    Body, FlameForward, FlameSide: IglrSprite;
     Direction, Left: TdfVec2f;
 
     Velocity: TdfVec2f;
@@ -63,7 +64,8 @@ begin
   Enabled := True;
   FixedPosition := False;
   Body := Factory.NewSprite();
-  Flame := Factory.NewSprite();
+  FlameForward := Factory.NewSprite();
+  FlameSide := Factory.NewSprite();
 
   with Body do
   begin
@@ -73,17 +75,31 @@ begin
     UpdateTexCoords();
     SetSizeToTextureSize();
     Position := dfVec3f(0, 0, 0);
-    AddChild(Flame);
+    AddChild(FlameForward);
+    AddChild(FlameSide);
   end;
 
-  with Flame do
+  with FlameForward do
   begin
     PivotPoint := ppCenter;
     Material.Texture := atlasMain.LoadTexture(FLAME_TEXTURE);
     Material.Diffuse := scolorWhite;
     UpdateTexCoords();
     SetSizeToTextureSize();
-    Position := dfVec3f(0, 45, -1);
+    Position := dfVec3f(-45, 0, -1);
+
+    Visible := False;
+  end;
+
+  with FlameSide do
+  begin
+    PivotPoint := ppCenter;
+    Material.Texture := atlasMain.LoadTexture(FLAME_TEXTURE);
+    Material.Diffuse := scolorWhite;
+    UpdateTexCoords();
+    SetSizeToTextureSize();
+    Position := dfVec3f(-15, 55, -1);
+    Rotation := 90;
 
     Visible := False;
   end;
@@ -101,11 +117,10 @@ procedure TpdShip.FireBlaster;
 begin
   with projectiles.GetItem() do
   begin
-    SetType(ptLaserBullet);
+    ProjectileType := ptLaserBullet;
     InitialPosition := Body.Position2D;
-    Sprite.Position2D := InitialPosition;
     Velocity := Direction * LASER_BULLET_VELOCITY_MAGNITUDE;
-    Sprite.Rotation := Direction.GetRotationAngle();
+    FromShip := Self;
   end;
 end;
 
@@ -113,11 +128,10 @@ procedure TpdShip.FireLaserBeam;
 begin
   with projectiles.GetItem() do
   begin
-    SetType(ptLaserBeam);
+    ProjectileType := ptLaserBeam;
     InitialPosition := Body.Position2D;
-    Sprite.Position2D := InitialPosition;
-//    Velocity := Direction * LASER_BULLET_VELOCITY_MAGNITUDE;
-    Sprite.Rotation := Direction.GetRotationAngle();
+    Velocity := Direction * LASER_BULLET_VELOCITY_MAGNITUDE;
+    FromShip := Self;
   end;
 end;
 
@@ -126,13 +140,38 @@ begin
   if not Enabled then
     Exit();
 
+  ForwardMovement := 0;
+  SideMovement := 0;
+
   Control(dt);
 
-  Direction := dfVec2f(Body.Rotation - 90);
+  Direction := dfVec2f(Body.Rotation);
   Left := dfVec2f(Direction.y, -Direction.x);
 
   if not FixedPosition then
   begin
+    FlameForward.Visible := ForwardMovement <> 0;
+    FlameSide.Visible := SideMovement <> 0;
+
+    FlameForward.PPosition.x := -45 * ForwardMovement;
+    if ForwardMovement > 0 then
+      FlameForward.Rotation := 0
+    else
+      FlameForward.Rotation := 180;
+    FlameSide.PPosition.y := 55 * SideMovement;
+    if SideMovement < 0 then
+      FlameSide.Rotation := 90
+    else
+      FlameSide.Rotation := 270;
+
+    if not UseNewtonDynamics and (ForwardMovement = 0) and (SideMovement = 0) then
+      Velocity := Velocity * (1 - NOT_NEWTON_SPEED_FADE * dt);
+
+
+    Velocity := Velocity
+      + Direction * ForwardMovement * dt * ACCEL
+      + Left * SideMovement * dt * ACCEL;
+
     Velocity := Velocity.Clamp(0, VELOCITY_MAX);
     Body.Position2D := Body.Position2D + Velocity * dt;
   end;
@@ -145,22 +184,16 @@ begin
   Body.Rotation := LerpAngles(Body.Rotation, (uGlobal.mousePosAtScene - Body.Position2D).GetRotationAngle(), dt * 10);
 
   if R.Input.IsKeyDown(VK_W) then
-    Velocity := Velocity + Direction * dt * ACCEL
+    ForwardMovement := 1
   else if R.Input.IsKeyDown(VK_S) then
-    Velocity := Velocity - Direction * dt * ACCEL;
+    ForwardMovement := -1;
   if R.Input.IsKeyDown(VK_D) then
-    Velocity := Velocity - Left * dt * ACCEL
+    SideMovement := -1
   else if R.Input.IsKeyDown(VK_A) then
-    Velocity := Velocity + Left * dt * ACCEL;
+    SideMovement := 1;
 
   if R.Input.IsKeyDown(VK_SPACE) then
     Velocity := Velocity * (1 - HANDBRAKE_SPEED_FADE * dt);
-
-  with R.Input do
-    Flame.Visible := IsKeyDown(VK_W) or IsKeyDown(VK_S) or IsKeyDown(VK_D) or IsKeyDown(VK_A);
-
-  if not UseNewtonDynamics and not Flame.Visible then
-    Velocity := Velocity * (1 - NOT_NEWTON_SPEED_FADE * dt);
 end;
 
 constructor TpdPlayer.Create;
