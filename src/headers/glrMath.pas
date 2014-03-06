@@ -194,6 +194,8 @@ function Min(x, y: Integer): Integer; overload; inline;
 function Sign(x: Single): Integer; inline;
 
 function IsPointInBox(aPoint: TdfVec2f; aMin, aMax: TdfVec2f): Boolean;
+function LineCircleIntersect(aLineStart, aLineVec: TdfVec2f;
+  aCircleCenter: TdfVec2f; aRadius: Single): Boolean;
 
 function Ceil(const X: Extended): Integer;
 function Floor(const X: Extended): Integer;
@@ -274,6 +276,21 @@ function IsPointInBox(aPoint: TdfVec2f; aMin, aMax: TdfVec2f): Boolean;
 begin
   Result := (aPoint.x >= aMin.x) and (aPoint.x <= aMax.x) and
     (aPoint.y >= aMin.y) and (aPoint.y <= aMax.y);
+end;
+
+function LineCircleIntersect(aLineStart, aLineVec: TdfVec2f;
+  aCircleCenter: TdfVec2f; aRadius: Single): Boolean;
+var
+  lineStartToCenter: TdfVec2f;
+  cosine, sine, lineProjLength, dist, angle: Single;
+begin
+  lineStartToCenter := (aCircleCenter - aLineStart);
+  cosine := lineStartToCenter.Normal.Dot(aLineVec.Normal);
+  angle := arccos(cosine);
+  sine := sqrt(1 - sqr(cosine));
+  lineProjLength := Abs(cosine * lineStartToCenter.Length);
+  dist := Abs(sine * lineStartToCenter.Length);
+  Result := (dist < aRadius);// and (sqr(lineProjLength) > aLineVec.LengthQ);
 end;
 
 function Ceil(const X: Extended): Integer;
@@ -637,7 +654,7 @@ end;
 
 function TdfVec2f.GetRotationAngle(): Single;
 begin
-  Result := 90 + ArcTan2(y, x) *  rad2deg;
+  Result := {90 + }ArcTan2(y, x) *  rad2deg;
 //  if y > 0 then
 //    Result := 90 + rad2deg * ArcCos(x)
 //  else
