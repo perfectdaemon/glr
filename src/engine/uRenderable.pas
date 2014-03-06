@@ -281,10 +281,11 @@ begin
     end;
     ppCenter:
     begin
-      FCoords[0] := dfVec2f(FWidth * FScale.x, FHeight * FScale.y) * 0.5;
-      FCoords[1] := dfVec2f(FWidth * FScale.x, -FHeight * FScale.y) * 0.5;
-      FCoords[2] := dfVec2f(-FWidth * FScale.x, -FHeight * FScale.y) * 0.5;
-      FCoords[3] := dfVec2f(-FWidth * FScale.x, FHeight * FScale.y) * 0.5;
+      //Попытка исправить "мыло"
+      FCoords[0] := dfVec2f(FWidth * FScale.x, FHeight * FScale.y) * 0.51;
+      FCoords[1] := dfVec2f(FWidth * FScale.x, -FHeight * FScale.y) * 0.49;
+      FCoords[2] := dfVec2f(-FWidth * FScale.x, -FHeight * FScale.y) * 0.51;
+      FCoords[3] := dfVec2f(-FWidth * FScale.x, FHeight * FScale.y) * 0.49;
     end;
     ppTopCenter:
     begin
