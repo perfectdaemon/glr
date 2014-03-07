@@ -30,6 +30,7 @@ type
     procedure Update(const dt: Single);
 
     procedure AddEngineExhaust(aPos, aDir: TdfVec2f);
+    procedure AddRocketSelfExplosion(aPos: TdfVec2f);
   end;
 
 var
@@ -96,6 +97,30 @@ begin
       spr.Width := spr.Width * (0.3 + Random());
       spr.Height := spr.Width;
       moveDir := aDir + (1 - Random(2)) * dfVec2f(aDir.y, -aDir.x);
+      speed := 30 + Random(30);
+      spr.Material.Diffuse := color;
+    end;
+end;
+
+procedure TpdParticles.AddRocketSelfExplosion(aPos: TdfVec2f);
+var
+  i, count: Integer;
+  color: TdfVec4f;
+begin
+  count := 15 + Random(5);
+  for i := 0 to count - 1 do
+    with GetItem() do
+    begin
+      if Random() < 0.5 then
+        color := scolorWhite
+      else
+        color := scolorRed;
+      startAlpha := Random();
+      spr.Position2D := aPos;
+      spr.Rotation := Random(360);
+      spr.Width := spr.Width * (0.3 + Random());
+      spr.Height := spr.Width;
+      moveDir := dfVec2f(Random(360));
       speed := 30 + Random(30);
       spr.Material.Diffuse := color;
     end;

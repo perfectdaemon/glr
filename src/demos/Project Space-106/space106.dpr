@@ -32,10 +32,7 @@ var
     i: Integer;
   begin
     if R.Input.IsKeyPressed(VK_ESCAPE) then
-    begin
       pauseMenu.ShowOrHide();
-      //pause := True;
-    end;
 
     if R.Input.IsKeyPressed(VK_PAUSE) then
       bigPause := not bigPause;
@@ -55,6 +52,7 @@ var
         CameraUpdate(dt);
         projectiles.Update(dt);
         particles.Update(dt);
+        hud.Update(dt);
 
         if R.Input.IsKeyPressed(VK_N) then
         begin
@@ -79,7 +77,9 @@ var
       if MouseButton = TglrMouseButton.mbLeft then
         player.FireBlaster()
       else if MouseButton = TglrMouseButton.mbRight then
-        player.FireLaserBeam();
+        player.FireLaserBeam()
+      else if MouseButton = TglrMouseButton.mbMiddle then
+        player.FireRocket(hud.Target);
     end;
   end;
 

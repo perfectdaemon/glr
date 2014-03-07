@@ -12,6 +12,9 @@ const
   LASER_BEAM_TIME = 0.7;
   LASER_BEAM_RANGE = 550;
 
+  ROCKET_VELOCITY_MAGNITUDE = 100;
+  ROCKET_TIME = 8;
+
 type
   TpdProjectileType = (ptLaserBullet, ptRocket, ptLaserBeam);
 
@@ -71,6 +74,7 @@ begin
   inherited;
   Sprite := Factory.NewSprite();
   Sprite.SetCustomPivotPoint(0.0, 0.5);
+  Sprite.Material.Texture.BlendingMode := tbmTransparency;
   projectilesDummy.AddChild(Sprite);
   OnFree();
 end;
@@ -110,18 +114,26 @@ begin
   case aType of
     ptLaserBullet:
     begin
+      MaxRange := LASER_BULLET_RANGE;
       with Sprite do
       begin
         Width := 21;
         Height := 3;
         Material.Diffuse := scolorRed;
+        Material.Texture := texEmpty;
       end;
-      MaxRange := LASER_BULLET_RANGE;
     end;
 
     ptRocket:
     begin
-
+      lbCounter := ROCKET_TIME;
+      with Sprite do
+      begin
+        Material.Texture := texRocket;
+        Material.Diffuse := scolorWhite;
+        UpdateTexCoords();
+        SetSizeToTextureSize();
+      end;
     end;
 
     ptLaserBeam:
@@ -132,7 +144,7 @@ begin
         Width := LASER_BEAM_RANGE;
         Height := 3;
         Material.Diffuse := scolorBlue;
-        Material.Texture.BlendingMode := tbmTransparency;
+        Material.Texture := texEmpty;
       end;
     end;
   end;
@@ -179,13 +191,24 @@ begin
                 Tweener.AddTweenPSingle(@TpdShip(ships[j]).Body.Material.PDiffuse.w, tsElasticEaseIn, 0.2, 1.0, 2.0, 0.2);
 
         end
-        else
+        else if ProjectileType = ptLaserBullet then             
         begin
           Sprite.Position2D := Sprite.Position2D + Velocity * dt;
           if (Sprite.Position2D - InitialPosition).LengthQ > Sqr(MaxRange) then
             FreeItem(Items[i]);
         end
-
+        else if ProjectileType = ptRocket then
+        begin
+          lbCounter := lbCounter - dt;
+          if lbCounter <= 0 then
+          begin
+            FreeItem(Items[i]);
+            particles.AddRocketSelfExplosion(Sprite.Position2D);
+          end;
+          Sprite.Position2D := Sprite.Position2D + Velocity * dt;
+          Velocity := Velocity.Normal.Lerp((Target.Body.Position2D - Sprite.Position2D).Normal, dt).Normal * ROCKET_VELOCITY_MAGNITUDE;
+          Sprite.Rotation := Velocity.GetRotationAngle(); //LerpAngles(Sprite.Rotation, (Target.Body.Position2D - Sprite.Position2D).GetRotationAngle, dt);
+        end;
       end;
 end;
 

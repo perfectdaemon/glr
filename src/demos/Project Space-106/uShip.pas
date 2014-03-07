@@ -47,6 +47,7 @@ type
 
   TpdEnemyTurret = class (TpdShip)
   protected
+    cooldown: Single;
     procedure Control(const dt: Double); override;
   public
     constructor Create(); override;
@@ -142,7 +143,15 @@ end;
 
 procedure TpdShip.FireRocket(aTarget: TpdShip);
 begin
-
+  if Assigned(aTarget) then
+    with projectiles.GetItem() do
+    begin
+      ProjectileType := ptRocket;
+      Target := aTarget;
+      InitialPosition := Body.Position2D;
+      Velocity := (aTarget.Body.Position2D - Body.Position2D).Normal * ROCKET_VELOCITY_MAGNITUDE;
+      FromShip := Self;
+    end;
 end;
 
 procedure TpdShip.Update(const dt: Double);
@@ -197,7 +206,8 @@ begin
       + Left * SideMovement * dt * ACCEL;
 
     Velocity := Velocity.Clamp(0, VELOCITY_MAX);
-    Body.Position2D := Body.Position2D + Velocity * dt;
+    if Velocity.LengthQ > sqr(1) then
+      Body.Position2D := Body.Position2D + Velocity * dt;
   end;
 end;
 
@@ -231,6 +241,12 @@ end;
 procedure TpdEnemyTurret.Control(const dt: Double);
 begin
   Body.Rotation := LerpAngles(Body.Rotation, (uGlobal.player.Body.Position2D - Body.Position2D).GetRotationAngle(), dt * 1);
+  cooldown := cooldown - dt;
+  if cooldown <= 0 then
+  begin
+    FireRocket(player);
+    cooldown := 5 + Random(2);
+  end;
 end;
 
 constructor TpdEnemyTurret.Create;
@@ -239,6 +255,7 @@ begin
   FixedPosition := True;
   Body.Material.Diffuse := scolorRed;
   Body.PPosition.z := Z_ENEMY;
+  cooldown := 4;
 end;
 
 end.
