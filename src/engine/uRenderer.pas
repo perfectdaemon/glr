@@ -835,6 +835,7 @@ var
 
   cFOV, cZNear, cZFar: Single;
   bVSync, bCursor: Boolean;
+  useMultisample: Boolean;
   msFormat: Integer;
 
   procedure LoadSettings();
@@ -957,6 +958,11 @@ var
         par.NextToken;
         camUp.z := par.TokenFloat;
       end
+      else if par.TokenString = 'multisample' then
+      begin
+        par.NextToken();
+        useMultisample := (par.TokenString() = 'true');
+      end;
 
     until par.NextToken = toEOF;
     par.Free;
@@ -1029,13 +1035,14 @@ begin
     InitWindow();
     OpenGLInitContext(0); //обычный pixel format
     msFormat := 0;
-    if TryGetMultisampleFormat(msFormat) then
-    begin
-      FreeContext();
-      FreeWindow();
-      InitWindow();
-      OpenGLInitContext(msFormat);
-    end;
+    if useMultisample then
+      if TryGetMultisampleFormat(msFormat) then
+      begin
+        FreeContext();
+        FreeWindow();
+        InitWindow();
+        OpenGLInitContext(msFormat);
+      end;
 
     OpenGLInit(bVSync, cFOV, cZNear, cZFar, camPos, camLook, camUp);
 
