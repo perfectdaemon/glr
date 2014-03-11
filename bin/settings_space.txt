@@ -15,3 +15,4 @@ zFar 500
 cameraPos 0 0 5
 cameraLook 0 0 0
 cameraUp 0 1 0
+multisample false
