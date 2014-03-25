@@ -383,8 +383,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.0000001"
-     inkscape:cx="220.42281"
-     inkscape:cy="434.13467"
+     inkscape:cx="191.56865"
+     inkscape:cy="494.91229"
      inkscape:current-layer="layer1"
      inkscape:document-units="px"
      showgrid="false"
@@ -415,7 +415,9 @@
        width="406.73611"
        height="315.5965"
        x="19.091883"
-       y="111.0978" />
+       y="111.0978"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
     <g
        id="target"
        transform="translate(-134.5,-90.5)"
@@ -749,7 +751,8 @@
     <g
        mask="url(#mask6158)"
        transform="translate(-92.000001,32)"
-       id="g5806">
+       id="wall"
+       inkscape:label="#g5806">
       <rect
          style="fill:url(#linearGradient6082);fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
          id="rect5808"
