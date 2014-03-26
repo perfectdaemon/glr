@@ -1,7 +1,6 @@
 program wind107;
 uses
   Windows,
-  (*SysUtils,*)
   bass in '..\..\headers\bass.pas',
   dfTweener in '..\..\headers\dfTweener.pas',
   glr in '..\..\headers\glr.pas',
@@ -13,15 +12,22 @@ uses
   uGlobal in 'uGlobal.pas',
   uHud in 'uHud.pas',
   uParticles in 'uParticles.pas',
-  uPause in 'uPause.pas';
+  uPause in 'uPause.pas',
+  uArrow in 'uArrow.pas',
+  uLevel in 'uLevel.pas';
 
 var
   bigPause{, pause}: Boolean;
   debug: IglrText;
 
   procedure CameraUpdate(const dt: Double);
+  var
+    camPos: TdfVec3f;
   begin
-//    R.Camera.Position := player.Body.Position - playerOffset;
+    camPos := currentLevel.Arrow.Sprite.Position - cameraOffset;
+    camPos := camPos.Clamp(dfVec3f(0, currentLevel.Target.Position.y - 300, -100),
+      dfVec3f(R.WindowWidth, currentLevel.Arrow.StartPos.y + 100, 100));
+    R.Camera.Position := R.Camera.Position.Lerp(camPos, 2 * dt);
   end;
 
   procedure OnUpdate(const dt: Double);
@@ -32,6 +38,7 @@ var
     if R.Input.IsKeyPressed(VK_PAUSE) then
       bigPause := not bigPause;
 
+
     if not bigPause then
     begin
       mousePosAtScene := mousePos + dfVec2f(R.Camera.Position);
@@ -39,13 +46,25 @@ var
 
       if not pauseMenu.IsActive then
       begin
-        //Main code here
-        pauseMenu.Update(dt);
+        if R.Input.IsKeyPressed(VK_E) then
+          currentLevel.EditorMode := not currentLevel.EditorMode;
+
+        if not currentLevel.EditorMode then
+        begin
+          //Main code here
+          pauseMenu.Update(dt);
 
 
-        CameraUpdate(dt);
-        particles.Update(dt);
-        hud.Update(dt);
+          CameraUpdate(dt);
+          particles.Update(dt);
+          hud.Update(dt);
+        end
+        else
+        begin
+
+        end;
+
+        currentLevel.Update(dt);
       end;
     end;
   end;
@@ -82,7 +101,7 @@ begin
   R.OnMouseDown := OnMouseDown;
   R.OnMouseUp := OnMouseUp;
   R.Camera.ProjectionMode := pmOrtho;
-  R.WindowCaption := PWideChar('Unlucky shooter  [igdc#107]. Версия '
+  R.WindowCaption := PWideChar('Unlucky shooter [igdc#107]. Версия '
     + GAMEVERSION + ' [glRenderer ' + R.VersionText + ']');
   Factory := glrGetObjectFactory();
 
@@ -93,7 +112,18 @@ begin
   debug.Position := dfVec3f(500, 500, 50);
   hudScene.RootNode.AddChild(debug);
 
-  GameStart();
+  GameStart(-1);
+
+  //debgu
+  currentLevel.Arrow.Sprite.Position2D := dfVec2f(R.WindowWidth div 2, R.WindowHeight - 2 * currentLevel.Arrow.Sprite.Height);
+  currentLevel.Target.Position2D := dfVec2f(R.WindowWidth div 2, -900);
+  currentLevel.Arrow.MoveDir := dfVec2f(5, -360);
+
+  currentLevel.AddWall(dfVec2f(300, -100));
+  currentLevel.AddWall(dfVec2f(380, -400));
+
+  currentLevel.GenerateClouds();
+
   R.Start();
   GameEnd();
 

@@ -57,6 +57,8 @@
 			<DCCReference Include="uHud.pas"/>
 			<DCCReference Include="uParticles.pas"/>
 			<DCCReference Include="uPause.pas"/>
+			<DCCReference Include="uArrow.pas"/>
+			<DCCReference Include="uLevel.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

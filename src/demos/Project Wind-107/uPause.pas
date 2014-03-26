@@ -40,7 +40,7 @@ begin
     begin
       ShowOrHide();
       GameEnd();
-      GameStart();
+      GameStart(uGlobal.currentLevelIndex);
     end
     else if Sender = (FBtnExit as IglrGUIElement) then
       R.Stop();

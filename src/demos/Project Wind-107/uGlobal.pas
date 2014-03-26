@@ -4,7 +4,8 @@ interface
 
 uses
   glr, glrMath, glrUtils, glrSound,
-  uPause, uHud, uParticles;
+  uPause, uHud, uParticles,
+  uLevel;
 
 const
   GAMEVERSION = '0.01';
@@ -12,10 +13,12 @@ const
   RES_FOLDER = 'wind-res\';
 
   Z_BACKGROUND = -100;
-  Z_STARS = -50;
+  Z_TARGET = -5;
   Z_PLAYER = 0;
-  Z_ENEMY = 10;
+//  Z_ENEMY = 10;
+  Z_WALLS = -15;
   Z_PARTICLES = 25;
+  Z_CLOUDS = 50;
   Z_HUD = 75;
   Z_INGAMEMENU = 90;
 
@@ -32,15 +35,22 @@ const
 //  SLIDER_OVER = 'slider_over.png';
 //  SLIDER_BTN  = 'slider_btn.png';
 
-  PARTICLE_BOOM_TEXTURE  = 'particle.png';
+  PARTICLE_BOOM_TEXTURE  = 'boom.png';
 
   ARROW_TEXTURE = 'arrow.png';
   TARGET_TEXTURE = 'target.png';
   WALL_TEXTURE = 'wall.png';
+  CLOUD_TEXTURE = 'cloud.png';
 
 
   BTN_TEXT_OFFSET_X = -50;
   BTN_TEXT_OFFSET_Y = -15;
+
+  LEVEL_FILES: array[0..3] of WideString =
+    (RES_FOLDER + 'level0.dat',
+     RES_FOLDER + 'level1.dat',
+     RES_FOLDER + 'level2.dat',
+     RES_FOLDER + 'level3.dat');
 
 
 var
@@ -50,6 +60,9 @@ var
   mainScene, hudScene: Iglr2DScene;
 
   //Game objects
+  currentLevel: TpdLevel;
+  currentLevelIndex: Integer;
+  cameraOffset: TdfVec3f;
 
   //Game systems
   sound: TpdSoundSystem;
@@ -84,7 +97,7 @@ var
 procedure InitializeGlobal();
 procedure FinalizeGlobal();
 
-procedure GameStart();
+procedure GameStart(const LevelIndex: Integer);
 procedure GameEnd();
 
 implementation
@@ -92,9 +105,10 @@ implementation
 uses
   ogl;
 
-
 procedure InitializeGlobal();
 begin
+  cameraOffset := dfVec3f(R.WindowWidth div 2, R.WindowHeight div 2 + 300, Z_PLAYER);
+
   gl.ClearColor(79 / 255, 134 / 255, 70 / 255, 1.0);
   atlasMain := TglrAtlas.InitCheetahAtlas(FILE_MAIN_TEXTURE_ATLAS);
   texParticleBoom := atlasMain.LoadTexture(PARTICLE_BOOM_TEXTURE);
@@ -134,7 +148,7 @@ begin
   hudScene := nil;
 end;
 
-procedure GameStart();
+procedure GameStart(const LevelIndex: Integer);
 begin
   particlesInternalZ := 0;
   particlesDummy := Factory.NewNode();
@@ -143,10 +157,20 @@ begin
   mainScene.RootNode.AddChild(particlesDummy);
 
   hud := TpdHud.Create();
+
+  currentLevelIndex := LevelIndex;
+  Assert(LevelIndex < Length(LEVEL_FILES), 'Level index out of bounds');
+  currentLevel := TpdLevel.Create();
+  if LevelIndex <> -1 then
+    currentLevel.LoadFromFile(LEVEL_FILES[LevelIndex]);
+
+  //mainScene.SortFarthestFirst;
 end;
 
 procedure GameEnd();
 begin
+  currentLevel.Free();
+
   hud.Free();
   particles.Free();
   particlesDummy.RemoveAllChilds();

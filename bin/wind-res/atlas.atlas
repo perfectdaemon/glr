@@ -1,9 +1,8 @@
 textures: atlas.tga
 btn.png	1	1	224	35	0	0	224	35	
-player.png	1	38	65	81	0	0	65	81	
-rocket.png	68	38	37	31	0	0	37	31	
-bullets.png	107	38	37	31	0	0	37	31	
-health.png	146	38	32	31	0	0	32	31	
-selection.png	180	38	29	27	0	0	29	27	
+wall.png	1	38	181	69	28	0	239	69	
+target.png	1	109	123	124	0	0	123	124	
+arrow.png	126	109	114	18	0	0	114	18	
+cloud.png	126	129	80	57	0	0	80	57	
+boom.png	184	38	71	66	0	0	71	66	
 particle.png	227	1	24	28	5	4	36	36	
-flame.png	239	31	16	20	0	0	16	20	

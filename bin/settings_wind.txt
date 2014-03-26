@@ -1,7 +1,7 @@
 decimalseparator .
 //Окно
 rendermode window
-resolution 1000 600
+resolution 600 800
 windowPos 200 100
 backgroundColor 0.10 0.10 0.10
 caption ''
@@ -12,7 +12,7 @@ cursor true
 FOV 90
 zNear 0.1
 zFar 500
-cameraPos 0 0 5
+cameraPos 0 0 15
 cameraLook 0 0 0
 cameraUp 0 1 0
 multisample false
