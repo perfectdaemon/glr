@@ -1,9 +1,14 @@
+---
+###Development closed. Next iteration is [tiny-glr](http://github.com/perfectdaemon/tiny-glr)###
+---
+
+
+
 glr — glrenderer
 ===
 
 glrenderer — Delphi 2D game development framework (OpenGL, Bass, Box2D) for Windows platform. 
 
-**Status: frozen due to author's PL preferences changed**
 
 ###Showcase###
 [screenshots will be soon]
